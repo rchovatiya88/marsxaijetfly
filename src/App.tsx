@@ -1,12 +1,27 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 // Import custom fly controls
 import './components/custom-fly-controls';
 import './App.css';
+// Import Three.js shims first
+import './three-addons-shim.js';
+// Note: A-Frame and aframe-extras are now loaded in index.html
+import './aframe-init';
 
 // Extend Window interface for browser compatibility
 declare global {
     interface Window {
         AFRAME?: any;
+    }
+
+    namespace JSX {
+        interface IntrinsicElements {
+            'a-scene': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+            'a-entity': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+            'a-camera': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+            'a-sky': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+            'a-light': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+        }
     }
 }
 
@@ -69,7 +84,7 @@ function App(): JSX.Element {
                 const playerEl = document.querySelector('#player');
                 if (playerEl && (playerEl as any).object3D && (playerEl as any).components) {
                     const playerComponent = (playerEl as any).components['player-component'];
-                    
+
                     // Update altitude display
                     const altitude = Math.max(0, (playerEl as any).object3D.position.y - 1.6).toFixed(1);
                     const altitudeDisplay = document.getElementById('altitude-value');
@@ -83,7 +98,7 @@ function App(): JSX.Element {
                         const percentage = Math.min(100, (parseFloat(altitude) / maxHeight) * 100);
                         altitudeBar.style.width = `${percentage}%`;
                     }
-                    
+
                     // Update speed display
                     if (playerComponent) {
                         const velocity = playerComponent.velocity;
@@ -100,7 +115,7 @@ function App(): JSX.Element {
                                 const percentage = Math.min(100, (parseFloat(speed) / maxSpeed) * 100);
                                 speedBar.style.width = `${percentage}%`;
                             }
-                            
+
                             // Update motion blur effect for high speed
                             const motionBlur = document.getElementById('motion-blur');
                             if (motionBlur) {
@@ -117,7 +132,7 @@ function App(): JSX.Element {
             }
             requestAnimationFrame(updateDisplays);
         };
-        
+
         updateDisplays();
 
         return () => {
@@ -133,35 +148,46 @@ function App(): JSX.Element {
             document.body.requestPointerLock || 
             (document.body as any).mozRequestPointerLock ||
             (document.body as any).webkitRequestPointerLock;
-        
+
         // First set up the game components
         const playerEl = document.querySelector('#player');
         if (playerEl) {
-            // Enable custom fly controls
-            playerEl.setAttribute('custom-fly-controls', 'lookSpeed: 0.5; maxPitchAngle: 1.57');
+            // Disable the WASD controls from the camera to prevent conflicts
+            const cameraEl = playerEl.querySelector('#camera');
+            if (cameraEl) {
+                cameraEl.setAttribute('wasd-controls', 'enabled: false');
+                cameraEl.setAttribute('look-controls', 'enabled: false'); // Disable default look controls
+                console.log('Default camera controls disabled');
+            }
+
+            // Remove any existing controls first
+            playerEl.removeAttribute('custom-fly-controls');
             
+            // Enable custom fly controls with proper settings
+            playerEl.setAttribute('custom-fly-controls', 'lookSpeed: 0.5; maxPitchAngle: 1.57');
+
             // Keep existing fly controls enabled for movement
             playerEl.setAttribute('fly-controls', 'enabled: true');
             console.log('Fly controls explicitly enabled and configured');
         }
-        
+
         // Get game manager and start game
         const gameManagerEl = document.querySelector('[game-manager]');
         const gameManager = gameManagerEl ? (gameManagerEl as any).components['game-manager'] : null;
-        
+
         if (gameManager && gameManager.startGame) {
             gameManager.startGame();
             setGameStarted(true);
             setGamePaused(false);
         }
-        
+
         // Then request pointer lock
         document.body.requestPointerLock();
     };
 
     const resumeGame = (): void => {
         console.log('Resuming game and re-enabling pointer lock');
-        
+
         // Re-enable controls
         const playerEl = document.querySelector('#player');
         if (playerEl) {
@@ -169,13 +195,11 @@ function App(): JSX.Element {
             playerEl.setAttribute('custom-fly-controls', 'lookSpeed: 0.5; maxPitchAngle: 1.57');
             console.log('Fly controls re-enabled on resume');
         }
-        
+
         document.body.requestPointerLock();
         setGamePaused(false);
     };
 
-    // Rest of the code remains the same as in the previous version
-    // ... (include the entire rest of the existing App.tsx code)
     if (loading) {
         return (
             <div className="loading-screen">
@@ -189,10 +213,35 @@ function App(): JSX.Element {
     return (
         <div className="App">
             {/* Motion blur effect for high speed */}
-            <div className="motion-blur" id="motion-blur"></div>
-            
-            {/* Existing UI elements remain the same */}
-            {/* ... */}
+            <div id="motion-blur"></div>
+
+            <div id="crosshair">+</div>
+            <div id="health-display">
+                <div id="health-bar"></div>
+            </div>
+            <div id="ammo-display">30/∞</div>
+            <div id="score-ui">
+                <div>Level: <span id="level-value">1</span></div>
+                <div>Score: <span id="score-value">0</span></div>
+                <div>Enemies: <span id="enemies-value">5</span></div>
+            </div>
+            <div id="damage-overlay"></div>
+
+            {/* Game Message Overlay */}
+            {!gameStarted && (
+                <div id="game-message">
+                    Welcome to FPS Claude!<br />
+                    WASD to move, Mouse to aim, Click to shoot<br /><br />
+                    <button id="start-button" onClick={startGame}>Start Game</button>
+                </div>
+            )}
+
+            {gameStarted && gamePaused && (
+                <div id="pause-menu">
+                    <h2>Game Paused</h2>
+                    <button onClick={resumeGame}>Resume Game</button>
+                </div>
+            )}
 
             {/* A-Frame Scene */}
             <a-scene 
@@ -200,20 +249,63 @@ function App(): JSX.Element {
                 game-manager="enemyCount: 5; level: 1; spawnRadius: 15"
                 vr-mode-ui="enabled: false"
                 renderer="antialias: true; gammaOutput: true">
-                
-                {/* Existing entities remain the same */}
+
+                {/* Environment & Level */}
+                <a-entity 
+                    id="level"
+                    gltf-model="/models/level1.glb"
+                    position="0 5.9 -20"
+                    scale="1 1 1"></a-entity>
+
+                <a-entity 
+                    id="navmesh"
+                    gltf-model="/models/level1_navmesh.glb"
+                    position="0 5.9 -20"
+                    scale="1 1 1"
+                    visible="false"></a-entity>
+
                 <a-entity
                     id="player"
-                    player-component="health: 100; speed: 20; flyingEnabled: true; flyingSpeed: 30; maxFlyingHeight: 100; minFlyingHeight: 1.6; sprintMultiplier: 2.5; cameraDistance: 8; cameraHeight: 3"
+                    position="0 1.6 0"
+                    player-component
                     custom-fly-controls="lookSpeed: 0.5; maxPitchAngle: 1.57"
-                    fly-controls="enabled: true; movementSpeed: 25; rollSpeed: 0.05; pitchSpeed: 0.05; yawSpeed: 0.05; dragToLook: false"
-                    position="0 5 20"
-                    simple-navmesh-constraint="navmesh: #navmesh; fall: 5; height: 1.6; allowFlying: true; minFlyingHeight: 1.6">
+                    visible="true">
                     
-                    {/* Rest of the player entity remains the same */}
+                    <a-entity
+                        id="player-collision"
+                        geometry="primitive: box; width: 0.5; height: 1.6; depth: 0.5"
+                        material="color: red; opacity: 0.5"
+                        position="0 0.8 0"
+                        visible="false"></a-entity>
+                    
+                    <a-entity
+                        id="player-hitbox"
+                        geometry="primitive: box; width: 0.5; height: 1.6; depth: 0.5"
+                        material="color: red; opacity: 0.5"
+                        position="0 0.8 0"
+                        visible="false"></a-entity>
+                    
+                    <a-camera
+                        id="camera"
+                        position="0 1.6 0"
+                        look-controls="reverseMouseDrag: false; touchEnabled: true; pointerLockEnabled: true; magicWindowTrackingEnabled: false"
+                        wasd-controls="enabled: false"></a-camera>
                 </a-entity>
 
-                {/* Remaining scene entities stay the same */}
+                {/* Sky */}
+                <a-sky color="black"></a-sky>
+
+                {/* Lights */}
+                <a-light 
+                    type="ambient"
+                    color="#BBB"
+                    intensity="3.5"></a-light>
+                    
+                <a-light 
+                    type="directional"
+                    color="#FFF"
+                    intensity="0.5"
+                    position="-1 1 1"></a-light>
             </a-scene>
         </div>
     );
