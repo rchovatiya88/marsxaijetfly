@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <!-- Frame 1,1 -->
+  <g transform="translate(0,0)">
+    <circle cx="50" cy="50" r="10" fill="white" opacity="1"/>
+  </g>
+  
+  <!-- Frame 1,2 -->
+  <g transform="translate(100,0)">
+    <circle cx="50" cy="50" r="20" fill="white" opacity="0.9"/>
+    <circle cx="50" cy="50" r="10" fill="white" opacity="1"/>
+  </g>
+  
+  <!-- Frame 1,3 -->
+  <g transform="translate(200,0)">
+    <circle cx="50" cy="50" r="30" fill="white" opacity="0.7"/>
+    <circle cx="50" cy="50" r="20" fill="white" opacity="0.9"/>
+    <circle cx="50" cy="50" r="10" fill="white" opacity="1"/>
+  </g>
+  
+  <!-- Frame 1,4 -->
+  <g transform="translate(300,0)">
+    <circle cx="50" cy="50" r="35" fill="white" opacity="0.6"/>
+    <circle cx="50" cy="50" r="25" fill="white" opacity="0.8"/>
+    <circle cx="50" cy="50" r="15" fill="white" opacity="1"/>
+    <path d="M50,25 L55,40 L70,40 L60,50 L65,65 L50,55 L35,65 L40,50 L30,40 L45,40 Z" fill="white" opacity="0.8"/>
+  </g>
+  
+  <!-- Frame 1,5 -->
+  <g transform="translate(400,0)">
+    <circle cx="50" cy="50" r="40" fill="white" opacity="0.5"/>
+    <circle cx="50" cy="50" r="30" fill="white" opacity="0.7"/>
+    <circle cx="50" cy="50" r="20" fill="white" opacity="0.9"/>
+    <path d="M50,20 L58,40 L80,40 L62,55 L70,75 L50,62 L30,75 L38,55 L20,40 L42,40 Z" fill="white" opacity="0.8"/>
+  </g>
+  
+  <!-- Frame 2,1 -->
+  <g transform="translate(0,100)">
+    <circle cx="50" cy="50" r="40" fill="white" opacity="0.4"/>
+    <circle cx="50" cy="50" r="30" fill="white" opacity="0.6"/>
+    <circle cx="50" cy="50" r="20" fill="white" opacity="0.8"/>
+    <path d="M50,15 L60,38 L85,35 L65,55 L75,80 L50,65 L25,80 L35,55 L15,35 L40,38 Z" fill="white" opacity="0.7"/>
+    <path d="M35,35 L45,45 M65,35 L55,45 M50,60 L50,70 M35,65 L45,60 M65,65 L55,60" stroke="white" stroke-width="2" opacity="0.9"/>
+  </g>
+  
+  <!-- Frame 2,2 -->
+  <g transform="translate(100,100)">
+    <circle cx="50" cy="50" r="45" fill="white" opacity="0.4"/>
+    <path d="M50,10 L62,35 L90,32 L68,55 L80,85 L50,68 L20,85 L32,55 L10,32 L38,35 Z" fill="white" opacity="0.6"/>
+    <path d="M30,30 L45,45 M70,30 L55,45 M50,60 L50,75 M30,70 L45,60 M70,70 L55,60" stroke="white" stroke-width="3" opacity="0.8"/>
+  </g>
+  
+  <!-- Frame 2,3 -->
+  <g transform="translate(200,100)">
+    <circle cx="50" cy="50" r="47" fill="white" opacity="0.3"/>
+    <path d="M50,5 L65,32 L95,28 L70,55 L85,90 L50,70 L15,90 L30,55 L5,28 L35,32 Z" fill="white" opacity="0.5"/>
+    <g opacity="0.7">
+      <path d="M20,20 L40,40 M80,20 L60,40 M50,60 L50,80 M20,80 L40,60 M80,80 L60,60" stroke="white" stroke-width="4"/>
+      <circle cx="50" cy="50" r="10" fill="white" opacity="0.8"/>
+    </g>
+  </g>
+  
+  <!-- Frame 2,4 -->
+  <g transform="translate(300,100)">
+    <circle cx="50" cy="50" r="48" fill="white" opacity="0.25"/>
+    <path d="M30,10 L60,25 L90,15 L75,45 L95,75 L60,65 L40,95 L30,60 L5,40 L35,40 Z" fill="white" opacity="0.4"/>
+    <g opacity="0.6">
+      <path d="M15,15 L35,35 M85,15 L65,35 M50,55 L50,85 M15,85 L35,65 M85,85 L65,65" stroke="white" stroke-width="3"/>
+      <circle cx="50" cy="50" r="8" fill="white" opacity="0.7"/>
+    </g>
+  </g>
+  
+  <!-- Frame 2,5 -->
+  <g transform="translate(400,100)">
+    <circle cx="50" cy="50" r="49" fill="white" opacity="0.2"/>
+    <path d="M25,5 L55,20 L95,10 L80,40 L100,70 L65,60 L35,100 L25,55 L0,35 L30,35 Z" fill="white" opacity="0.3"/>
+    <g opacity="0.5">
+      <path d="M10,10 L30,30 M90,10 L70,30 M50,50 L50,90 M10,90 L30,70 M90,90 L70,70" stroke="white" stroke-width="2"/>
+      <circle cx="50" cy="50" r="6" fill="white" opacity="0.6"/>
+    </g>
+  </g>
+  
+  <!-- Row 3 - Growing fireball with debris -->
+  <!-- Frame 3,1 -->
+  <g transform="translate(0,200)">
+    <circle cx="50" cy="50" r="45" fill="white" opacity="0.15"/>
+    <path d="M20,0 L45,15 L95,5 L85,35 L105,65 L70,55 L30,105 L20,50 L-5,30 L25,30 Z" fill="white" opacity="0.25"/>
+    <g>
+      <path d="M5,5 L25,25 M95,5 L75,25 M50,45 L50,95 M5,95 L25,75 M95,95 L75,75" stroke="white" stroke-width="1.5" opacity="0.4"/>
+      <circle cx="50" cy="50" r="4" fill="white" opacity="0.5"/>
+    </g>
+    <g opacity="0.3">
+      <circle cx="30" cy="20" r="3" fill="white"/>
+      <circle cx="70" cy="20" r="4" fill="white"/>
+      <circle cx="20" cy="60" r="5" fill="white"/>
+      <circle cx="80" cy="60" r="3" fill="white"/>
+      <circle cx="50" cy="80" r="4" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 3,2 -->
+  <g transform="translate(100,200)">
+    <circle cx="50" cy="50" r="40" fill="white" opacity="0.12"/>
+    <g opacity="0.2">
+      <path d="M0,0 L95,95 M0,95 L95,0" stroke="white" stroke-width="1"/>
+      <circle cx="35" cy="15" r="4" fill="white"/>
+      <circle cx="75" cy="15" r="5" fill="white"/>
+      <circle cx="15" cy="65" r="6" fill="white"/>
+      <circle cx="85" cy="65" r="4" fill="white"/>
+      <circle cx="45" cy="85" r="5" fill="white"/>
+      <circle cx="70" cy="45" r="3" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 3,3 -->
+  <g transform="translate(200,200)">
+    <circle cx="50" cy="50" r="35" fill="white" opacity="0.1"/>
+    <g opacity="0.15">
+      <circle cx="30" cy="10" r="5" fill="white"/>
+      <circle cx="80" cy="10" r="6" fill="white"/>
+      <circle cx="10" cy="70" r="7" fill="white"/>
+      <circle cx="90" cy="70" r="5" fill="white"/>
+      <circle cx="40" cy="90" r="6" fill="white"/>
+      <circle cx="75" cy="40" r="4" fill="white"/>
+      <circle cx="20" cy="40" r="3" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 3,4 -->
+  <g transform="translate(300,200)">
+    <circle cx="50" cy="50" r="30" fill="white" opacity="0.08"/>
+    <g opacity="0.12">
+      <circle cx="25" cy="5" r="4" fill="white"/>
+      <circle cx="85" cy="5" r="5" fill="white"/>
+      <circle cx="5" cy="75" r="6" fill="white"/>
+      <circle cx="95" cy="75" r="4" fill="white"/>
+      <circle cx="35" cy="95" r="5" fill="white"/>
+      <circle cx="80" cy="35" r="3" fill="white"/>
+      <circle cx="15" cy="35" r="2" fill="white"/>
+      <circle cx="60" cy="65" r="4" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 3,5 -->
+  <g transform="translate(400,200)">
+    <circle cx="50" cy="50" r="25" fill="white" opacity="0.06"/>
+    <g opacity="0.1">
+      <circle cx="20" cy="0" r="3" fill="white"/>
+      <circle cx="90" cy="0" r="4" fill="white"/>
+      <circle cx="0" cy="80" r="5" fill="white"/>
+      <circle cx="95" cy="80" r="3" fill="white"/>
+      <circle cx="30" cy="95" r="4" fill="white"/>
+      <circle cx="85" cy="30" r="2" fill="white"/>
+      <circle cx="10" cy="30" r="1" fill="white"/>
+      <circle cx="65" cy="70" r="3" fill="white"/>
+      <circle cx="45" cy="25" r="2" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Row 4 - Dissolving -->
+  <!-- Frame 4,1 -->
+  <g transform="translate(0,300)">
+    <circle cx="50" cy="50" r="20" fill="white" opacity="0.05"/>
+    <g opacity="0.08">
+      <circle cx="15" cy="-5" r="2" fill="white"/>
+      <circle cx="95" cy="-5" r="3" fill="white"/>
+      <circle cx="-5" cy="85" r="4" fill="white"/>
+      <circle cx="100" cy="85" r="2" fill="white"/>
+      <circle cx="25" cy="100" r="3" fill="white"/>
+      <circle cx="90" cy="25" r="1" fill="white"/>
+      <circle cx="5" cy="25" r="1" fill="white"/>
+      <circle cx="70" cy="75" r="2" fill="white"/>
+      <circle cx="40" cy="20" r="1" fill="white"/>
+      <circle cx="55" cy="50" r="1" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 4,2 -->
+  <g transform="translate(100,300)">
+    <circle cx="50" cy="50" r="15" fill="white" opacity="0.04"/>
+    <g opacity="0.06">
+      <circle cx="10" cy="-10" r="1" fill="white"/>
+      <circle cx="100" cy="-10" r="2" fill="white"/>
+      <circle cx="-10" cy="90" r="3" fill="white"/>
+      <circle cx="105" cy="90" r="1" fill="white"/>
+      <circle cx="20" cy="105" r="2" fill="white"/>
+      <circle cx="95" cy="20" r="1" fill="white"/>
+      <circle cx="0" cy="20" r="1" fill="white"/>
+      <circle cx="75" cy="80" r="1" fill="white"/>
+      <circle cx="35" cy="15" r="1" fill="white"/>
+      <circle cx="60" cy="55" r="1" fill="white"/>
+      <circle cx="45" cy="75" r="1" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 4,3 -->
+  <g transform="translate(200,300)">
+    <circle cx="50" cy="50" r="10" fill="white" opacity="0.03"/>
+    <g opacity="0.04">
+      <circle cx="5" cy="-15" r="1" fill="white"/>
+      <circle cx="105" cy="-15" r="1" fill="white"/>
+      <circle cx="-15" cy="95" r="2" fill="white"/>
+      <circle cx="110" cy="95" r="1" fill="white"/>
+      <circle cx="15" cy="110" r="1" fill="white"/>
+      <circle cx="100" cy="15" r="1" fill="white"/>
+      <circle cx="-5" cy="15" r="1" fill="white"/>
+      <circle cx="80" cy="85" r="1" fill="white"/>
+      <circle cx="30" cy="10" r="1" fill="white"/>
+      <circle cx="65" cy="60" r="1" fill="white"/>
+      <circle cx="40" cy="80" r="1" fill="white"/>
+      <circle cx="85" cy="45" r="1" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 4,4 -->
+  <g transform="translate(300,300)">
+    <circle cx="50" cy="50" r="5" fill="white" opacity="0.02"/>
+    <g opacity="0.03">
+      <circle cx="0" cy="-20" r="1" fill="white"/>
+      <circle cx="110" cy="-20" r="1" fill="white"/>
+      <circle cx="-20" cy="100" r="1" fill="white"/>
+      <circle cx="115" cy="100" r="1" fill="white"/>
+      <circle cx="10" cy="115" r="1" fill="white"/>
+      <circle cx="105" cy="10" r="1" fill="white"/>
+      <circle cx="-10" cy="10" r="1" fill="white"/>
+      <circle cx="85" cy="90" r="1" fill="white"/>
+      <circle cx="25" cy="5" r="1" fill="white"/>
+      <circle cx="70" cy="65" r="1" fill="white"/>
+      <circle cx="35" cy="85" r="1" fill="white"/>
+      <circle cx="90" cy="40" r="1" fill="white"/>
+      <circle cx="55" cy="20" r="1" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 4,5 -->
+  <g transform="translate(400,300)">
+    <g opacity="0.02">
+      <circle cx="-5" cy="-25" r="1" fill="white"/>
+      <circle cx="115" cy="-25" r="1" fill="white"/>
+      <circle cx="-25" cy="105" r="1" fill="white"/>
+      <circle cx="120" cy="105" r="1" fill="white"/>
+      <circle cx="5" cy="120" r="1" fill="white"/>
+      <circle cx="110" cy="5" r="1" fill="white"/>
+      <circle cx="-15" cy="5" r="1" fill="white"/>
+      <circle cx="90" cy="95" r="1" fill="white"/>
+      <circle cx="20" cy="0" r="1" fill="white"/>
+      <circle cx="75" cy="70" r="1" fill="white"/>
+      <circle cx="30" cy="90" r="1" fill="white"/>
+      <circle cx="95" cy="35" r="1" fill="white"/>
+      <circle cx="50" cy="15" r="1" fill="white"/>
+      <circle cx="65" cy="45" r="1" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Row 5 - Almost gone -->
+  <!-- Frame 5,1 -->
+  <g transform="translate(0,400)">
+    <g opacity="0.015">
+      <circle cx="-10" cy="-30" r="1" fill="white"/>
+      <circle cx="120" cy="-30" r="1" fill="white"/>
+      <circle cx="-30" cy="110" r="1" fill="white"/>
+      <circle cx="125" cy="110" r="1" fill="white"/>
+      <circle cx="0" cy="125" r="1" fill="white"/>
+      <circle cx="115" cy="0" r="1" fill="white"/>
+      <circle cx="-20" cy="0" r="1" fill="white"/>
+      <circle cx="95" cy="100" r="1" fill="white"/>
+      <circle cx="15" cy="-5" r="1" fill="white"/>
+      <circle cx="80" cy="75" r="1" fill="white"/>
+      <circle cx="25" cy="95" r="1" fill="white"/>
+      <circle cx="100" cy="30" r="1" fill="white"/>
+      <circle cx="45" cy="10" r="1" fill="white"/>
+      <circle cx="70" cy="50" r="1" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 5,2 -->
+  <g transform="translate(100,400)">
+    <g opacity="0.01">
+      <circle cx="-15" cy="-35" r="1" fill="white"/>
+      <circle cx="125" cy="-35" r="1" fill="white"/>
+      <circle cx="-35" cy="115" r="1" fill="white"/>
+      <circle cx="130" cy="115" r="1" fill="white"/>
+      <circle cx="-5" cy="130" r="1" fill="white"/>
+      <circle cx="120" cy="-5" r="1" fill="white"/>
+      <circle cx="-25" cy="-5" r="1" fill="white"/>
+      <circle cx="100" cy="105" r="1" fill="white"/>
+      <circle cx="10" cy="-10" r="1" fill="white"/>
+      <circle cx="85" cy="80" r="1" fill="white"/>
+      <circle cx="40" cy="5" r="1" fill="white"/>
+      <circle cx="75" cy="55" r="1" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 5,3 -->
+  <g transform="translate(200,400)">
+    <g opacity="0.008">
+      <circle cx="-20" cy="-40" r="1" fill="white"/>
+      <circle cx="130" cy="-40" r="1" fill="white"/>
+      <circle cx="-40" cy="120" r="1" fill="white"/>
+      <circle cx="135" cy="120" r="1" fill="white"/>
+      <circle cx="-10" cy="135" r="1" fill="white"/>
+      <circle cx="125" cy="-10" r="1" fill="white"/>
+      <circle cx="105" cy="110" r="1" fill="white"/>
+      <circle cx="90" cy="85" r="1" fill="white"/>
+      <circle cx="35" cy="0" r="1" fill="white"/>
+      <circle cx="80" cy="60" r="1" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 5,4 -->
+  <g transform="translate(300,400)">
+    <g opacity="0.005">
+      <circle cx="-25" cy="-45" r="1" fill="white"/>
+      <circle cx="135" cy="-45" r="1" fill="white"/>
+      <circle cx="-45" cy="125" r="1" fill="white"/>
+      <circle cx="140" cy="125" r="1" fill="white"/>
+      <circle cx="85" cy="90" r="1" fill="white"/>
+      <circle cx="30" cy="-5" r="1" fill="white"/>
+      <circle cx="110" cy="20" r="1" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- Frame 5,5 -->
+  <g transform="translate(400,400)">
+    <g opacity="0.003">
+      <circle cx="-30" cy="-50" r="1" fill="white"/>
+      <circle cx="140" cy="-50" r="1" fill="white"/>
+      <circle cx="25" cy="-10" r="1" fill="white"/>
+      <circle cx="115" cy="15" r="1" fill="white"/>
+    </g>
+  </g>
+</svg>
