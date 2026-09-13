@@ -10,6 +10,7 @@ import { traceWorld } from '../arena-world';
 import * as THREE from 'three';
 import AFRAME_EXPORT from './aframe-export';
 import { gameAudio } from '../game-audio';
+import { PLAYER_MUZZLE_OFFSETS } from '../mission/player-rig';
 
 const AFRAME = AFRAME_EXPORT;
 
@@ -49,6 +50,9 @@ export default function initializeWeaponComponent(): void {
             try {
                 this.lastShot = -10000;
                 this.shotClock = 0;
+                this.chargedShots = 0;
+                this.shotsFired = 0;
+                this.chargesSpent = 0;
                 this.isReloading = false;
                 this.ammoInClip = this.data.clipSize;
                 this.reloadTimer = null;
@@ -90,6 +94,8 @@ export default function initializeWeaponComponent(): void {
             this.lastShot = -10000;
             this.shotClock = 0;
             this.chargedShots = 0;
+            this.shotsFired = 0;
+            this.chargesSpent = 0;
             this.hoverTime = 0;
             this.boltIndex = 0;
             this.boltPool?.forEach((item: any) => { item.remaining = 0; item.mesh.visible = false; });
@@ -103,19 +109,20 @@ export default function initializeWeaponComponent(): void {
                     this.el.removeObject3D('mesh');
                 }
 
-                // The original jetbike GLB contains a corrupt embedded PNG.
-                // Use a small geometry-built bike so the playable slice is self-contained.
+                // This resident fallback survives a missing hero GLB. Its
+                // chassis stays inside the same authored body envelope.
                 const bikeEntity = document.createElement('a-entity');
                 bikeEntity.id = 'hover-bike-model';
                 const group = new THREE.Group();
                 group.userData.heroFallback = true;
+                const chassis = new THREE.Group();chassis.scale.x=.5;chassis.position.y=.4;group.add(chassis);
                 this.bikeResources = [];
-                const part = (geometry: THREE.BufferGeometry, color: string, x: number, y: number, z: number, emissive = false) => {
+                const part = (geometry: THREE.BufferGeometry, color: string, x: number, y: number, z: number, emissive = false, socket = false) => {
                     const material = new THREE.MeshStandardMaterial({ color: new THREE.Color(color).convertSRGBToLinear(), roughness: 0.45, metalness: 0.5,
                         emissive: new THREE.Color(emissive ? color : '#000000').convertSRGBToLinear(), emissiveIntensity: emissive ? 1.2 : 0 });
                     const mesh = new THREE.Mesh(geometry, material);
                     mesh.position.set(x, y, z);
-                    group.add(mesh);
+                    (socket?group:chassis).add(mesh);
                     this.bikeResources.push(geometry, material);
                     return mesh;
                 };
@@ -141,7 +148,7 @@ export default function initializeWeaponComponent(): void {
                     nozzle.rotation.x=Math.PI/2;
                     const plume=part(new THREE.ConeGeometry(.16,.75,10),'#62d9ef',x,-.1,1.58,true);
                     plume.rotation.x=Math.PI/2;this.enginePlumes.push(plume);
-                    const cannon=part(new THREE.CylinderGeometry(.07,.1,1.2,8),'#9aa8aa',x,-.04,-1.04);
+                    const cannon=part(new THREE.CylinderGeometry(.07,.1,1.16,8),'#9aa8aa',x<0?-.1:.1,.62,-1.78,false,true);
                     cannon.rotation.x=Math.PI/2;
                     const fin=part(new THREE.BoxGeometry(.08,.46,.75),'#b9623d',x*1.24,.15,.72);
                     fin.rotation.z=x>0?-.28:.28;
@@ -152,27 +159,13 @@ export default function initializeWeaponComponent(): void {
                 this.el.appendChild(bikeEntity);
                 this.bikeEntity = bikeEntity;
 
-                // Set up hover animation instead of recoil
-                this.el.setAttribute('animation__hover', {
-                    property: 'position.y',
-                    from: `-0.5`,
-                    to: -0.5 + this.data.hoverHeight,
-                    dir: 'alternate',
-                    dur: 1000 / this.data.hoverSpeed,
-                    loop: true,
-                    easing: 'easeInOutSine'
-                });
-                
-                // Add slight rotation animation for additional effect
-                this.el.setAttribute('animation__tilt', {
-                    property: 'rotation.z',
-                    from: '-1',
-                    to: '1',
-                    dir: 'alternate',
-                    dur: 1500 / this.data.hoverSpeed,
-                    loop: true,
-                    easing: 'easeInOutSine'
-                });
+                // The normalized assembly base is the player origin used by
+                // Blender clearance studies. Do not translate/roll the GLB away
+                // from that body and weapon-socket contract with legacy bobbing.
+                this.el.removeAttribute('animation__hover');
+                this.el.removeAttribute('animation__tilt');
+                this.el.object3D.position.y = 0;
+                this.el.object3D.rotation.z = 0;
             } catch (error) {
                 console.error('Error creating hover bike model:', error);
             }
@@ -446,9 +439,10 @@ export default function initializeWeaponComponent(): void {
 
                 this.lastShot = now;
                 this.ammoInClip--;
+                this.shotsFired = (this.shotsFired || 0) + 1;
                 const charged = this.chargedShots > 0;
                 const damage = this.data.damage * (charged ? 2 : 1);
-                if (charged) this.chargedShots--;
+                if (charged) { this.chargedShots--; this.chargesSpent = (this.chargesSpent || 0) + 1; }
                 this.updateAmmoDisplay();
                 this.applyWeaponFeedback();
                 this.createHudBolt();
@@ -479,15 +473,15 @@ export default function initializeWeaponComponent(): void {
                 const environmentHit = this.findEnvironmentHit(weaponPosition, direction);
                 const visibleHit = enemyHit && (!environmentHit || enemyHit.distance < environmentHit.distance) ? enemyHit : null;
                 const tracerEnd = visibleHit?.point || environmentHit?.point || weaponPosition.clone().addScaledVector(direction, Math.min(this.data.range, 42));
-                // Third-person camera can see over cover: verify the physical muzzles too.
-                const muzzle = this.el.object3D.localToWorld(new THREE.Vector3(0, -0.55, -1.6));
-                const muzzleBlock = traceWorld(muzzle, tracerEnd.clone().sub(muzzle));
-                this.createWeaponBolts(muzzleBlock ? muzzle.clone().lerp(tracerEnd, muzzleBlock.t) : tracerEnd, direction, visibleHit && !muzzleBlock ? '#fff0a0' : '#78ffe1');
+                // Each visible barrel owns its cover trace and half of the shot.
+                // A clear center ray cannot draw a side bolt through a wall.
+                const muzzlePaths = this.getMuzzlePaths(tracerEnd);
+                const clearMuzzles = muzzlePaths.filter((path:any)=>!path.blocked).length;
+                this.createWeaponBolts(tracerEnd, direction, visibleHit ? '#fff0a0' : '#78ffe1', muzzlePaths);
 
-                if (visibleHit && !muzzleBlock) {
-                    enemyHit.enemy.takeDamage(damage, enemyHit.point);
-                    gameAudio.pulse('hit');
-                    this.showHitMarker();
+                if (visibleHit && clearMuzzles > 0) {
+                    const applied=enemyHit.enemy.takeDamage(damage * clearMuzzles / muzzlePaths.length, enemyHit.point);
+                    if (applied!==0) {gameAudio.pulse('hit');this.showHitMarker();}
                 } else if (environmentHit) {
                     this.createImpactEffect(environmentHit.point, environmentHit.normal);
                 }
@@ -498,16 +492,16 @@ export default function initializeWeaponComponent(): void {
                 console.error('Error shooting weapon:', error);
             }
         },
-        createWeaponBolts: function(this: any, end: THREE.Vector3, direction: THREE.Vector3, color = '#78ffe1'): void {
-            const muzzleOffsets = [
-                new THREE.Vector3(-0.72, -0.55, -1.6),
-                new THREE.Vector3(0.72, -0.55, -1.6)
-            ];
-            for (const offset of muzzleOffsets) {
-                const start = this.el.object3D.localToWorld(offset.clone());
-                const visualEnd = end.clone();
-
-                this.createBolt(start, visualEnd, color);
+        getMuzzlePaths: function(this:any, end:THREE.Vector3): any[] {
+            return PLAYER_MUZZLE_OFFSETS.map(offset=>{
+                const start=this.el.object3D.localToWorld(new THREE.Vector3(offset.x,offset.y,offset.z));
+                const delta=end.clone().sub(start), hit=traceWorld(start,delta);
+                return {start,end:hit?start.clone().addScaledVector(delta,hit.t):end.clone(),blocked:!!hit,hit};
+            });
+        },
+        createWeaponBolts: function(this: any, end: THREE.Vector3, direction: THREE.Vector3, color = '#78ffe1', paths?:any[]): void {
+            for (const path of paths || this.getMuzzlePaths(end)) {
+                this.createBolt(path.start, path.end, path.blocked ? '#78ffe1' : color);
             }
         },
         createHudBolt: function(): void {
@@ -572,7 +566,9 @@ export default function initializeWeaponComponent(): void {
                     const alongRay = toCenter.dot(direction);
                     if (alongRay <= 0 || alongRay > this.data.range) continue;
                     const closestPoint = origin.clone().addScaledVector(direction, alongRay);
-                    const aimAssistRadius = Math.min(4.0, Math.max(width, depth) * 0.7 + alongRay * 0.055);
+                    const aimAssistRadius = enemy.data?.guardDamageMultiplier < 1
+                        ? Math.min(.7,Math.max(width,depth)*.3+alongRay*.008)
+                        : Math.min(4.0, Math.max(width, depth) * 0.7 + alongRay * 0.055);
                     if (closestPoint.distanceTo(center) > aimAssistRadius) continue;
                     distance = alongRay;
                     hitPoint = closestPoint;

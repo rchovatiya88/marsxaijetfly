@@ -1,0 +1,141 @@
+{
+  "version": 2,
+  "units": "metres",
+  "axes": "Y-up",
+  "markers": [
+    {
+      "id": "launch",
+      "position": [
+        -57,
+        -4.5,
+        32.1
+      ]
+    },
+    {
+      "id": "high-ridge",
+      "position": [
+        -45,
+        8.4,
+        -35.4
+      ]
+    },
+    {
+      "id": "high-descent",
+      "position": [
+        -30,
+        8.4,
+        -35.4
+      ]
+    },
+    {
+      "id": "high-align",
+      "position": [
+        -21,
+        -0.7,
+        -35.4
+      ]
+    },
+    {
+      "id": "low-climb",
+      "position": [
+        30,
+        -6.4,
+        32.1
+      ]
+    },
+    {
+      "id": "high-climb",
+      "position": [
+        9,
+        3.2,
+        -35.4
+      ]
+    },
+    {
+      "id": "low-peek",
+      "position": [
+        55,
+        3.2,
+        -25
+      ]
+    },
+    {
+      "id": "high-dodge",
+      "position": [
+        54,
+        5.6,
+        -39
+      ]
+    },
+    {
+      "id": "warden-feet",
+      "position": [
+        69,
+        1.5,
+        -27
+      ]
+    },
+    {
+      "id": "extraction",
+      "position": [
+        90,
+        7.8,
+        -45
+      ]
+    },
+    {
+      "id": "high-entry",
+      "position": [
+        -18,
+        -0.7,
+        -35.4
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "low-entry",
+      "position": [
+        -27,
+        -8.2,
+        32.1
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "high-exit",
+      "position": [
+        3,
+        -0.7,
+        -35.4
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "low-exit",
+      "position": [
+        21,
+        -8.2,
+        32.1
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "high-approach",
+      "position": [
+        53,
+        5.6,
+        -33
+      ],
+      "radius": 3
+    },
+    {
+      "id": "low-approach",
+      "position": [
+        53,
+        3.2,
+        -16
+      ],
+      "radius": 2
+    }
+  ]
+}

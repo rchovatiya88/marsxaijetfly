@@ -1,0 +1,397 @@
+{
+  "kind": "offline-full-bike-cpu-diagnostic",
+  "layout": "art/bridgehead/bridgehead-v2-layout.json",
+  "environmentScale": 3,
+  "bodySpheres": 18,
+  "runtime": "v24.13.0",
+  "platform": "win32/x64",
+  "triangles": 172065,
+  "buildMs": 886.9380000000001,
+  "queriesAfterWarmup": 1000,
+  "queryMedianMs": 1.330699999999979,
+  "queryP95Ms": 2.7468999999996413,
+  "maxCandidatesOfLastSphere": 111,
+  "routeSweeps": [
+    {
+      "route": "low",
+      "clear": true,
+      "segments": [
+        {
+          "origin": {
+            "x": -57,
+            "y": -4.5,
+            "z": 32.1
+          },
+          "target": {
+            "x": -42,
+            "y": -6.5,
+            "z": 32.1
+          },
+          "arrived": {
+            "x": -42,
+            "y": -6.5,
+            "z": 32.1
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": -42,
+            "y": -6.5,
+            "z": 32.1
+          },
+          "target": {
+            "x": -27,
+            "y": -8.2,
+            "z": 32.1
+          },
+          "arrived": {
+            "x": -27,
+            "y": -8.2,
+            "z": 32.1
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": -27,
+            "y": -8.2,
+            "z": 32.1
+          },
+          "target": {
+            "x": 21,
+            "y": -8.2,
+            "z": 32.1
+          },
+          "arrived": {
+            "x": 21,
+            "y": -8.2,
+            "z": 32.1
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": 21,
+            "y": -8.2,
+            "z": 32.1
+          },
+          "target": {
+            "x": 30,
+            "y": -6.4,
+            "z": 32.1
+          },
+          "arrived": {
+            "x": 30,
+            "y": -6.4,
+            "z": 32.1
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": 30,
+            "y": -6.4,
+            "z": 32.1
+          },
+          "target": {
+            "x": 30,
+            "y": -1,
+            "z": 6
+          },
+          "arrived": {
+            "x": 30,
+            "y": -1,
+            "z": 6
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": 30,
+            "y": -1,
+            "z": 6
+          },
+          "target": {
+            "x": 45,
+            "y": 3.2,
+            "z": -12
+          },
+          "arrived": {
+            "x": 45,
+            "y": 3.2,
+            "z": -12
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": 45,
+            "y": 3.2,
+            "z": -12
+          },
+          "target": {
+            "x": 53,
+            "y": 3.2,
+            "z": -16
+          },
+          "arrived": {
+            "x": 53,
+            "y": 3.2,
+            "z": -16
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        }
+      ]
+    },
+    {
+      "route": "high",
+      "clear": true,
+      "segments": [
+        {
+          "origin": {
+            "x": -57,
+            "y": -4.5,
+            "z": 32.1
+          },
+          "target": {
+            "x": -48,
+            "y": -4.5,
+            "z": 32.1
+          },
+          "arrived": {
+            "x": -48,
+            "y": -4.5,
+            "z": 32.1
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": -48,
+            "y": -4.5,
+            "z": 32.1
+          },
+          "target": {
+            "x": -45,
+            "y": 1,
+            "z": 12
+          },
+          "arrived": {
+            "x": -45,
+            "y": 1,
+            "z": 12
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": -45,
+            "y": 1,
+            "z": 12
+          },
+          "target": {
+            "x": -45,
+            "y": 8.4,
+            "z": -21
+          },
+          "arrived": {
+            "x": -45,
+            "y": 8.4,
+            "z": -21
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": -45,
+            "y": 8.4,
+            "z": -21
+          },
+          "target": {
+            "x": -45,
+            "y": 8.4,
+            "z": -35.4
+          },
+          "arrived": {
+            "x": -45,
+            "y": 8.4,
+            "z": -35.4
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": -45,
+            "y": 8.4,
+            "z": -35.4
+          },
+          "target": {
+            "x": -30,
+            "y": 8.4,
+            "z": -35.4
+          },
+          "arrived": {
+            "x": -30,
+            "y": 8.4,
+            "z": -35.4
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": -30,
+            "y": 8.4,
+            "z": -35.4
+          },
+          "target": {
+            "x": -21,
+            "y": -0.7,
+            "z": -35.4
+          },
+          "arrived": {
+            "x": -21,
+            "y": -0.6999999999999993,
+            "z": -35.4
+          },
+          "rotationError": 0,
+          "errorMetres": 6.661338147750939e-16,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": -21,
+            "y": -0.6999999999999993,
+            "z": -35.4
+          },
+          "target": {
+            "x": -18,
+            "y": -0.7,
+            "z": -35.4
+          },
+          "arrived": {
+            "x": -18,
+            "y": -0.7,
+            "z": -35.4
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": -18,
+            "y": -0.7,
+            "z": -35.4
+          },
+          "target": {
+            "x": 3,
+            "y": -0.7,
+            "z": -35.4
+          },
+          "arrived": {
+            "x": 3,
+            "y": -0.7,
+            "z": -35.4
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": 3,
+            "y": -0.7,
+            "z": -35.4
+          },
+          "target": {
+            "x": 9,
+            "y": 3.2,
+            "z": -35.4
+          },
+          "arrived": {
+            "x": 9,
+            "y": 3.2,
+            "z": -35.4
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        },
+        {
+          "origin": {
+            "x": 9,
+            "y": 3.2,
+            "z": -35.4
+          },
+          "target": {
+            "x": 53,
+            "y": 5.6,
+            "z": -33
+          },
+          "arrived": {
+            "x": 53,
+            "y": 5.6,
+            "z": -33
+          },
+          "rotationError": 0,
+          "errorMetres": 0,
+          "firstHit": null
+        }
+      ]
+    }
+  ],
+  "sightlines": [
+    {
+      "route": "high",
+      "blocked": false
+    },
+    {
+      "route": "low",
+      "blocked": true
+    }
+  ],
+  "sources": [
+    {
+      "path": "public/models/level1-stream/q00-lod1.glb",
+      "sha256": "047ce7fb08a52702c4ecf66536314da8ed523deecbfbeedcb33487625ad8a97b"
+    },
+    {
+      "path": "public/models/level1-stream/q01-lod1.glb",
+      "sha256": "4ba8115cf1069faa5f4ab1186f74ce2f18c8ce5d0e39683a9766db7f0900a483"
+    },
+    {
+      "path": "public/models/level1-stream/q10-lod1.glb",
+      "sha256": "e8ea617e8c916bb603d3dd4503eef612ab65b6c9b6922d1d4f941c76cd44e062"
+    },
+    {
+      "path": "public/models/level1-stream/q11-lod1.glb",
+      "sha256": "410ea99a75f7999944e50bde9f8157b4a09c3b37a757f7b99488a7b76875b606"
+    }
+  ],
+  "limitations": "No browser/render cost, natural-input completion, hardware acceptance, collision-to-high-LOD visual equivalence, or human playtest claim."
+}

@@ -58,6 +58,14 @@ button:disabled { opacity: .45; cursor: wait; }
 .menu-controls { color: #9d8585; font-size: 11px; line-height: 1.8; }
 .reduced-motion .speed-lines, .reduced-motion .cockpit-glass, .reduced-motion .radar::after { animation: none; opacity: .2; }
 @media (max-width: 700px) { h1 { font-size: 56px; } #score-ui { left: 14px; top: 14px; } .flight-readout { right: 14px; top: 14px; } .radar { display: none; } }
+@media (max-height: 900px) {
+  .mission-menu { padding-top: 20px; padding-bottom: 20px; }
+  .coordinates { margin-top: 18px; }
+  h1 { font-size: clamp(54px, 7.4vw, 92px); margin: 12px 0 16px; }
+  .menu-description { line-height: 1.45; margin: 8px 0; }
+  .mission-details { padding: 10px 0; margin: 8px 0 12px; }
+  .settings { gap: 7px; margin-bottom: 10px; }
+}
 
 .radar span { transform: translate(-50%,-50%); }
 .radar small { position:absolute; top:-20px; left:15px; font:10px monospace; }
@@ -71,6 +79,28 @@ button:disabled { opacity: .45; cursor: wait; }
 .playtest-panel pre { white-space:pre-wrap; }
 
 .cockpit-glass::before, .cockpit-glass::after { box-shadow:none; }
-.ridge-objective { position:absolute; top:130px; left:24px; right:24px; text-align:center; font-size:14px; color:#fff0cf; text-shadow:0 2px 6px #000; }
+.ridge-objective { position:absolute; top:34px; left:280px; right:280px; text-align:center; font-size:14px; color:#fff0cf; text-shadow:0 2px 6px #000; }
 .ridge-objective small { display:block; margin-top:8px; color:#78ffe1; }
+.objective-targets { position:absolute; inset:0; overflow:hidden; }
+.objective-target { position:absolute; min-width:112px; padding:5px 8px; translate:-50% -50%; text-align:center; color:#fff5dd; background:#0b151dcc; border:1px solid #78ffe1aa; box-shadow:0 0 14px #000b; font-size:10px; transition:left .1s linear,top .1s linear; }
+.objective-target.offscreen { border-color:#ffb174; color:#ffd4a8; }
+.objective-target b,.objective-target span { display:block; }
+.objective-target span { margin-top:2px; color:#bdece4; font-size:8px; }
+.objective-target i { display:block; width:100%; height:3px; margin-top:4px; background:#332822; }
+.objective-target em { display:block; height:100%; background:#ffe29a; box-shadow:0 0 8px #ffe29a; }
 .mode-link { color:#78ffe1; margin-bottom:18px; font-size:13px; }
+.route-map { position:absolute; right:30px; bottom:104px; width:205px; padding:9px; background:#0c151ddd; border:1px solid #839b9680; }
+.route-map small { display:flex; justify-content:space-between; color:#e7d9c0; font-size:9px; }
+.route-map svg { display:block; width:100%; height:144px; }
+.route-map>span { display:block; font-size:8px; letter-spacing:0; color:#d2c8b6; }
+.route-map polyline { fill:none; stroke-width:1.7; }
+.map-high { stroke:#78ffe1; }.map-low { stroke:#ffc08d; }.map-muted { opacity:.25; }
+.map-chasm { fill:#05090c; stroke:#87908c; stroke-width:.2; }
+.map-cover { fill:#8e8275; stroke:#ddd0b4; stroke-width:.1; }
+.route-map text { fill:#f8e8c9; font:6px monospace; letter-spacing:0; }
+.route-map .map-threat { fill:#ff6654; }.map-pilot { fill:white; stroke:#122329; stroke-width:.3; }
+.frame-benchmark pre { max-height:240px; overflow:auto; }
+.mode-link { margin-bottom:8px; }
+.reduced-motion #threat-warning.active { animation:none; opacity:1; }
+@media(max-width:700px) { .route-map { width:142px; right:14px; bottom:104px; }.route-map svg { height:102px; }.route-map>span { font-size:7px; } }
+@media (max-width: 1000px) { .ridge-objective { top:190px; left:24px; right:24px; } }

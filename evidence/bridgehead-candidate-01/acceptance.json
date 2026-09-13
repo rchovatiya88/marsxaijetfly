@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "170838fed376056a0ecc27400c9d2054918e6df2c6c188e6d446dbb61a8644f9",
+  "contract": "docs/BRIDGEHEAD_RUN_SCORECARD.md",
+  "evidence": {},
+  "engineering": {
+    "flight": {
+      "checks": {
+        "ordinaryHighTraversal": false,
+        "ordinaryLowTraversal": false,
+        "noTunnellingOrTrapping": false,
+        "capturedInput": false,
+        "cursorInput": false,
+        "pauseResume": false,
+        "retry": false
+      },
+      "evidenceRefs": [],
+      "notes": ""
+    },
+    "route": {
+      "checks": {
+        "orderedMarkers": false,
+        "exclusiveRewards": false,
+        "highExposure": false,
+        "lowCover": false
+      },
+      "evidenceRefs": [],
+      "notes": ""
+    },
+    "combat": {
+      "checks": {
+        "telegraphLockProjectileRecovery": false,
+        "reciprocalCover": false,
+        "hitFeedback": false,
+        "deathFeedback": false,
+        "noAttackThroughCover": false
+      },
+      "evidenceRefs": [],
+      "notes": ""
+    },
+    "mission": {
+      "checks": {
+        "ordinaryHighWin": false,
+        "ordinaryLowWin": false,
+        "loss": false,
+        "retry": false,
+        "invalidCrossing": false,
+        "assetFailure": false,
+        "pausedExtraction": false,
+        "oneResultPerRun": false
+      },
+      "evidenceRefs": [],
+      "notes": ""
+    },
+    "identity": {
+      "checks": {
+        "launchCapture": false,
+        "forkCapture": false,
+        "bridgeCapture": false,
+        "courtCapture": false,
+        "noMissingMaterials": false,
+        "noLodHoles": false,
+        "noOcclusionMismatch": false,
+        "sound": false,
+        "mute": false,
+        "reducedEffects": false
+      },
+      "evidenceRefs": [],
+      "notes": ""
+    },
+    "performance": {
+      "checks": {
+        "threeForegroundRuns": false,
+        "tenFullRetryCycles": false,
+        "noMonotonicSettledResourceGrowth": false
+      },
+      "evidenceRefs": [],
+      "notes": ""
+    },
+    "replay": {
+      "checks": {
+        "routeResult": false,
+        "shotsAndChargeResult": false,
+        "damageResult": false,
+        "timeResult": false,
+        "sameRendererRetry": false,
+        "qaScoreSeparation": false,
+        "noDuplicateReward": false
+      },
+      "evidenceRefs": [],
+      "notes": ""
+    }
+  },
+  "hardPrerequisites": {
+    "checks": {
+      "noCrash": false,
+      "noSoftlock": false,
+      "noWrongResult": false,
+      "noThroughCoverDamage": false,
+      "noInputLoss": false,
+      "noColliderStreamingDefect": false,
+      "ordinaryHighWin": false,
+      "ordinaryLowWin": false,
+      "tenFullRetryCycles": false,
+      "declaredForegroundConditions": false
+    },
+    "evidenceRefs": [],
+    "notes": ""
+  },
+  "rights": {
+    "allRequiredAssetsHaveCommercialRights": false,
+    "evidenceRefs": [],
+    "notes": ""
+  },
+  "formativeSessions": [],
+  "sessions": [],
+  "foregroundRuns": [],
+  "retryCycles": [],
+  "unresolvedDefects": [],
+  "playerReview": {
+    "bikeAndWardenSilhouettesReadableInMotion": false,
+    "evidenceRefs": [],
+    "notes": ""
+  },
+  "notes": "Unobserved fields stay false. Human sample is zero until real sessions are recorded. See docs/BRIDGEHEAD_ITERATION_REVIEW.md for schemas and procedure."
+}

@@ -1,0 +1,14 @@
+{
+  "kind": "current-runtime-frame",
+  "capturedAt": "2026-09-13T19:56:12.609Z",
+  "paused": true,
+  "missionStage": "choice",
+  "route": "",
+  "player": {
+    "x": -57,
+    "y": -4.5,
+    "z": 32.1
+  },
+  "elapsedMs": 374.90000009536743,
+  "evidenceLimit": "Current frame only; input provenance is supplied by the paired run report."
+}

@@ -10,8 +10,8 @@
     }
   ],
   "output": "C:\\Users\\roncho\\Documents\\repos\\marsxaijetfly\\public\\models\\avi-jetbike.glb",
-  "bytes": 1982588,
-  "sha256": "fda06b60d00888c9ae4eb8d5c9fa78278bed880a40a1d911c0a2a76f192198b2",
+  "bytes": 1982748,
+  "sha256": "5c3941953eb7ff6aa45f0faaebe24ed529f085d95e6ecbf752941f4981b6a244",
   "license": "source rights unverified",
   "pose": "static seated deformation; editable rig preserved in Blender",
   "textures": [

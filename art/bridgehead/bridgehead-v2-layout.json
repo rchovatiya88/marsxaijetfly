@@ -1,0 +1,563 @@
+{
+  "version": 2,
+  "units": "metres",
+  "axes": "Y-up",
+  "environmentScale": 3,
+  "sourceNormalization": 0.1,
+  "sourcePreserved": true,
+  "player": {
+    "baseOrigin": true,
+    "targetHeight": 1.8,
+    "targetLength": 0,
+    "bodyEnvelope": {
+      "min": {
+        "x": -0.53,
+        "y": -0.03,
+        "z": -2.38
+      },
+      "max": {
+        "x": 0.53,
+        "y": 1.84,
+        "z": 2.38
+      }
+    },
+    "muzzleLeft": {
+      "x": -0.1,
+      "y": 0.62,
+      "z": -2.4
+    },
+    "muzzleRight": {
+      "x": 0.1,
+      "y": 0.62,
+      "z": -2.4
+    }
+  },
+  "camera": {
+    "height": 2.5,
+    "distance": 6.2,
+    "shoulder": 1.2,
+    "fov": 80
+  },
+  "movement": {
+    "speed": 8,
+    "boost": 16
+  },
+  "start": {
+    "x": -57,
+    "y": -4.5,
+    "z": 32.1
+  },
+  "highApproach": {
+    "position": {
+      "x": -45,
+      "y": 8.4,
+      "z": -35.4
+    },
+    "radius": 4
+  },
+  "highDescent": {
+    "position": {
+      "x": -30,
+      "y": 8.4,
+      "z": -35.4
+    },
+    "radius": 3
+  },
+  "highAlign": {
+    "position": {
+      "x": -21,
+      "y": -0.7,
+      "z": -35.4
+    },
+    "radius": 2
+  },
+  "lowClimb": {
+    "position": {
+      "x": 30,
+      "y": -6.4,
+      "z": 32.1
+    },
+    "radius": 3
+  },
+  "highClimb": {
+    "position": {
+      "x": 9,
+      "y": 3.2,
+      "z": -35.4
+    },
+    "radius": 3
+  },
+  "gates": [
+    {
+      "id": "high",
+      "position": {
+        "x": -18,
+        "y": -0.7,
+        "z": -35.4
+      },
+      "radius": 3.5,
+      "color": "#78ffe1"
+    },
+    {
+      "id": "low",
+      "position": {
+        "x": -27,
+        "y": -8.2,
+        "z": 32.1
+      },
+      "radius": 3.5,
+      "color": "#ffb174"
+    }
+  ],
+  "exits": [
+    {
+      "id": "high",
+      "position": {
+        "x": 3,
+        "y": -0.7,
+        "z": -35.4
+      },
+      "radius": 3.5,
+      "color": "#78ffe1"
+    },
+    {
+      "id": "low",
+      "position": {
+        "x": 21,
+        "y": -8.2,
+        "z": 32.1
+      },
+      "radius": 3.5,
+      "color": "#ffb174"
+    }
+  ],
+  "approaches": [
+    {
+      "id": "high",
+      "position": {
+        "x": 53,
+        "y": 5.6,
+        "z": -33
+      },
+      "radius": 3,
+      "color": "#78ffe1"
+    },
+    {
+      "id": "low",
+      "position": {
+        "x": 53,
+        "y": 3.2,
+        "z": -16
+      },
+      "radius": 2,
+      "color": "#ffb174"
+    }
+  ],
+  "lowPeek": {
+    "x": 55,
+    "y": 3.2,
+    "z": -25
+  },
+  "highDodge": {
+    "x": 54,
+    "y": 5.6,
+    "z": -39
+  },
+  "warden": {
+    "x": 69,
+    "y": 1.5,
+    "z": -27
+  },
+  "extraction": {
+    "x": 90,
+    "y": 7.8,
+    "z": -45
+  },
+  "extractionRadius": 3.5,
+  "world": {
+    "bounds": {
+      "minX": -102,
+      "maxX": 114,
+      "minY": -18,
+      "maxY": 30,
+      "minZ": -84,
+      "maxZ": 72
+    },
+    "boxes": [
+      {
+        "id": "bridge-low-deck",
+        "center": {
+          "x": -3,
+          "y": -10.33,
+          "z": 32.1
+        },
+        "size": {
+          "x": 60,
+          "y": 0.5,
+          "z": 5
+        }
+      },
+      {
+        "id": "bridge-high-deck",
+        "center": {
+          "x": -9,
+          "y": -2.98,
+          "z": -35.4
+        },
+        "size": {
+          "x": 36,
+          "y": 0.5,
+          "z": 5
+        }
+      },
+      {
+        "id": "court-floor",
+        "center": {
+          "x": 66,
+          "y": 1.2,
+          "z": -24
+        },
+        "size": {
+          "x": 24,
+          "y": 0.6,
+          "z": 24
+        }
+      },
+      {
+        "id": "court-cover-west",
+        "center": {
+          "x": 59,
+          "y": 3.1,
+          "z": -20
+        },
+        "size": {
+          "x": 3,
+          "y": 3.2,
+          "z": 5
+        }
+      },
+      {
+        "id": "court-cover-east",
+        "center": {
+          "x": 72,
+          "y": 3.1,
+          "z": -33
+        },
+        "size": {
+          "x": 3,
+          "y": 3.2,
+          "z": 4
+        }
+      },
+      {
+        "id": "court-core",
+        "center": {
+          "x": 74,
+          "y": 3.5,
+          "z": -17
+        },
+        "size": {
+          "x": 5,
+          "y": 4,
+          "z": 5
+        }
+      },
+      {
+        "id": "extraction-pad",
+        "center": {
+          "x": 90,
+          "y": 5.7,
+          "z": -45
+        },
+        "size": {
+          "x": 8,
+          "y": 0.6,
+          "z": 8
+        }
+      },
+      {
+        "id": "court-support-nw",
+        "center": {
+          "x": 57,
+          "y": -0.9165000000000001,
+          "z": -33
+        },
+        "size": {
+          "x": 0.7,
+          "y": 3.633,
+          "z": 0.7
+        }
+      },
+      {
+        "id": "court-support-ne",
+        "center": {
+          "x": 75,
+          "y": -4.08,
+          "z": -33
+        },
+        "size": {
+          "x": 0.7,
+          "y": 9.96,
+          "z": 0.7
+        }
+      },
+      {
+        "id": "court-support-sw",
+        "center": {
+          "x": 57,
+          "y": -1.5665000000000002,
+          "z": -15
+        },
+        "size": {
+          "x": 0.7,
+          "y": 4.933000000000001,
+          "z": 0.7
+        }
+      },
+      {
+        "id": "court-support-se",
+        "center": {
+          "x": 75,
+          "y": -3.286,
+          "z": -15
+        },
+        "size": {
+          "x": 0.7,
+          "y": 8.372,
+          "z": 0.7
+        }
+      },
+      {
+        "id": "exit-support-nw",
+        "center": {
+          "x": 87,
+          "y": 4.7,
+          "z": -48
+        },
+        "size": {
+          "x": 0.5,
+          "y": 1.4,
+          "z": 0.5
+        }
+      },
+      {
+        "id": "exit-support-ne",
+        "center": {
+          "x": 93,
+          "y": 4.7,
+          "z": -48
+        },
+        "size": {
+          "x": 0.5,
+          "y": 1.4,
+          "z": 0.5
+        }
+      },
+      {
+        "id": "exit-support-sw",
+        "center": {
+          "x": 87,
+          "y": 4.7,
+          "z": -42
+        },
+        "size": {
+          "x": 0.5,
+          "y": 1.4,
+          "z": 0.5
+        }
+      },
+      {
+        "id": "exit-support-se",
+        "center": {
+          "x": 93,
+          "y": 4.7,
+          "z": -42
+        },
+        "size": {
+          "x": 0.5,
+          "y": 1.4,
+          "z": 0.5
+        }
+      },
+      {
+        "id": "high-gate-post-north",
+        "center": {
+          "x": -18,
+          "y": -0.73,
+          "z": -38.5
+        },
+        "size": {
+          "x": 0.35,
+          "y": 4,
+          "z": 0.35
+        }
+      },
+      {
+        "id": "high-gate-post-south",
+        "center": {
+          "x": -18,
+          "y": -0.73,
+          "z": -32.3
+        },
+        "size": {
+          "x": 0.35,
+          "y": 4,
+          "z": 0.35
+        }
+      },
+      {
+        "id": "low-gate-post-north",
+        "center": {
+          "x": -27,
+          "y": -8.08,
+          "z": 29
+        },
+        "size": {
+          "x": 0.35,
+          "y": 4,
+          "z": 0.35
+        }
+      },
+      {
+        "id": "low-gate-post-south",
+        "center": {
+          "x": -27,
+          "y": -8.08,
+          "z": 35.2
+        },
+        "size": {
+          "x": 0.35,
+          "y": 4,
+          "z": 0.35
+        }
+      }
+    ]
+  },
+  "routePaths": {
+    "low": [
+      {
+        "x": -57,
+        "y": -4.5,
+        "z": 32.1
+      },
+      {
+        "x": -42,
+        "y": -6.5,
+        "z": 32.1
+      },
+      {
+        "x": -27,
+        "y": -8.2,
+        "z": 32.1
+      },
+      {
+        "x": 21,
+        "y": -8.2,
+        "z": 32.1
+      },
+      {
+        "x": 30,
+        "y": -6.4,
+        "z": 32.1
+      },
+      {
+        "x": 30,
+        "y": -1,
+        "z": 6
+      },
+      {
+        "x": 45,
+        "y": 3.2,
+        "z": -12
+      },
+      {
+        "x": 53,
+        "y": 3.2,
+        "z": -16
+      }
+    ],
+    "high": [
+      {
+        "x": -57,
+        "y": -4.5,
+        "z": 32.1
+      },
+      {
+        "x": -48,
+        "y": -4.5,
+        "z": 32.1
+      },
+      {
+        "x": -45,
+        "y": 1,
+        "z": 12
+      },
+      {
+        "x": -45,
+        "y": 8.4,
+        "z": -21
+      },
+      {
+        "x": -45,
+        "y": 8.4,
+        "z": -35.4
+      },
+      {
+        "x": -30,
+        "y": 8.4,
+        "z": -35.4
+      },
+      {
+        "x": -21,
+        "y": -0.7,
+        "z": -35.4
+      },
+      {
+        "x": -18,
+        "y": -0.7,
+        "z": -35.4
+      },
+      {
+        "x": 3,
+        "y": -0.7,
+        "z": -35.4
+      },
+      {
+        "x": 9,
+        "y": 3.2,
+        "z": -35.4
+      },
+      {
+        "x": 53,
+        "y": 5.6,
+        "z": -33
+      }
+    ]
+  },
+  "extractionPath": [
+    {
+      "x": 76,
+      "y": 7.8,
+      "z": -36
+    },
+    {
+      "x": 90,
+      "y": 7.8,
+      "z": -45
+    }
+  ],
+  "combat": {
+    "health": 425,
+    "guardMultiplier": 0,
+    "boltSpeed": 18,
+    "recoverySeconds": 1.2,
+    "chargedShots": 3,
+    "lowShield": 30,
+    "threatBegins": "court arrival; no bridge threat",
+    "trackingSeconds": 0.95,
+    "lockSeconds": 0.25,
+    "windupSeconds": 1.2
+  },
+  "authoringEvidence": "art/bridgehead/scale3-study.json",
+  "status": "scene-first authoritative contract; measured source envelopes passed; authored export follows; 19 exact boxes"
+}

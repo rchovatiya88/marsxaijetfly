@@ -51,7 +51,7 @@ if (!AFRAME.components['ridge-run']) AFRAME.registerComponent('ridge-run', {
       this.previous = {x:pos.x,y:pos.y,z:pos.z};
     } else if (this.stage === 'warden') {
       const enemy = this.warden?.components?.['enemy-component'];
-      if (enemy?.isDead || (this.warden && !this.warden.parentNode)) {
+      if (enemy?.isDead) {
         this.stage = 'extraction';
         this.el.querySelector('#ridge-extraction')?.setAttribute('visible', true);
         this.objective('Extract · enter the gold ring at the far end, low altitude · hold 1 second');

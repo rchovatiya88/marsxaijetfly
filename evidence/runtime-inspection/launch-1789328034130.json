@@ -1,0 +1,170 @@
+{
+  "kind": "posed-runtime-inspection",
+  "view": "launch",
+  "generation": 1,
+  "capturedAt": "2026-09-13T19:33:54.088Z",
+  "evidenceLimit": "Direct inspection placement and paused actors. Not natural traversal, combat, retry or human evidence.",
+  "buildScript": null,
+  "scenePaused": true,
+  "elapsedMs": 30.59999990463257,
+  "missionStage": "choice",
+  "player": {
+    "x": -19,
+    "y": -0.8,
+    "z": 10.7
+  },
+  "bikeLocal": {
+    "x": 0,
+    "y": -0.5,
+    "z": 0
+  },
+  "movementCollider": {
+    "shape": "sphere",
+    "radius": 0.7,
+    "center": {
+      "x": -19,
+      "y": -0.8,
+      "z": 10.7
+    }
+  },
+  "camera": {
+    "world": {
+      "x": -25.2,
+      "y": 1.7,
+      "z": 10.700000000000001
+    },
+    "localBoom": {
+      "x": 0,
+      "y": 2.5,
+      "z": 6.199999999999999
+    },
+    "configuredHeight": 2.5,
+    "configuredDistance": 6.2,
+    "pitch": -0.08,
+    "yaw": -1.5707963267948966,
+    "fov": 80,
+    "aspect": 1.7777777777777777
+  },
+  "hero": {
+    "loaded": true,
+    "failed": false,
+    "bounds": {
+      "min": {
+        "x": -21.352948597306316,
+        "y": -1.3043219743960894,
+        "z": 10.232730883991369
+      },
+      "max": {
+        "x": -16.647051402693688,
+        "y": 0.5078340156018843,
+        "z": 11.221228706923458
+      },
+      "size": {
+        "x": 4.7058971946126285,
+        "y": 1.8121559899979738,
+        "z": 0.9884978229320893
+      },
+      "projectedBounds": {
+        "minX": 0.46014787991443284,
+        "maxX": 0.544454187766124,
+        "minY": 0.5348951633829573,
+        "maxY": 0.8929694018948384,
+        "heightFraction": 0.35807423851188114,
+        "crosshairInside": false,
+        "allCornersInDepth": true
+      },
+      "projectionLimit": "Projected world AABB is conservative; it does not prove opaque-pixel occlusion."
+    }
+  },
+  "warden": {
+    "loaded": false,
+    "bounds": null,
+    "state": null
+  },
+  "aimRay": {
+    "origin": {
+      "x": -25.2,
+      "y": 1.7,
+      "z": 10.700000000000001
+    },
+    "target": {
+      "x": 74.48017063026194,
+      "y": -6.291469396917266,
+      "z": 10.699999999999978
+    },
+    "blocked": true,
+    "hit": {
+      "t": 0.48957621249990607,
+      "point": {
+        "x": 23.601040398508015,
+        "y": -2.212433319651664,
+        "z": 10.69999999999999
+      },
+      "normal": {
+        "x": -0.6462414927401946,
+        "y": 0.7437001520298103,
+        "z": -0.17111989052054227
+      }
+    }
+  },
+  "focusRays": [
+    {
+      "name": "left visual muzzle",
+      "origin": {
+        "x": -17.4,
+        "y": -1.8373504997011711,
+        "z": 9.970510835946891
+      },
+      "target": {
+        "x": -9,
+        "y": -2.2,
+        "z": 10.7
+      },
+      "blocked": false,
+      "hit": null
+    },
+    {
+      "name": "center damage gate",
+      "origin": {
+        "x": -17.4,
+        "y": -1.8499162323360152,
+        "z": 10.690401176459494
+      },
+      "target": {
+        "x": -9,
+        "y": -2.2,
+        "z": 10.7
+      },
+      "blocked": false,
+      "hit": null
+    },
+    {
+      "name": "right visual muzzle",
+      "origin": {
+        "x": -17.4,
+        "y": -1.8624819649708595,
+        "z": 11.410291516972094
+      },
+      "target": {
+        "x": -9,
+        "y": -2.2,
+        "z": 10.7
+      },
+      "blocked": false,
+      "hit": null
+    }
+  ],
+  "renderer": {
+    "width": 1280,
+    "height": 720,
+    "draws": 47,
+    "triangles": 297028,
+    "geometries": 72,
+    "textures": 51
+  },
+  "streaming": {
+    "status": "ready",
+    "activeRequests": 0,
+    "terrainTriangles": 172065
+  }
+}

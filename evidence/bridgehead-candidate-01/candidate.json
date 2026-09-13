@@ -1,0 +1,471 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "170838fed376056a0ecc27400c9d2054918e6df2c6c188e6d446dbb61a8644f9",
+  "createdAt": "2026-09-13T19:23:14.463Z",
+  "gitHead": "c04bd2cfc88c51a7d34b80497fd308f385df8192",
+  "gitStatus": "M AGENTS.md\n M art/concepts/README.md\n M art/player/avi-jetbike.blend\n M art/player/avi-jetbike.blend1\n M art/player/avi-jetbike.json\n M art/player/avi-jetbike.png\n M docs/PROJECT_MEMORY.md\n M docs/ROADMAP.md\n M docs/VALIDATION.md\n M public/models/avi-jetbike.glb\n M scripts/build-avi-player.py\n M src/App.css\n M src/App.tsx\n M src/PlaytestPanel.tsx\n M src/aframe-init.ts\n M src/arena-world.ts\n M src/components/enemy-component.ts\n M src/components/fly-controls.ts\n M src/components/game-manager.ts\n M src/components/hero-model.ts\n M src/components/ridge-run.ts\n M src/components/weapon-component.ts\n M src/components/world-stream.ts\n M tests/gameplay.test.cjs\n M tests/stream.test.cjs\n M vite.config.mjs\n?? art/bridgehead/\n?? art/concepts/full-level-chase-camera.png\n?? art/concepts/full-level-route-design.png\n?? docs/ART_DIRECTION_CRITICAL_BRIEF.md\n?? docs/BRIDGEHEAD_CANDIDATE_2026-09-13.md\n?? docs/BRIDGEHEAD_ITERATION_REVIEW.md\n?? docs/BRIDGEHEAD_LEVEL_BLUEPRINT.md\n?? docs/BRIDGEHEAD_RUN_SCORECARD.md\n?? docs/CAMERA_MOUSE_REAL_PLAYTEST_PLAN.md\n?? docs/FULL_LEVEL_GAME_DESIGN.md\n?? docs/OPEN_SOURCE_GAME_CODE_RESEARCH.md\n?? docs/PLAYER_ADVOCATE_AUDIT.md\n?? evidence/\n?? public/models/bridgehead-route.glb\n?? scripts/benchmark-triangle-collider.cjs\n?? scripts/bridgehead-acceptance.cjs\n?? scripts/build-bridgehead-route.py\n?? scripts/inspect-bridgehead-ground.py\n?? src/FrameBenchmark.tsx\n?? src/RouteMap.tsx\n?? src/bridgehead-input-check.ts\n?? src/components/bridgehead-art.ts\n?? src/components/bridgehead-run.ts\n?? src/mission/bridgehead-run.ts\n?? src/triangle-collider.ts\n?? tests/bridgehead-acceptance.test.cjs\n?? tests/bridgehead-art.test.cjs\n?? tests/bridgehead-flight.test.cjs\n?? tests/triangle-collider.test.cjs",
+  "files": [
+    {
+      "path": "assets/index-Bom8b6Yt.css",
+      "bytes": 10798,
+      "sha256": "565b7de17e73bf79065ea3bcdae6cfcf2daa4f1c8f583145291ca238c8a18221"
+    },
+    {
+      "path": "assets/index-RxlphQpx.js",
+      "bytes": 379616,
+      "sha256": "2cd95ffdb0c2c102635e7e25c22b05ad93c248410a0867f6dffcec70dac8e78e"
+    },
+    {
+      "path": "index.html",
+      "bytes": 709,
+      "sha256": "ce06b465f9bf76b854bf7f26d633bfbf0623ab4c915fb9da001f71f17383ec27"
+    },
+    {
+      "path": "mission/ridge-run-markers.json",
+      "bytes": 789,
+      "sha256": "3b1fca6905469ec9ee4f93dcc1059d5d9e71c4bc5bb7ef721f52514c7663e4c8"
+    },
+    {
+      "path": "mission/ridge-run-world.json",
+      "bytes": 5120,
+      "sha256": "3705e021a66823b035309eec16790319f59cb655a35da25c396cac108f6ba189"
+    },
+    {
+      "path": "models/avi-jetbike.glb",
+      "bytes": 1982748,
+      "sha256": "5c3941953eb7ff6aa45f0faaebe24ed529f085d95e6ecbf752941f4981b6a244"
+    },
+    {
+      "path": "models/bridgehead-route.glb",
+      "bytes": 207480,
+      "sha256": "53e44a65dcccbe611d01c820289a571fb6fb2036ac5f90ba7924db06b3fac66b"
+    },
+    {
+      "path": "models/enemy.glb",
+      "bytes": 1054800,
+      "sha256": "16415bf5a5b8dfa0440c7689451eb68f5a4b724ab74bb862a1cec7ceb54cdb69"
+    },
+    {
+      "path": "models/level1-stream/manifest.json",
+      "bytes": 4634,
+      "sha256": "9e8124f367f1254558a3cdbe96e26e9392e8a9606e1cc06902addb0686228e69"
+    },
+    {
+      "path": "models/level1-stream/q00-lod0.glb",
+      "bytes": 1383508,
+      "sha256": "8e64c6e56704131da5c914ea6ba6284e16c8b596ba481d30d9a6282f781eabd3"
+    },
+    {
+      "path": "models/level1-stream/q00-lod1.glb",
+      "bytes": 947820,
+      "sha256": "047ce7fb08a52702c4ecf66536314da8ed523deecbfbeedcb33487625ad8a97b"
+    },
+    {
+      "path": "models/level1-stream/q01-lod0.glb",
+      "bytes": 1687196,
+      "sha256": "4d12a18963475f07eb76db8a963798a87f1307b0b4561e25542f117385c65a3b"
+    },
+    {
+      "path": "models/level1-stream/q01-lod1.glb",
+      "bytes": 1013820,
+      "sha256": "4ba8115cf1069faa5f4ab1186f74ce2f18c8ce5d0e39683a9766db7f0900a483"
+    },
+    {
+      "path": "models/level1-stream/q10-lod0.glb",
+      "bytes": 4448756,
+      "sha256": "16048356c5b695243776dc7b9d25e196bfd5f4a5a4e690a80a23caf6558d9bf4"
+    },
+    {
+      "path": "models/level1-stream/q10-lod1.glb",
+      "bytes": 3813232,
+      "sha256": "e8ea617e8c916bb603d3dd4503eef612ab65b6c9b6922d1d4f941c76cd44e062"
+    },
+    {
+      "path": "models/level1-stream/q11-lod0.glb",
+      "bytes": 3724340,
+      "sha256": "6390444c49b61e064631180e23fce1b53e272b1f2983b51d6d8f7a54b05c600f"
+    },
+    {
+      "path": "models/level1-stream/q11-lod1.glb",
+      "bytes": 2744904,
+      "sha256": "410ea99a75f7999944e50bde9f8157b4a09c3b37a757f7b99488a7b76875b606"
+    },
+    {
+      "path": "models/ridge-run-shell.glb",
+      "bytes": 2629384,
+      "sha256": "c2b9d8abebabca3f6b27677637c5be885dc9cce6ffbf9f5d56cdec8ad57a6d70"
+    },
+    {
+      "path": "vendor/AFRAME-LICENSE",
+      "bytes": 1081,
+      "sha256": "62ad4012d4dca628fccc35994e4d5bbd41991225f402642e31145d97f641a9cd"
+    },
+    {
+      "path": "vendor/aframe.min.js",
+      "bytes": 1325306,
+      "sha256": "8dcbb28bdeedefa60c71fbea2b3842402f0cf654441ad0cbbb38b9d132120489"
+    },
+    {
+      "path": "vendor/draco/draco_decoder.js",
+      "bytes": 512465,
+      "sha256": "8625489da79a805f4f2a7d511c3e52d8b4085608a9d2a4d5f4f9de5db0aea04f"
+    },
+    {
+      "path": "vendor/draco/draco_decoder.wasm",
+      "bytes": 192420,
+      "sha256": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac"
+    },
+    {
+      "path": "vendor/draco/draco_wasm_wrapper.js",
+      "bytes": 58456,
+      "sha256": "8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6"
+    },
+    {
+      "path": "vendor/THREE-LICENSE",
+      "bytes": 1081,
+      "sha256": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "package.json",
+      "sha256": "99dfcd5c232d87f5604c0d27c5161ce42c5464cae66aa47fc0d981447a9f5cdf"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "bf836714fe57c7dcc585bad6e9430dfb3e8405a9551ea772ee5e298fa1972843"
+    },
+    {
+      "path": "vite.config.mjs",
+      "sha256": "8d189da9be2ff27f15759ac272ef85ef46f8ac0b583bb75913a50aa1f13fcc82"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "0cc9636cdd098543d2586fbeaa9ed4cde56b88b765c33e6791eee79c01c2cf9a"
+    },
+    {
+      "path": "index.html",
+      "sha256": "6c06567c5a649f397a8bc995044fbd609d6b280127a2c5d86f8a37866ba48ba5"
+    },
+    {
+      "path": "src/aframe-globals.d.ts",
+      "bytes": 1981,
+      "sha256": "8f00ba9ef6645b1cd9cbd44811b826db6f7faf8a99608a7af1713e8145780d15"
+    },
+    {
+      "path": "src/aframe-init.ts",
+      "bytes": 2276,
+      "sha256": "d797575527cc3144c1757a89c20870ed8170d82073f50f4b03e3e541d7ee2b89"
+    },
+    {
+      "path": "src/App.css",
+      "bytes": 11976,
+      "sha256": "ec7ce50acc04bffdff025809fe338c97cff27c03ab43c9839ae571c2f55b3717"
+    },
+    {
+      "path": "src/App.tsx",
+      "bytes": 28371,
+      "sha256": "2e8e36f4e94bf3cbe5961f8bdc459dcb9597be709ffbaa1dc61f9ea71621415f"
+    },
+    {
+      "path": "src/arena-world.ts",
+      "bytes": 6481,
+      "sha256": "156609a7e8445d039d9d460a5634084f844fc1a0ac12678cdc3e9e53914e3a6d"
+    },
+    {
+      "path": "src/bridgehead-input-check.ts",
+      "bytes": 8062,
+      "sha256": "db1455fb0e008bc32430ac5ff5b623c96c9309eee67dcdd65311abd46abab3c4"
+    },
+    {
+      "path": "src/components/aframe-export.ts",
+      "bytes": 1698,
+      "sha256": "d517cd0fb128be6c60cb614f749fbd1474a24d00f0cb725c63c1d54c6a2c902f"
+    },
+    {
+      "path": "src/components/bridgehead-art.ts",
+      "bytes": 2917,
+      "sha256": "63cf8e2732ec8c0eb8e5e1fd744d71ede40644d48397ea8b367dea2afba64f7d"
+    },
+    {
+      "path": "src/components/bridgehead-run.ts",
+      "bytes": 12179,
+      "sha256": "3caf1f477a94b9deca519ac4fef33c2131afee2788741ae7ae4d651a48743f8a"
+    },
+    {
+      "path": "src/components/custom-fly-controls.ts",
+      "bytes": 2403,
+      "sha256": "bcb38e27a669d51b2f5f370bf37a81a652fd8105620325a0770de83c755958ae"
+    },
+    {
+      "path": "src/components/enemy-component.ts",
+      "bytes": 38961,
+      "sha256": "12bad5ca7e07175c2bfc513c0737a5c738036a0356fd667716f800f5391a6e32"
+    },
+    {
+      "path": "src/components/firework-component.ts",
+      "bytes": 11700,
+      "sha256": "286a783580e508fac7655983faae0b3312c08a200f6e8399fc3f2490c1863849"
+    },
+    {
+      "path": "src/components/firework-spawner-component.ts",
+      "bytes": 5054,
+      "sha256": "4fad21b8ed4d0210a56d761cc5b4e139afb914d066164ca5ee429ada2c9c2957"
+    },
+    {
+      "path": "src/components/fly-controls.ts",
+      "bytes": 17842,
+      "sha256": "f17af9325192b6e881680863f37ee8441e7f451fd7a6cabad2a488b6078af12b"
+    },
+    {
+      "path": "src/components/game-manager.ts",
+      "bytes": 22615,
+      "sha256": "c0b63602039e65f5c0aff747a395d3cd7c6dd79a5e54b0250bb3dab213ef9904"
+    },
+    {
+      "path": "src/components/hero-model.ts",
+      "bytes": 6811,
+      "sha256": "6754b54d964d5f593ded81072d9272b696ed1885b1763cab22c8ba8c688bdb55"
+    },
+    {
+      "path": "src/components/hitbox-component.ts",
+      "bytes": 7159,
+      "sha256": "575ff73bbd145f2f1f852aa0254bb4cc63ff8b41b0a13823f88f2d25788c9008"
+    },
+    {
+      "path": "src/components/level-runtime.ts",
+      "bytes": 3641,
+      "sha256": "c250425833101ada61aab7a4c644044ab2ab9586b86345c0b2767dc47263040b"
+    },
+    {
+      "path": "src/components/mars-environment.ts",
+      "bytes": 7824,
+      "sha256": "41cfa7679eec770ff0b3567510a11973355826ae86ce7f35ed5b278b5ae0ab8f"
+    },
+    {
+      "path": "src/components/particle-demo.ts",
+      "bytes": 11084,
+      "sha256": "47b77beb6ec2b833279ad84503ad4b0f9e06d6ae55982bf8212ca5c46cb5d26a"
+    },
+    {
+      "path": "src/components/player-component.ts",
+      "bytes": 15708,
+      "sha256": "0cff4ff5cbb7a69203a2f3462207b32c57f247d7c466bb902e81428bc85f2191"
+    },
+    {
+      "path": "src/components/ridge-run.ts",
+      "bytes": 4082,
+      "sha256": "fd2a3eb588f6fcb40cd5923149ae7c20987aa30a6b5bfcb6d006a544ccd515d6"
+    },
+    {
+      "path": "src/components/simple-navmesh-constraint.ts",
+      "bytes": 5875,
+      "sha256": "d172fe83b1d941091a9f612df59b326b06b46c38f6721fb5b49360e9f331b6d3"
+    },
+    {
+      "path": "src/components/sound-manager.ts",
+      "bytes": 396,
+      "sha256": "d88bb77c726baa3642203079a55892cec10d53eda3033472fc0ef71435c5d405"
+    },
+    {
+      "path": "src/components/sprite-particles-component.ts",
+      "bytes": 12510,
+      "sha256": "65ad570485b7f18096f5fed9e2a2168f4b5eb1c1040ac6a992ff62e62a18df0c"
+    },
+    {
+      "path": "src/components/spritesheet-animation-component.ts",
+      "bytes": 5512,
+      "sha256": "e5ab4c7a34b59a5e80bf29e1831a045ff898aafcf5fa35026e4e4f1a4f55f7b1"
+    },
+    {
+      "path": "src/components/star-field-component.ts",
+      "bytes": 1742,
+      "sha256": "83ddc58e795d56f8b3cb823d43c2de460fdb5d8d8f4e807a63b0fd11f7008f50"
+    },
+    {
+      "path": "src/components/three-globals.ts",
+      "bytes": 314,
+      "sha256": "63fcb0886866b33a16cefeb0fbee95217ab44b76ca8bbe74a3d5af5120180801"
+    },
+    {
+      "path": "src/components/utils.ts",
+      "bytes": 9764,
+      "sha256": "7e4d28b40704411cce6cc8189428060a2ae7f712ec910c459416e5fcac3950d2"
+    },
+    {
+      "path": "src/components/weapon-component.ts",
+      "bytes": 35761,
+      "sha256": "261b0665c959538639c33a5d38f22ef15f232d3a48e2a0e303bba07145516f52"
+    },
+    {
+      "path": "src/components/world-stream.ts",
+      "bytes": 13386,
+      "sha256": "a8d47230de220adff43621f63fb84ce78ef02d71a8cba22d20bed25f3ec30e6b"
+    },
+    {
+      "path": "src/demo-scene.ts",
+      "bytes": 4368,
+      "sha256": "bbcf612664c72be7ab5e8b6922d1ae96bea169306a8e7bca5c5d692c8f3e183b"
+    },
+    {
+      "path": "src/FrameBenchmark.tsx",
+      "bytes": 3191,
+      "sha256": "0a88678fa483271b3d41816cb354522bba86f225c95e05ea654a37566ba0f8fe"
+    },
+    {
+      "path": "src/game-audio.ts",
+      "bytes": 3514,
+      "sha256": "075aa15a34bd04d9f8c5203d3b9fcf2ea1b2b10cdbbdd47b34d0607577fdac40"
+    },
+    {
+      "path": "src/index.css",
+      "bytes": 266,
+      "sha256": "32feb58df8b58ef1fac94247bbe39c69af9f547970b1296262a17a0c2fe360c8"
+    },
+    {
+      "path": "src/index.tsx",
+      "bytes": 1320,
+      "sha256": "41a63281da1619811a02398f7533e2c0d59bc935e03db036d61f281cf41ffe3c"
+    },
+    {
+      "path": "src/mission/bridgehead-run.ts",
+      "bytes": 3495,
+      "sha256": "600ff02ffada05d2324e1bea6aaa4811c3c98c20e8fcbee196c7746a01307164"
+    },
+    {
+      "path": "src/mission/ridge-run.ts",
+      "bytes": 787,
+      "sha256": "679438c39572586a491715c4a9bb8240e91f8483263a6e90fdcc3cb220151bd4"
+    },
+    {
+      "path": "src/PlaytestPanel.tsx",
+      "bytes": 32395,
+      "sha256": "953c88f5d6c23d0aa37703990e58ff55336dba378283ddc10160311e460419fe"
+    },
+    {
+      "path": "src/react-app-env.d.ts",
+      "bytes": 41,
+      "sha256": "ba027b6f18800b0303aa700e73d8cbffeefd5df864df6be460f5bad437fdc61c"
+    },
+    {
+      "path": "src/RouteMap.tsx",
+      "bytes": 1819,
+      "sha256": "2249e9e8f24938b270b46bbb3de9e599db9b976c3803c271f806a9d2bddf85f0"
+    },
+    {
+      "path": "src/settings.ts",
+      "bytes": 910,
+      "sha256": "8a0cbf7286f90c8670e6bcb2f337d6008128aa8309e0b228b8197e4c9077a82b"
+    },
+    {
+      "path": "src/three-addons-shim.js",
+      "bytes": 1064,
+      "sha256": "994509b8408d2922116747b273991814a6fb75bf62ae772ced5548ff99106df0"
+    },
+    {
+      "path": "src/triangle-collider.ts",
+      "bytes": 11395,
+      "sha256": "079294d6def18513e6fa9e3e7f9cdc155056645c982bdbbd3195c00b6472d1a8"
+    },
+    {
+      "path": "src/types/aframe-dom.d.ts",
+      "bytes": 1185,
+      "sha256": "06e96f6e309271bede8533dde7a49019f200908c925873fc2e0af3d5a592b7ca"
+    },
+    {
+      "path": "src/types/babel__traverse.d.ts",
+      "bytes": 415,
+      "sha256": "5e4d3074fde2d945f4ddbae6b3c0910a6a9ef5a8a15af6f5afc97c52b2afb562"
+    },
+    {
+      "path": "src/types/babel-traverse-fix.d.ts",
+      "bytes": 336,
+      "sha256": "e3180c2aa2d5730f8dbb8a30fdad9a129f29086ffcef19c6caa1c7b54752398d"
+    },
+    {
+      "path": "src/types/node-http2.d.ts",
+      "bytes": 424,
+      "sha256": "e9b59fa93955b61050223a52aa67f094ede59a82940ddae78ecaf5c3d60873d6"
+    },
+    {
+      "path": "src/types/three-addons.d.ts",
+      "bytes": 1556,
+      "sha256": "d1b295099969b6393dbd21d734001f4ef8269113c7b571937c22c21331b38cf6"
+    },
+    {
+      "path": "src/types/tone.d.ts",
+      "bytes": 53,
+      "sha256": "c878048d51e9c9644b9b3c125f8c5cd88850f9fcf4fdf403220f9c98c5d1a2cc"
+    },
+    {
+      "path": "src/types/yuka.d.ts",
+      "bytes": 938,
+      "sha256": "9e55bbb16f97d4aa377f6b192fb3d72adf66ec2fbc5c0bb11a47df5e21729329"
+    },
+    {
+      "path": "scripts/benchmark-triangle-collider.cjs",
+      "bytes": 7815,
+      "sha256": "54fb65b5f93ee36979089e8f5e1686e59e5ccbf95b5e3e161125cf29d344aa99"
+    },
+    {
+      "path": "scripts/bridgehead-acceptance.cjs",
+      "bytes": 16096,
+      "sha256": "03531c2a181c5b55dc229a1b200615b1c421a318857db202f509972a6dc8d402"
+    },
+    {
+      "path": "scripts/build-avi-player.py",
+      "bytes": 5014,
+      "sha256": "d5e4d050b7af5aadc9506c53163d7a9371f8ff554a8c401f8494ef09078edd20"
+    },
+    {
+      "path": "scripts/build-bridgehead-route.py",
+      "bytes": 18654,
+      "sha256": "e55e3805553cd418a37fd4177f5a0a02d06d8b5a5db3e032f9f2778ebe2d9b2c"
+    },
+    {
+      "path": "scripts/build-full-level.py",
+      "bytes": 8102,
+      "sha256": "5cece6e16350360b41e6f4a6abdf568f6e287c6a3dde00a8f82267da45880e35"
+    },
+    {
+      "path": "scripts/build-ridge-blockout.py",
+      "bytes": 9429,
+      "sha256": "14517629e311983f4cc9b8411a5641c242979a911b37c97406684d6c452d0821"
+    },
+    {
+      "path": "scripts/build-ridge-scene.py",
+      "bytes": 10760,
+      "sha256": "953e9b04672a588c69dca69e38654404fc6c38a1b74c8e9423818c162ecbea4e"
+    },
+    {
+      "path": "scripts/inspect-bridgehead-ground.py",
+      "bytes": 4830,
+      "sha256": "44e1c2f4471e8ff7ef839f87fdc17b2fac6ee7a558d83a5e7057cafb7f9fa0b8"
+    },
+    {
+      "path": "scripts/inspect-models.py",
+      "bytes": 3273,
+      "sha256": "c1695f3052efad29bf35a042be6b410f234aaea1dddc3a1ae7ff0e17fb2ba4e2"
+    },
+    {
+      "path": "scripts/prepare-vendor.cjs",
+      "bytes": 606,
+      "sha256": "bbbb50504d7dda645780c6f101a3530247f1941130729bd1403b2082180537ff"
+    },
+    {
+      "path": "scripts/render-full-level-low.py",
+      "bytes": 577,
+      "sha256": "9fe5d6fbb429f563ab73848d5c6044494756e3179158c5d8bd5836731f46118f"
+    },
+    {
+      "path": "scripts/repair-bike.py",
+      "bytes": 2308,
+      "sha256": "896c16d4ec19b70cb26e0b2c03d47838afbfcd4664f42bd03e26005e45e2584f"
+    },
+    {
+      "path": "scripts/ridge-preview.py",
+      "bytes": 2584,
+      "sha256": "1b0a286ecaa46271e2633585f8f67efcae97e9b0b694bd4973bb076a7f4288fa"
+    }
+  ]
+}

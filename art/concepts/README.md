@@ -17,3 +17,9 @@ The fork, cyan high bridge, sheltered low passage and amber extraction read clea
 Prompt: Use case: stylized-concept. Create a two-panel production art study for a low-poly Mars hoverbike game. Reference is actual spiked rock humanoid asset, preserve its broad shoulders, hunched grounded stance, jagged basalt spikes and large hands; no gun, no wings, no riding vehicle. Left panel: grounded Warden in compact rust-dust industrial court, pale sand behind silhouette, subtle amber fissure light, forearms raised for a clearly readable 850ms attack warning. Right panel: same Warden recovering after a heavy arm strike, vulnerable chest visibly exposed; a small cyan hoverbike banks laterally behind cover to attack. Feasible stylized indie 3D art, faceted forms, restrained effects, strong player-readable contrast. Wide horizontal composition. Short labels TELEGRAPH, RECOVERY, small CONCEPT — NOT GAMEPLAY. No giant boss scale, creature approximately twice rider height. Show ideas for adapting existing punch/swipe clips, not new weapon rigging.
 
 Review: the raised/lowered hands and pale backdrop communicate the intended contrast. Generated detail and emissive fissures exceed the source asset; author and measure those separately. Use this image for design discussion, not a store screenshot.
+
+## Full level design boards
+
+`full-level-route-design.png` and `full-level-chase-camera.png` were generated from the user's full-level screenshot on 2026-09-13. They are art-direction targets for the complete level: a bridge/chasm/outpost route and a properly readable rider-plus-jetbike chase camera. The images are not runtime screenshots and do not approve unbuilt collision, enemies, lighting or performance.
+
+Prompts are summarized in `docs/FULL_LEVEL_GAME_DESIGN.md`. Use these boards to guide route selection, camera framing and scale checks before building the first full-level mission package.

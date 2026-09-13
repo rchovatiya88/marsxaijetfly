@@ -1,0 +1,51 @@
+C:\Users\roncho\Documents\repos\marsxaijetfly\scripts\build-bridgehead-route.py:32: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name);m.diffuse_color=(*color,1);m.use_nodes=True
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+15:11:13 | INFO: Starting glTF 2.0 export
+15:11:13 | INFO: Extracting primitive: Cube.363
+15:11:13 | INFO: Primitives created: 1
+15:11:13 | INFO: Extracting primitive: Cube.404
+15:11:13 | INFO: Primitives created: 1
+15:11:13 | INFO: Extracting primitive: Cube.241
+15:11:13 | INFO: Primitives created: 1
+15:11:13 | INFO: Extracting primitive: Cube.444
+15:11:13 | INFO: Primitives created: 1
+15:11:13 | INFO: Extracting primitive: court-cover-west_armor_-1.001
+15:11:13 | INFO: Primitives created: 1
+15:11:13 | INFO: Finished glTF 2.0 export in 0.06840729713439941 s
+
+15:11:13 | INFO: Data are loaded, start creating Blender stuff
+15:11:13 | INFO: Blender create Mesh node Cube.363
+15:11:13 | INFO: Blender create Mesh node Cube.404
+15:11:13 | INFO: Blender create Mesh node Cube.241
+15:11:13 | INFO: Blender create Mesh node Cube.444
+15:11:13 | INFO: Blender create Mesh node court-cover-west_armor_-1.001
+15:11:13 | INFO: glTF import finished in 0.04s
+15:11:13 | INFO: Data are loaded, start creating Blender stuff
+15:11:13 | INFO: Blender create Mesh node Scene
+15:11:13 | INFO: Blender create Mesh node Scene.001
+15:11:13 | INFO: Blender create Mesh node Scene.002
+15:11:13 | INFO: Blender create Mesh node Scene.003
+15:11:13 | INFO: Blender create Mesh node Scene.004
+15:11:13 | INFO: Blender create Mesh node Mesh
+15:11:13 | INFO: glTF import finished in 0.06s
+15:11:13 | INFO: Data are loaded, start creating Blender stuff
+15:11:13 | INFO: Blender create Mesh node Scene.005
+15:11:13 | INFO: Draco Decoder: Decode primitive Scene.005
+15:11:13 | INFO: glTF import finished in 0.33s
+C:\Users\roncho\Documents\repos\marsxaijetfly\scripts\build-bridgehead-route.py:226: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  scene.world.use_nodes=True;bg=scene.world.node_tree.nodes['Background'];bg.inputs[0].default_value=(.13,.105,.115,1);bg.inputs[1].default_value=.7
+00:15.453  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\bridgehead-launch.png'
+00:23.812  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\bridgehead-fork.png'
+00:31.953  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\bridgehead-south-bridge.png'
+00:39.656  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\bridgehead-court.png'
+00:45.859  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\bridgehead-overview.png'
+Info: Saved as "bridgehead-route.blend"
+Info: Total files 3 | Changed 0 | Failed 0
+Info: Saved as "bridgehead-route.blend"
+BRIDGEHEAD_ART_VERIFIED {"path": "public/models/bridgehead-route.glb", "sha256": "53e44a65dcccbe611d01c820289a571fb6fb2036ac5f90ba7924db06b3fac66b", "bytes": 207480, "triangles": 2852, "meshes": 5, "materials": 5, "textures": 0, "animations": 0, "bounds": {"min": [-19.595, -4.26774, -18.755], "max": [35.5, 6.11, 13.775]}, "transform": "identity; global runtime Y-up metres"}
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+DracoDecoder | Decoded 12742 vertices, 17760 indices
+
+Blender quit

@@ -7,11 +7,26 @@
  */
 
 // Import THREE.js
-import { moveInWorld, traceWorld } from '../arena-world';
+import { moveInWorld, moveBikeBody, rotateBikeBody, traceWorld } from '../arena-world';
 import * as THREE from 'three';
 import AFRAME_EXPORT from './aframe-export';
 
 const AFRAME = AFRAME_EXPORT;
+
+// The sweep is centred on the rig, so include the complete near plane relative
+// to that pivot, including any camera child offset and inherited scale. The
+// projection inverse also handles zoom/aspect changes and asymmetric frusta.
+// Shipped A-Frame near=0.005/FOV=80 fits inside the existing 0.25 m minimum.
+export function cameraNearPlaneRadius(camera: THREE.Camera | undefined, rigCenter: THREE.Vector3, corner: THREE.Vector3): number {
+  if (!camera?.projectionMatrixInverse || !camera.matrixWorld) return 0.25;
+  let radiusSquared = 0.25 * 0.25;
+  for (let x = -1; x <= 1; x += 2) for (let y = -1; y <= 1; y += 2) {
+    corner.set(x, y, -1).applyMatrix4(camera.projectionMatrixInverse).applyMatrix4(camera.matrixWorld);
+    const distanceSquared = corner.distanceToSquared(rigCenter);
+    if (Number.isFinite(distanceSquared)) radiusSquared = Math.max(radiusSquared, distanceSquared);
+  }
+  return Math.sqrt(radiusSquared);
+}
 
 export default function initializeFlyControls(): void {
   if (!AFRAME.components['fly-controls']) {
@@ -25,6 +40,9 @@ export default function initializeFlyControls(): void {
         yawSpeed: { type: 'number', default: 1.8 },
         invertY: { type: 'boolean', default: false },
         dragToLook: { type: 'boolean', default: false },
+        cameraHeight: { type: 'number', default: 2 },
+        cameraDistance: { type: 'number', default: 8 },
+        cameraShoulder: { type: 'number', default: 0 },
         autoForward: { type: 'boolean', default: false }
       },
       
@@ -79,6 +97,7 @@ export default function initializeFlyControls(): void {
         
         // Speed multiplier for sprint
         this.speedMultiplier = 1;
+        this.boostKeys = new Set<string>();
         
         // Mouse tracking
         this.mouseEnabled = true;
@@ -89,9 +108,11 @@ export default function initializeFlyControls(): void {
         // Bind event handlers
         this.bindEvents();
         
-        // Set initial position for camera
+        // Match the authored boom on the first playable frame. Hard-coded
+        // defaults here caused Bridgehead to jump from 0/2/8 to 0/1.45/5.4
+        // only after its first camera update/reset.
         if (this.cameraRigEl) {
-          this.cameraRigEl.setAttribute('position', {x: 0, y: 2, z: 8});
+          this.cameraRigEl.setAttribute('position', {x: this.data.cameraShoulder || 0, y: this.data.cameraHeight, z: this.data.cameraDistance});
         }
         this.applyLookRotation();
         
@@ -143,22 +164,25 @@ export default function initializeFlyControls(): void {
           case 'KeyD': this.moveState.right = 1; break;
           case 'KeyQ': this.moveState.down = 1; break;
           case 'KeyE': this.moveState.up = 1; break;
-          case 'ShiftLeft': case 'ShiftRight': this.speedMultiplier = 2; break;
+          case 'ShiftLeft': case 'ShiftRight':
+            (this.boostKeys ||= new Set<string>()).add(event.code);
+            this.speedMultiplier = 2; break;
           
           // Arrow keys for manual rotation
           case 'ArrowUp': this.moveState.pitchUp = 1; break;
           case 'ArrowDown': this.moveState.pitchDown = 1; break;
           case 'ArrowLeft': this.moveState.yawLeft = 1; break;
           case 'ArrowRight': this.moveState.yawRight = 1; break;
+          default: return;
         }
+        event.preventDefault?.();
         
         this.updateMovementVector();
         this.updateRotationVector();
       },
       
       handleKeyUp: function(event) {
-        if (!this.data.enabled) return;
-        
+        // Releases must be accepted while disabled, paused, or after focus loss.
         switch (event.code) {
           case 'KeyW': this.moveState.forward = 0; break;
           case 'KeyS': this.moveState.back = 0; break;
@@ -166,7 +190,9 @@ export default function initializeFlyControls(): void {
           case 'KeyD': this.moveState.right = 0; break;
           case 'KeyQ': this.moveState.down = 0; break;
           case 'KeyE': this.moveState.up = 0; break;
-          case 'ShiftLeft': case 'ShiftRight': this.speedMultiplier = 1; break;
+          case 'ShiftLeft': case 'ShiftRight':
+            this.boostKeys?.delete(event.code);
+            this.speedMultiplier = this.boostKeys?.size ? 2 : 1; break;
           
           // Arrow keys for manual rotation
           case 'ArrowUp': this.moveState.pitchUp = 0; break;
@@ -214,6 +240,9 @@ export default function initializeFlyControls(): void {
         // the boom: aiming must not orbit the camera through terrain or roll the horizon.
         this.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, this.rotation.x));
         this.rotation.z = 0;
+        if (this.el?.sceneEl?.components?.['bridgehead-run']) {
+          this.rotation.y = rotateBikeBody(this.playerObj.position, this.playerObj.rotation.y, this.rotation.y);
+        }
         this.playerObj.rotation.set(0, this.rotation.y, 0, 'YXZ');
         if (this.cameraRigEl) this.cameraRigEl.object3D.quaternion.identity();
         if (this.cameraObj) this.cameraObj.rotation.set(this.rotation.x, 0, 0, 'YXZ');
@@ -259,7 +288,7 @@ export default function initializeFlyControls(): void {
       },
       
       tick: function(time, delta) {
-        if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook)) return;
+        if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook) || !Number.isFinite(delta) || delta <= 0) return;
         
         // Calculate time factor for smooth movement
         const dt = Math.min(delta / 1000, 0.1); // Cap at 0.1 to avoid large jumps
@@ -305,7 +334,8 @@ export default function initializeFlyControls(): void {
           
           // Apply movement inside the performance arena.
           const before = this.playerObj.position.clone();
-          moveInWorld(this.playerObj.position, moveDelta);
+          if (this.el?.sceneEl?.components?.['bridgehead-run']) moveBikeBody(this.playerObj.position, moveDelta, this.rotation.y);
+          else moveInWorld(this.playerObj.position, moveDelta);
           this.velocity.copy(this.playerObj.position).sub(before).divideScalar(dt || 0.016);
           const player = this.el.components['player-component'];
           if (player) { player.velocity.copy(this.velocity); player.isSprinting = this.speedMultiplier > 1; }
@@ -330,10 +360,16 @@ export default function initializeFlyControls(): void {
         // The camera rig is a child of the player: its position is local.
         this.playerObj.updateMatrixWorld(true);
         const anchor = this.playerObj.localToWorld(new THREE.Vector3(0, 0.5, 0));
-        const desired = this.playerObj.localToWorld(new THREE.Vector3(0, 2, 8));
-        if (!this.el?.sceneEl?.components?.['world-stream']?.ownsWorld) desired.y = Math.max(0.6, desired.y);
+        const desired = this.playerObj.localToWorld(new THREE.Vector3(this.data.cameraShoulder || 0, this.data.cameraHeight, this.data.cameraDistance));
+        const sceneComponents = this.el?.sceneEl?.components;
+        if (!sceneComponents?.['world-stream']?.ownsWorld && !sceneComponents?.['bridgehead-run']) desired.y = Math.max(0.6, desired.y);
         const delta = desired.clone().sub(anchor);
-        const hit = traceWorld(anchor, delta, 0.25);
+        const camera = this.cameraEl?.getObject3D?.('camera') || this.cameraEl?.components?.camera?.camera;
+        this.cameraSweepCenter ||= new THREE.Vector3();
+        this.cameraSweepCorner ||= new THREE.Vector3();
+        this.cameraRigEl.object3D.getWorldPosition(this.cameraSweepCenter);
+        const radius = cameraNearPlaneRadius(camera, this.cameraSweepCenter, this.cameraSweepCorner);
+        const hit = traceWorld(anchor, delta, radius);
         const safe = anchor.addScaledVector(delta, hit ? Math.max(0, hit.t - 0.04) : 1);
         this.cameraRigEl.object3D.position.copy(this.playerObj.worldToLocal(safe));
       },
@@ -343,9 +379,12 @@ export default function initializeFlyControls(): void {
         this.cursorPosition = null;
         for (const key in this.moveState) this.moveState[key] = 0;
         this.speedMultiplier = 1;
+        this.boostKeys?.clear();
         this.moveVector.set(0, 0, 0);
         this.rotationVector.set(0, 0, 0);
         this.velocity.set(0, 0, 0);
+        const player = this.el?.components?.['player-component'];
+        if (player) { player.velocity?.set(0, 0, 0); player.isSprinting = false; }
       },
 
       resetMission: function() {
@@ -354,7 +393,7 @@ export default function initializeFlyControls(): void {
         this.rotationQuaternion.identity();
         this.playerObj.position.set(0, 3, 12);
         this.playerObj.quaternion.identity();
-        this.cameraRigEl.object3D.position.set(0, 2, 8);
+        this.cameraRigEl.object3D.position.set(this.data.cameraShoulder || 0, this.data.cameraHeight, this.data.cameraDistance);
         this.cameraRigEl.object3D.quaternion.identity();
         this.cameraObj.quaternion.identity();
         this.applyLookRotation();

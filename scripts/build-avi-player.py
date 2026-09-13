@@ -8,6 +8,15 @@ bike=Path('C:/Users/roncho/Documents/OrnaLabs/MarsX/Models/jetbick.glb')
 fighter=root/'public/models/avi.glb'
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(bike))
+bike_meshes=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.startswith('SM_Veh_Hover_Bike')]
+bike_anchor=Vector((0,0,.25))
+for o in bike_meshes:
+    inv=o.matrix_world.inverted()
+    for v in o.data.vertices:
+        w=o.matrix_world@v.co
+        w=bike_anchor+Vector(((w.x-bike_anchor.x)*1.28,(w.y-bike_anchor.y)*1.45,(w.z-bike_anchor.z)*1.08))
+        v.co=inv@w
+    o.data.update()
 bpy.ops.import_scene.gltf(filepath=str(fighter))
 arm=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
 arm.animation_data_clear()
@@ -17,7 +26,7 @@ for o in list(bpy.context.scene.objects):
 bpy.context.view_layer.update()
 def bone(n):return arm.pose.bones['Scifi_city:'+n]
 def head(n):return arm.matrix_world@bone(n).head
-arm.location+=Vector((0,.42,.58))-head('Hips')
+arm.location+=Vector((0,.50,.50))-head('Hips')
 bpy.context.view_layer.update()
 def point(n,child,target):
     b=bone(n);p=head(n);direction=head(child)-p
@@ -32,12 +41,12 @@ def chain(a,b,c,target,pole):
     bend=Vector(pole)-p;bend-=v*bend.dot(v);bend.normalize()
     elbow=p+v*x+bend*max(0,l1*l1-x*x)**.5
     point(a,b,elbow);point(b,c,target)
-point('Spine','Spine1',(0,.35,.79))
+point('Spine','Spine1',(0,.28,.76))
 for side,s in [('Left',1),('Right',-1)]:
-    chain(side+'UpLeg',side+'Leg',side+'Foot',(s*.32,.12,-.14),(s*.5,-.5,.45))
-    point(side+'Foot',side+'ToeBase',(s*.32,-.18,-.22))
-    chain(side+'Arm',side+'ForeArm',side+'Hand',(s*.46,-.20,.58),(s*.65,.0,.8))
-    point(side+'Hand',side+'HandIndex1',(s*.43,-.39,.56))
+    chain(side+'UpLeg',side+'Leg',side+'Foot',(s*.40,.17,-.17),(s*.6,-.55,.42))
+    point(side+'Foot',side+'ToeBase',(s*.40,-.26,-.26))
+    chain(side+'Arm',side+'ForeArm',side+'Hand',(s*.59,-.29,.61),(s*.74,-.02,.78))
+    point(side+'Hand',side+'HandIndex1',(s*.55,-.57,.58))
 # Keep functional source colors; lower oversized maps for a browser player asset.
 for im in bpy.data.images:
     assert all(im.size), 'Undecodable image '+im.name

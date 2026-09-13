@@ -3,6 +3,8 @@
 import './components/mars-environment';
 import './components/hero-model';
 import './components/ridge-run';
+import './components/bridgehead-run';
+import './components/bridgehead-art';
 
 // Import all component initializers
 import initializeUtils from './components/utils';

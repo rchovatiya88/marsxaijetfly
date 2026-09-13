@@ -25,7 +25,8 @@ Use `.agents/skills/mars-flight-development/SKILL.md` for gameplay, controls, li
 - `#camera-rig` is a child of `#player`; its position is local. Weapon rays use the camera's world position and quaternion.
 - Gameplay timers use A-Frame ticks. Pause scene and clear held input; wall-clock visual cleanup must not change combat state while paused.
 - Initialize components before rendering the scene. A model loading is not permission to restart or pause an active mission.
-- Preserve supplied models. The original jetbike GLB has a corrupt embedded PNG; the active bike is procedural.
+- Preserve supplied models. The original combined jetbike GLB has a corrupt embedded PNG; the active bike is the derived AVI + supplied standalone bike GLB, with procedural fallback.
+- Bridgehead is the default mission. Its resident coarse terrain collision and seven authored solids stay fixed while visual detail streams; never rebuild collision on a LOD swap.
 
 ## Commands and scope
 

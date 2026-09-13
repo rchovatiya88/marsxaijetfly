@@ -1,0 +1,477 @@
+{
+  "asset": "bridgehead-route",
+  "version": 2,
+  "blender": "5.2.1 LTS",
+  "layout": "art/bridgehead/bridgehead-v2-layout.json",
+  "layoutSha256": "48a208b2de96a44eb6ba5cf0a167f16e41b5aaccc3c88ea79ac431dd99324cbf",
+  "sourceContext": {
+    "path": "art/full-level/full-level.blend",
+    "linkedOnly": true,
+    "environmentScale": 3,
+    "sourceGLB": "public/models/level1.glb",
+    "sha256": "44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db",
+    "preserved": true
+  },
+  "output": {
+    "path": "public/models/bridgehead-route.glb",
+    "sha256": "9ce7bc765f3b4ae4c111f1202772a6de05e4fb58b761e2a228813908e440387b",
+    "bytes": 215660,
+    "triangles": 2593,
+    "meshes": 5,
+    "materials": 5,
+    "textures": 5,
+    "animations": 0,
+    "bounds": {
+      "min": [
+        -53.04999923706055,
+        -10.579999923706055,
+        -49.0
+      ],
+      "max": [
+        94.0,
+        9.381999969482422,
+        39.038551330566406
+      ]
+    },
+    "transform": "identity; already authored in scale-three world metres"
+  },
+  "authoring": {
+    "path": "art/bridgehead/bridgehead-v2.blend",
+    "editableMeshObjects": 217,
+    "process": "Blender background; scene saved before export or runtime activation",
+    "surfacePass": "Custom authored mesh plates with bevel normals and embedded 64px panel/grain textures; collision references remain exact boxes."
+  },
+  "collision": {
+    "boxes": [
+      {
+        "id": "bridge-low-deck",
+        "center": [
+          -3,
+          -10.33,
+          32.1
+        ],
+        "size": [
+          60,
+          0.5,
+          5
+        ]
+      },
+      {
+        "id": "bridge-high-deck",
+        "center": [
+          -9,
+          -2.98,
+          -35.4
+        ],
+        "size": [
+          36,
+          0.5,
+          5
+        ]
+      },
+      {
+        "id": "court-floor",
+        "center": [
+          66,
+          1.2,
+          -24
+        ],
+        "size": [
+          24,
+          0.6,
+          24
+        ]
+      },
+      {
+        "id": "court-cover-west",
+        "center": [
+          59,
+          3.1,
+          -20
+        ],
+        "size": [
+          3,
+          3.2,
+          5
+        ]
+      },
+      {
+        "id": "court-cover-east",
+        "center": [
+          72,
+          3.1,
+          -33
+        ],
+        "size": [
+          3,
+          3.2,
+          4
+        ]
+      },
+      {
+        "id": "court-core",
+        "center": [
+          74,
+          3.5,
+          -17
+        ],
+        "size": [
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "id": "extraction-pad",
+        "center": [
+          90,
+          5.7,
+          -45
+        ],
+        "size": [
+          8,
+          0.6,
+          8
+        ]
+      },
+      {
+        "id": "court-support-nw",
+        "center": [
+          57,
+          -0.9165000000000001,
+          -33
+        ],
+        "size": [
+          0.7,
+          3.633,
+          0.7
+        ]
+      },
+      {
+        "id": "court-support-ne",
+        "center": [
+          75,
+          -4.08,
+          -33
+        ],
+        "size": [
+          0.7,
+          9.96,
+          0.7
+        ]
+      },
+      {
+        "id": "court-support-sw",
+        "center": [
+          57,
+          -1.5665000000000002,
+          -15
+        ],
+        "size": [
+          0.7,
+          4.933000000000001,
+          0.7
+        ]
+      },
+      {
+        "id": "court-support-se",
+        "center": [
+          75,
+          -3.286,
+          -15
+        ],
+        "size": [
+          0.7,
+          8.372,
+          0.7
+        ]
+      },
+      {
+        "id": "exit-support-nw",
+        "center": [
+          87,
+          4.7,
+          -48
+        ],
+        "size": [
+          0.5,
+          1.4,
+          0.5
+        ]
+      },
+      {
+        "id": "exit-support-ne",
+        "center": [
+          93,
+          4.7,
+          -48
+        ],
+        "size": [
+          0.5,
+          1.4,
+          0.5
+        ]
+      },
+      {
+        "id": "exit-support-sw",
+        "center": [
+          87,
+          4.7,
+          -42
+        ],
+        "size": [
+          0.5,
+          1.4,
+          0.5
+        ]
+      },
+      {
+        "id": "exit-support-se",
+        "center": [
+          93,
+          4.7,
+          -42
+        ],
+        "size": [
+          0.5,
+          1.4,
+          0.5
+        ]
+      },
+      {
+        "id": "high-gate-post-north",
+        "center": [
+          -18,
+          -0.73,
+          -38.5
+        ],
+        "size": [
+          0.35,
+          4,
+          0.35
+        ]
+      },
+      {
+        "id": "high-gate-post-south",
+        "center": [
+          -18,
+          -0.73,
+          -32.3
+        ],
+        "size": [
+          0.35,
+          4,
+          0.35
+        ]
+      },
+      {
+        "id": "low-gate-post-north",
+        "center": [
+          -27,
+          -8.08,
+          29
+        ],
+        "size": [
+          0.35,
+          4,
+          0.35
+        ]
+      },
+      {
+        "id": "low-gate-post-south",
+        "center": [
+          -27,
+          -8.08,
+          35.2
+        ],
+        "size": [
+          0.35,
+          4,
+          0.35
+        ]
+      }
+    ]
+  },
+  "markers": [
+    {
+      "id": "launch",
+      "position": [
+        -57,
+        -4.5,
+        32.1
+      ]
+    },
+    {
+      "id": "high-ridge",
+      "position": [
+        -45,
+        8.4,
+        -35.4
+      ]
+    },
+    {
+      "id": "high-descent",
+      "position": [
+        -30,
+        8.4,
+        -35.4
+      ]
+    },
+    {
+      "id": "high-align",
+      "position": [
+        -21,
+        -0.7,
+        -35.4
+      ]
+    },
+    {
+      "id": "low-climb",
+      "position": [
+        30,
+        -6.4,
+        32.1
+      ]
+    },
+    {
+      "id": "high-climb",
+      "position": [
+        9,
+        3.2,
+        -35.4
+      ]
+    },
+    {
+      "id": "low-peek",
+      "position": [
+        55,
+        3.2,
+        -25
+      ]
+    },
+    {
+      "id": "high-dodge",
+      "position": [
+        54,
+        5.6,
+        -39
+      ]
+    },
+    {
+      "id": "warden-feet",
+      "position": [
+        69,
+        1.5,
+        -27
+      ]
+    },
+    {
+      "id": "extraction",
+      "position": [
+        90,
+        7.8,
+        -45
+      ]
+    },
+    {
+      "id": "high-entry",
+      "position": [
+        -18,
+        -0.7,
+        -35.4
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "low-entry",
+      "position": [
+        -27,
+        -8.2,
+        32.1
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "high-exit",
+      "position": [
+        3,
+        -0.7,
+        -35.4
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "low-exit",
+      "position": [
+        21,
+        -8.2,
+        32.1
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "high-approach",
+      "position": [
+        53,
+        5.6,
+        -33
+      ],
+      "radius": 3
+    },
+    {
+      "id": "low-approach",
+      "position": [
+        53,
+        3.2,
+        -16
+      ],
+      "radius": 2
+    }
+  ],
+  "roundtrip": {
+    "meshes": 5,
+    "triangles": 2593,
+    "bounds": {
+      "min": [
+        -53.04999923706055,
+        -10.579999923706055,
+        -49.0
+      ],
+      "max": [
+        94.0,
+        9.381999969482422,
+        39.038551330566406
+      ]
+    }
+  },
+  "previewBike": {
+    "width": 0.9797780931255041,
+    "height": 1.8,
+    "length": 4.705897320882914,
+    "posed": false
+  },
+  "previewWarden": {
+    "width": 1.8735263581890882,
+    "height": 2.15,
+    "length": 1.1759515837250987,
+    "posed": true
+  },
+  "rights": "Owner attestation accepted in docs/BRIDGEHEAD_ITERATION_REVIEW.md; not an independently audited license record.",
+  "limitations": [
+    "Offline preview is not natural-input evidence.",
+    "Runtime must scale source context and collision by3 while leaving this overlay identity.",
+    "Player origin is assembly base0 without legacy hover. Warden preview evaluates Baka_Idle before normalization."
+  ],
+  "combat": {
+    "health": 425,
+    "guardMultiplier": 0,
+    "boltSpeed": 18,
+    "recoverySeconds": 1.2,
+    "chargedShots": 3,
+    "lowShield": 30,
+    "threatBegins": "court arrival; no bridge threat",
+    "trackingSeconds": 0.95,
+    "lockSeconds": 0.25,
+    "windupSeconds": 1.2
+  }
+}

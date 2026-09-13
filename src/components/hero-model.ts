@@ -1,6 +1,24 @@
 import * as THREE from 'three';
 import AFRAME from './aframe-export';
 
+// r147 Box3 uses bind-pose geometry for skins. Measure the displayed pose once
+// at load/capture time so an animated character stays aligned with its hitbox.
+export function heroPoseBounds(model:any):THREE.Box3 {
+  model.updateMatrixWorld(true);
+  const bounds=new THREE.Box3(),point=new THREE.Vector3();
+  model.traverse((mesh:any)=>{
+    const positions=mesh.geometry?.attributes?.position;
+    if(!mesh.isMesh || !positions)return;
+    mesh.skeleton?.update();
+    for(let i=0;i<positions.count;i++) {
+      point.fromBufferAttribute(positions,i);
+      if(mesh.isSkinnedMesh) (mesh.applyBoneTransform || mesh.boneTransform).call(mesh,i,point);
+      bounds.expandByPoint(point.applyMatrix4(mesh.matrixWorld));
+    }
+  });
+  return bounds;
+}
+
 export function disposeHeroModel(model: any): void {
   const resources = new Set<any>();
   model.traverse((object: any) => {
@@ -27,12 +45,15 @@ export default function initializeHeroModel(): void {
     schema: {
       src: { type: 'string', default: '' },
       targetHeight: { type: 'number', default: 2.2 },
+      targetLength: { type: 'number', default: 0 },
       heading: { type: 'number', default: 0 },
       animation: { type: 'string', default: 'Baka_Idle' }
     },
     init: function(this: any): void {
       this.mixer = null;
       this.action = null;
+      this.currentAnimation = '';
+      this.clips = [];
       this.model = null;
       this.failed = false;
       this.removed = false;
@@ -40,6 +61,12 @@ export default function initializeHeroModel(): void {
         const model = event?.detail?.model || this.modelEl?.getObject3D('mesh');
         if (!model) return;
         this.model = model;
+        this.clips = event?.detail?.model?.animations || event?.detail?.gltf?.animations || [];
+        if (this.clips.length) {
+          this.mixer = new THREE.AnimationMixer(model);
+          this.playAnimation(this.data.animation, {fade:0});
+          this.mixer.update(0);
+        }
         model.rotation.y += (this.data.heading || 0) * Math.PI / 180;
         model.traverse((object: any) => {
           if (!object.isMesh) return;
@@ -53,12 +80,21 @@ export default function initializeHeroModel(): void {
             material.needsUpdate = true;
           });
         });
-        const bounds = new THREE.Box3().setFromObject(model);
+        let skinned=false;model.traverse((mesh:any)=>{if(mesh.isSkinnedMesh)skinned=true;});
+        // The static bike's authored sockets/collider use its established
+        // geometry-box normalization. Only animated skins need posed bounds.
+        const measure=()=>skinned?heroPoseBounds(model):new THREE.Box3().setFromObject(model);
+        const bounds = measure();
         const size = bounds.getSize(new THREE.Vector3());
-        if (size.y > 0.001) {
-          const scale = this.data.targetHeight / size.y;
+        const heightScale = size.y > 0.001 ? this.data.targetHeight / size.y : 1;
+        const horizontalLength = Math.max(size.x, size.z);
+        const lengthScale = this.data.targetLength > 0 && horizontalLength > 0.001
+          ? this.data.targetLength / horizontalLength
+          : 0;
+        if (size.y > 0.001 || lengthScale > 0) {
+          const scale = Math.max(heightScale, lengthScale);
           model.scale.multiplyScalar(scale);
-          const normalized = new THREE.Box3().setFromObject(model);
+          const normalized = measure();
           const center = normalized.getCenter(new THREE.Vector3());
           model.position.x -= center.x;
           model.position.z -= center.z;
@@ -67,12 +103,6 @@ export default function initializeHeroModel(): void {
         this.el.object3D.traverse((object: any) => {
           if (object !== model && object.userData?.heroFallback) object.visible = false;
         });
-        const clips = event?.detail?.model?.animations || event?.detail?.gltf?.animations || [];
-        if (clips.length) {
-          this.mixer = new THREE.AnimationMixer(model);
-          const clip = THREE.AnimationClip.findByName(clips, this.data.animation);
-          if (clip) { this.action = this.mixer.clipAction(clip); this.action.reset().play(); }
-        }
         this.el.emit('hero-model-ready', { model, animated: Boolean(this.action) });
       };
       this.onError = () => {
@@ -101,6 +131,38 @@ export default function initializeHeroModel(): void {
         this.modelEl.setObject3D('mesh', model);
       }, undefined, this.onError);
     },
+    playAnimation: function(this: any, name: string, options: {fade?:number;duration?:number;once?:boolean} = {}): boolean {
+      if (!this.mixer || !this.clips?.length || !name) return false;
+      const clip = THREE.AnimationClip.findByName(this.clips, name);
+      if (!clip) return false;
+      const next = this.mixer.clipAction(clip);
+      if (next === this.action) {
+        this.currentAnimation = clip.name;
+        return true;
+      }
+      const previous = this.action;
+      const duration = Number(options.duration), timed = Number.isFinite(duration) && duration > 0;
+      // Cached actions must lose any duration/one-shot settings from their last
+      // use. These APIs are present in A-Frame's Three r147 AnimationAction.
+      next.reset().setEffectiveTimeScale(1);
+      next.setLoop(options.once ? THREE.LoopOnce : THREE.LoopRepeat, options.once ? 1 : Infinity);
+      next.clampWhenFinished = Boolean(options.once);
+      if (timed) next.setDuration(duration);
+      next.play();
+      const fade = Math.max(0, Number(options.fade) || 0);
+      if (previous) {
+        // Warp alters the target time scale; an authored duration must survive
+        // the fade so the final death pose is reached before actor disposal.
+        if (fade > 0 && previous.crossFadeTo) previous.crossFadeTo(next, fade, !timed);
+        else previous.stop?.();
+      }
+      this.action = next;
+      this.currentAnimation = clip.name;
+      return true;
+    },
+    update: function(this: any, oldData: any): void {
+      if (oldData?.animation && oldData.animation !== this.data.animation) this.playAnimation(this.data.animation, {fade:.15});
+    },
     tick: function(this: any, _time: number, delta: number): void {
       if (this.mixer && this.el.sceneEl?.isPlaying) this.mixer.update(Math.min(delta, 50) / 1000);
     },
@@ -116,6 +178,8 @@ export default function initializeHeroModel(): void {
       }
       this.mixer = null;
       this.model = null;
+      this.clips = [];
+      this.currentAnimation = '';
     }
   });
 }

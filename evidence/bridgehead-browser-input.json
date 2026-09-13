@@ -1,0 +1,41 @@
+{
+  "kind": "observed-programmatic-input-replay",
+  "build": "assets/index-RxlphQpx.js",
+  "url": "http://127.0.0.1:4173/?bridgehead&playtest",
+  "browser": "Codex in-app Chromium 152 on Windows",
+  "viewport": [1463, 823],
+  "rendererPixels": [1280, 720],
+  "procedure": "Clicked Run 10 full input sorties; recorded rendered QA output. The helper calls key/mouse handlers, uses known waypoints and enemy state, and never changes positions, rotations or health after each launch.",
+  "nativeInput": false,
+  "realHuman": false,
+  "runs": [
+    {"route":"high","elapsedMs":10374.299999952316,"shots":9,"hull":100,"stage":"complete"},
+    {"route":"low","elapsedMs":10749.900000095367,"shots":14,"hull":100,"stage":"complete"},
+    {"route":"high","elapsedMs":10374.700000047684,"shots":9,"hull":100,"stage":"complete"},
+    {"route":"low","elapsedMs":10749.800000190735,"shots":14,"hull":100,"stage":"complete"},
+    {"route":"high","elapsedMs":10374.599999904633,"shots":9,"hull":100,"stage":"complete"},
+    {"route":"low","elapsedMs":10750.100000143051,"shots":14,"hull":100,"stage":"complete"},
+    {"route":"high","elapsedMs":10344,"shots":9,"hull":100,"stage":"complete"},
+    {"route":"low","elapsedMs":10749.799999952316,"shots":14,"hull":100,"stage":"complete"},
+    {"route":"high","elapsedMs":10374.299999952316,"shots":9,"hull":100,"stage":"complete"},
+    {"route":"low","elapsedMs":10749.899999856949,"shots":14,"hull":100,"stage":"complete"}
+  ],
+  "settledPairs": [
+    {"pair":1,"geometries":83,"textures":51,"terrainTriangles":172065},
+    {"pair":2,"geometries":83,"textures":51,"terrainTriangles":172065},
+    {"pair":3,"geometries":83,"textures":51,"terrainTriangles":172065},
+    {"pair":4,"geometries":83,"textures":51,"terrainTriangles":172065},
+    {"pair":5,"geometries":83,"textures":51,"terrainTriangles":172065}
+  ],
+  "assetFailure": {
+    "url": "http://127.0.0.1:4173/?bridgehead&playtest&asset-failure",
+    "failures": ["environment manifest", "route GLB"],
+    "highWin": true,
+    "lowWin": true,
+    "highShots": 9,
+    "lowShots": 14,
+    "hullEach": 100,
+    "settled": {"geometries":40,"textures":4,"terrainTriangles":0}
+  },
+  "limitations": "Engineering handler replay only; does not establish native capture, human comprehension, fair uncoached reactions, natural win/loss cycle evidence or foreground performance. All ten complete runs here are wins. No player cohort exists."
+}

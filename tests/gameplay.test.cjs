@@ -23,6 +23,8 @@ function component(file, name) {
     exports, require: id => {
       if (id === '../arena-world') return loadModule('src/arena-world.ts');
       if (id === '../mission/ridge-run') return loadModule('src/mission/ridge-run.ts');
+      if (id === '../mission/bridgehead-run') return loadModule('src/mission/bridgehead-run.ts');
+      if (id === '../mission/player-rig') return loadModule('src/mission/player-rig.ts');
       if (id === './aframe-export') return { default: aframe };
       if (id === '../game-audio') return { gameAudio: { resume() {}, startAmbient() {}, stopAmbient() {}, pulse() {} } };
       return require(id);
@@ -74,6 +76,9 @@ test('kills chain, expire and cap at five', () => {
 
 test('third wave wins exactly once, without scheduling wave four', () => {
   const { instance: game, events } = manager();
+  game.el.querySelector = selector => selector === '#player'
+    ? {components:{'player-component':{maxHealth:100,health:73,shield:8}}}
+    : {components:{'weapon-component':{shotsFired:19,chargesSpent:3}}};
   game.level = 3;
   game.levelInProgress = true;
   game.completeLevel();
@@ -84,6 +89,10 @@ test('third wave wins exactly once, without scheduling wave four', () => {
   assert.equal(results.length, 1);
   assert.equal(results[0].detail.won, true);
   assert.equal(results[0].detail.score, 300);
+  assert.equal(results[0].detail.shots, 19);
+  assert.equal(results[0].detail.chargesSpent, 3);
+  assert.equal(results[0].detail.hullLost, 27);
+  assert.equal(results[0].detail.shieldLeft, 8);
 });
 
 test('death emits a failure result and stops progress', () => {
@@ -124,11 +133,12 @@ test('ten mission results and resets remove pending entities and restore simulat
 test('weapon reset cancels reload and held fire while retaining pooled resources', () => {
   const { instance: weapon } = component('src/components/weapon-component.ts', 'weapon-component');
   const pool = [{remaining: 100, mesh: {visible: true}}];
-  Object.assign(weapon, {boltPool: pool, ammoInClip: 1, isReloading: true, reloadRemaining: 1500, mouseDown: true, shotClock: 5000, lastShot: 4900});
+  Object.assign(weapon, {boltPool: pool, ammoInClip: 1, isReloading: true, reloadRemaining: 1500, mouseDown: true, shotClock: 5000, lastShot: 4900, shotsFired: 9, chargesSpent: 2});
   weapon.resetMission();
   assert.equal(weapon.boltPool, pool); assert.equal(pool[0].mesh.visible, false);
   assert.equal(weapon.ammoInClip, 30); assert.equal(weapon.isReloading, false);
   assert.equal(weapon.mouseDown, false); assert.equal(weapon.shotClock, 0);
+  assert.equal(weapon.shotsFired, 0); assert.equal(weapon.chargesSpent, 0);
   assert.ok(weapon.lastShot < 0);
 });
 
@@ -174,6 +184,23 @@ test('flight pause clears held input and velocity', () => {
   assert.equal(flight.moveState.forward, 0);
   assert.equal(flight.speedMultiplier, 1);
   assert.equal(flight.velocity.length(), 0);
+});
+
+test('flight initializes the chase boom from configured camera dimensions', () => {
+  const { instance: flight, document } = component('src/components/fly-controls.ts', 'fly-controls');
+  const THREE = require('three');
+  const playerObj = new THREE.Object3D();
+  const cameraObj = new THREE.Object3D();
+  let initialPosition;
+  const rig = {object3D:new THREE.Object3D(),setAttribute:(name,value)=>{if(name==='position') initialPosition=value;}};
+  const canvas = {};
+  document.querySelector = selector => selector === '#camera' ? {object3D:cameraObj} : selector === '#camera-rig' ? rig : null;
+  flight.el = {object3D:playerObj,sceneEl:{canvas,isPlaying:false}};
+  flight.data.cameraHeight = 1.45;
+  flight.data.cameraDistance = 5.4;
+  flight.init();
+  assert.deepEqual({...initialPosition},{x:0,y:1.45,z:5.4});
+  flight.remove();
 });
 
 test('forward flight stays level while looking up', () => {
@@ -267,6 +294,8 @@ test('weapon damages active enemy through forgiving combat hit volume', () => {
   weapon.chargedShots = 3; weapon.lastShot = -10000; weapon.shoot();
   assert.equal(damage, 75);
   assert.equal(weapon.chargedShots, 2);
+  assert.equal(weapon.shotsFired, 2);
+  assert.equal(weapon.chargesSpent, 1);
 });
 
 test('weapon visual bolts originate from both bike muzzles', () => {
@@ -280,8 +309,8 @@ test('weapon visual bolts originate from both bike muzzles', () => {
   weapon.createBolt = start => starts.push(start.clone());
   weapon.createWeaponBolts(new THREE.Vector3(10, 2, -20), new THREE.Vector3(0, 0, -1), '#fff');
   assert.equal(starts.length, 2);
-  assert.ok(starts[0].distanceTo(new THREE.Vector3(9.28, 1.45, 2.4)) < 1e-6);
-  assert.ok(starts[1].distanceTo(new THREE.Vector3(10.72, 1.45, 2.4)) < 1e-6);
+  assert.ok(starts[0].distanceTo(new THREE.Vector3(9.9, 2.62, 1.6)) < 1e-6);
+  assert.ok(starts[1].distanceTo(new THREE.Vector3(10.1, 2.62, 1.6)) < 1e-6);
 });
 
 
@@ -312,11 +341,18 @@ test('enemy projectile damages a stationary player once and uses 3D range', () =
   let damage=0;
   enemy.el={object3D:new THREE.Object3D(),sceneEl:{components:{'game-manager':{elapsed:10000}}}};
   enemy.playerEntity={object3D:player,components:{'player-component':{takeDamage:amount=>damage+=amount}}};
-  Object.assign(enemy,{lastEnemyShot:-10000,chargeRemaining:0,boltRemaining:0,attackOrigin:new THREE.Vector3(),attackTarget:new THREE.Vector3(),attackDirection:new THREE.Vector3(),enemyBolt:new THREE.Object3D(),enemyHalo:{material:{color:new THREE.Color()}}});
+  Object.assign(enemy,{lastEnemyShot:-10000,chargeRemaining:0,boltRemaining:0,recoveryRemaining:0,attackOrigin:new THREE.Vector3(),attackTarget:new THREE.Vector3(),attackDirection:new THREE.Vector3(),enemyBolt:new THREE.Object3D(),enemyHalo:{material:{color:new THREE.Color()}}});
   enemy.flashThreatWarning=()=>{};
   assert.equal(enemy.enemyShoot(),true);assert.equal(damage,0);
-  for(let i=0;i<40;i++)enemy.updateAttack(100);
+  for(let i=0;i<40 && !damage;i++)enemy.updateAttack(100);
   assert.equal(damage,enemy.data.weaponDamage);
+  assert.equal(enemy.recoveryRemaining,enemy.data.recoveryTime*1000);
+  enemy.el.sceneEl.components['game-manager'].elapsed=20000;
+  assert.equal(enemy.enemyShoot(),false);
+  for(let i=0;i<12;i++)enemy.updateAttack(100);
+  assert.equal(enemy.recoveryRemaining,0);
+  assert.equal(enemy.enemyShoot(),true);
+  enemy.chargeRemaining=0;
   player.position.set(0,100,1);enemy.lastEnemyShot=-10000;
   assert.equal(enemy.enemyShoot(),false);
 });
@@ -376,6 +412,66 @@ test('Ridge route reward is exclusive and extraction needs Warden defeat plus a 
   }
 });
 
+test('Bridgehead gates use swept +X crossing and route rewards score transparently', () => {
+  const {crossesXGate,BRIDGEHEAD_GATES,bridgeheadCompletionScore} = loadModule('src/mission/bridgehead-run.ts');
+  const low = BRIDGEHEAD_GATES.find(gate => gate.id === 'low');
+  const before={...low.position,x:low.position.x-5},after={...low.position,x:low.position.x+5};
+  assert.equal(crossesXGate(before,after,low),true);
+  assert.equal(crossesXGate(after,before,low),false);
+  assert.equal(crossesXGate({...before,z:before.z+10},{...after,z:after.z+10},low),false);
+  assert.equal(bridgeheadCompletionScore('high',200000,75),1650);
+  assert.equal(bridgeheadCompletionScore('low',20000,75),1600);
+});
+
+test('Bridgehead never treats a detached Warden as a kill and extraction freezes while paused', () => {
+  const {instance:mission,document} = component('src/components/bridgehead-run.ts','bridgehead-run');
+  const flight={speedMultiplier:2,velocity:{x:22,length:()=>22},clearInput(){},rotation:{set(){}},applyLookRotation(){},updateCamera(){}};
+  const health={health:80},weapon={},position={x:-19,y:-.8,z:10.7,set(x,y,z){this.x=x;this.y=y;this.z=z;}};
+  const player={object3D:{position},components:{'fly-controls':flight,'player-component':health}};
+  let wins=0;
+  const game={gameStarted:true,gameOver:false,elapsed:90000,score:0,showMessage(){},finishMission(){wins++;}};
+  mission.el={isPlaying:true,emit(){},components:{'game-manager':game},querySelectorAll:()=>[],querySelector:id=>id==='#player'?player:id==='#jetbike'?{components:{'weapon-component':weapon}}:{setAttribute(){}},appendChild(el){el.parentNode=this;}};
+  document.createElement=()=>({setAttribute(){},components:{'enemy-component':{isDead:false}}});
+  mission.init();mission.start();
+  const bridgehead = loadModule('src/mission/bridgehead-run.ts');
+  const low = bridgehead.BRIDGEHEAD_GATES.find(g=>g.id==='low');
+  const lowExit=bridgehead.BRIDGEHEAD_EXITS.find(g=>g.id==='low');
+  mission.previous={x:lowExit.position.x-4,y:lowExit.position.y,z:lowExit.position.z};
+  Object.assign(position,{x:lowExit.position.x+1,y:lowExit.position.y,z:lowExit.position.z});mission.tick(0,100);
+  assert.equal(mission.stage,'choice');
+  const high=bridgehead.BRIDGEHEAD_GATES.find(g=>g.id==='high');flight.speedMultiplier=1;
+  mission.previous={x:high.position.x-4,y:high.position.y,z:high.position.z};
+  Object.assign(position,{x:high.position.x+1,y:high.position.y,z:high.position.z});mission.tick(0,100);
+  assert.equal(mission.stage,'choice');assert.equal(weapon.chargedShots,undefined);
+  mission.previous={...bridgehead.BRIDGEHEAD_START};
+  Object.assign(position,bridgehead.BRIDGEHEAD_ROUTE_PATHS.low[1]);mission.tick(0,100);
+  flight.speedMultiplier=2;mission.previous={x:low.position.x-4,y:low.position.y,z:low.position.z};
+  Object.assign(position,{x:low.position.x+1,y:low.position.y,z:low.position.z});mission.tick(0,100);
+  assert.equal(mission.stage,'traverse');assert.equal(weapon.chargedShots,undefined);assert.equal(health.shield,30);
+  const highExit=bridgehead.BRIDGEHEAD_EXITS.find(g=>g.id==='high');
+  mission.previous={x:highExit.position.x-4,y:highExit.position.y,z:highExit.position.z};
+  Object.assign(position,{x:highExit.position.x+1,y:highExit.position.y,z:highExit.position.z});mission.tick(0,100);
+  assert.equal(mission.stage,'traverse');assert.equal(weapon.chargedShots,undefined);
+  mission.previous={x:lowExit.position.x-4,y:lowExit.position.y,z:lowExit.position.z};
+  Object.assign(position,{x:lowExit.position.x+1,y:lowExit.position.y,z:lowExit.position.z});mission.tick(0,100);
+  assert.equal(mission.stage,'approach');
+  const lowApproach=bridgehead.BRIDGEHEAD_APPROACHES.find(g=>g.id==='low');
+  mission.previous={x:lowExit.position.x+1,y:lowExit.position.y,z:lowExit.position.z};
+  Object.assign(position,{x:lowApproach.position.x,y:lowApproach.position.y,z:lowApproach.position.z});mission.tick(0,100);
+  assert.equal(mission.stage,'approach');
+  Object.assign(position,bridgehead.BRIDGEHEAD_LOW_CLIMB.position);mission.tick(0,100);
+  assert.equal(mission.lowClimbReady,true);
+  for(const point of bridgehead.BRIDGEHEAD_ROUTE_PATHS.low.slice(5)) {Object.assign(position,point);mission.tick(0,100);}
+  assert.equal(mission.stage,'warden');
+  mission.warden.parentNode=null;mission.tick(0,100);assert.equal(mission.stage,'warden');
+  mission.warden.components['enemy-component'].isDead=true;mission.tick(0,100);assert.equal(mission.stage,'extraction');
+  Object.assign(position,bridgehead.BRIDGEHEAD_EXTRACTION_PATH[0]);mission.tick(0,0);
+  Object.assign(position,bridgehead.BRIDGEHEAD_EXTRACTION);mission.el.isPlaying=false;
+  for(let i=0;i<20;i++)mission.tick(0,100);assert.equal(mission.extractionTime,0);
+  mission.el.isPlaying=true;for(let i=0;i<15;i++)mission.tick(0,100);
+  assert.equal(wins,1);assert.equal(game.score,1620);
+});
+
 test('hero model disposes shared resources once and rejects late loads after removal', () => {
   const {instance:hero,aframe,exports,document}=component('src/components/hero-model.ts','hero-model');
   let loaded,disposed=0,attached=0;
@@ -389,6 +485,19 @@ test('hero model disposes shared resources once and rejects late loads after rem
   hero.el={appendChild(){},sceneEl:{systems:{'gltf-model':{getDRACOLoader:()=>null}}}};
   hero.data.src='url(models/enemy.glb)';hero.init();hero.remove();
   loaded({scene:model,animations:[]});assert.equal(disposed,3);assert.equal(attached,0);
+});
+
+test('hero model selects named state clips and cross-fades without restarting the active clip', () => {
+  const THREE=require('three');
+  const {instance:hero}=component('src/components/hero-model.ts','hero-model');
+  const clips=['Baka_Idle','Baka_Run','Baka_Swipe','Baka_Dying'].map(name=>new THREE.AnimationClip(name,1,[]));
+  const actions=new Map(),events=[];
+  hero.clips=clips;hero.mixer={clipAction(clip){if(!actions.has(clip.name))actions.set(clip.name,{name:clip.name,reset(){events.push(`reset:${this.name}`);return this;},setEffectiveTimeScale(){return this;},setLoop(){return this;},setDuration(){return this;},play(){events.push(`play:${this.name}`);return this;},stop(){events.push(`stop:${this.name}`);},crossFadeTo(next,fade){events.push(`fade:${this.name}->${next.name}:${fade}`);}});return actions.get(clip.name);}};
+  assert.equal(hero.playAnimation('Baka_Idle',{fade:0}),true);
+  assert.equal(hero.playAnimation('Baka_Run',{fade:.18}),true);
+  const count=events.length;assert.equal(hero.playAnimation('Baka_Run',{fade:.18}),true);assert.equal(events.length,count);
+  assert.equal(hero.playAnimation('Missing',{fade:.18}),false);
+  assert.ok(events.includes('fade:Baka_Idle->Baka_Run:0.18'));
 });
 
 test('hero normalization stays centered on a translated enemy instead of the world origin', () => {
@@ -407,6 +516,50 @@ test('hero normalization stays centered on a translated enemy instead of the wor
   const box=new THREE.Box3().setFromObject(model),center=box.getCenter(new THREE.Vector3());
   assert.ok(Math.abs(center.x-12)<1e-8);assert.ok(Math.abs(center.z+30)<1e-8);
   assert.ok(Math.abs(box.min.y)<1e-8);assert.ok(Math.abs(box.max.y-2)<1e-8);
+  hero.remove();
+});
+
+test('hero normalization can preserve a readable vehicle length', () => {
+  const THREE=require('three');
+  const {instance:hero,aframe,document}=component('src/components/hero-model.ts','hero-model');
+  let loaded;
+  aframe.THREE={GLTFLoader:class {setDRACOLoader(){} load(src,fn){loaded=fn;}}};
+  document.createElement=()=>({classList:{add(){}},setObject3D(){},removeEventListener(){},remove(){}});
+  hero.el={object3D:new THREE.Object3D(),appendChild(){},emit(){},sceneEl:{systems:{'gltf-model':{getDRACOLoader:()=>null}}}};
+  hero.data.src='models/avi-jetbike.glb';hero.data.targetHeight=2.4;hero.data.targetLength=4.8;
+  const model=new THREE.Group();const mesh=new THREE.Mesh(new THREE.BoxGeometry(1,2,2),new THREE.MeshStandardMaterial());
+  mesh.position.set(0,.5,0);model.add(mesh);
+  hero.init();loaded({scene:model,animations:[]});
+  const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3());
+  assert.ok(Math.abs(size.z-4.8)<1e-8);
+  assert.ok(size.y>=2.4);
+  assert.ok(Math.abs(box.min.y)<1e-8);
+  hero.remove();
+});
+
+test('animated hero normalizes the displayed idle pose rather than flattened bind geometry',()=>{
+  const THREE=require('three');
+  const {instance:hero,aframe,document,exports}=component('src/components/hero-model.ts','hero-model');
+  let loaded;
+  aframe.THREE={GLTFLoader:class{setDRACOLoader(){}load(src,fn){loaded=fn;}}};
+  const actor=new THREE.Object3D();actor.position.set(23,1.5,-10);
+  const child=new THREE.Object3D();actor.add(child);
+  document.createElement=()=>({classList:{add(){}},setObject3D(key,model){child.add(model);},removeEventListener(){},remove(){}});
+  hero.el={object3D:actor,appendChild(){},emit(){},sceneEl:{systems:{'gltf-model':{getDRACOLoader:()=>null}}}};
+  hero.data.src='models/enemy.glb';hero.data.targetHeight=2.15;
+  const geometry=new THREE.BoxGeometry(1,.5,4),n=geometry.attributes.position.count;
+  geometry.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(new Uint16Array(n*4),4));
+  const weights=new Float32Array(n*4);for(let i=0;i<n;i++)weights[i*4]=1;
+  geometry.setAttribute('skinWeight',new THREE.Float32BufferAttribute(weights,4));
+  const mesh=new THREE.SkinnedMesh(geometry,new THREE.MeshStandardMaterial()),bone=new THREE.Bone();bone.name='Pose';mesh.add(bone);mesh.bind(new THREE.Skeleton([bone]));
+  const model=new THREE.Group();model.add(mesh);
+  const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),Math.PI/2);
+  const clip=new THREE.AnimationClip('Baka_Idle',1,[new THREE.QuaternionKeyframeTrack('Pose.quaternion',[0,1],[...q.toArray(),...q.toArray()])]);
+  hero.init();loaded({scene:model,animations:[clip]});actor.updateMatrixWorld(true);
+  const box=exports.heroPoseBounds(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
+  assert.ok(Math.abs(size.y-2.15)<1e-6);assert.ok(Math.abs(box.min.y-1.5)<1e-6);
+  assert.ok(Math.abs(center.x-23)<1e-6 && Math.abs(center.z+10)<1e-6);
+  assert.ok(size.x<.6 && size.z<.3,'flattened bind height must not create a giant character');
   hero.remove();
 });
 

@@ -1,7 +1,9 @@
 import AFRAME from './aframe-export';
 import * as THREE from 'three';
-import { setWorld, resetWorld, Vec } from '../arena-world';
+import { setWorld, resetWorld, setTerrainSurface, Vec } from '../arena-world';
 import { disposeHeroModel } from './hero-model';
+import { TriangleCollider } from '../triangle-collider';
+import { BRIDGEHEAD_START } from '../mission/bridgehead-run';
 
 type Bounds = {min:Vec;max:Vec};
 type Lod = {level:number;url:string;triangles:number;bytes:number};
@@ -44,12 +46,14 @@ export function selectDetailedChunks(chunks:StreamChunk[],p:Vec,previous:Set<str
 }
 
 if(!AFRAME.components['world-stream'])AFRAME.registerComponent('world-stream',{
-  schema:{manifest:{type:'string',default:'models/level1-stream/manifest.json'}},
+  schema:{manifest:{type:'string',default:'models/level1-stream/manifest.json'},playable:{type:'boolean',default:false},scale:{type:'number',default:1}},
   init:function(this:any) {
     this.status='loading';this.removed=false;this.now=0;this.nextSelection=0;
     this.counters={loaded:0,requests:0,disposed:0,errors:0};
     this.queue=[];this.active=new Map();this.states=new Map();this.desired=new Set();
-    this.root=new THREE.Group();this.manifestAbort=new AbortController();this.refreshTelemetry();
+    this.worldScale=this.data.playable && Number.isFinite(this.data.scale) && this.data.scale>0 && this.data.scale<=10 ? this.data.scale : 1;
+    this.root=new THREE.Group();this.root.scale.setScalar(this.worldScale);
+    this.manifestAbort=new AbortController();this.refreshTelemetry();
     this.boot();
   },
   refreshTelemetry:function(this:any) {
@@ -59,7 +63,30 @@ if(!AFRAME.components['world-stream'])AFRAME.registerComponent('world-stream',{
   stats:function(this:any) {
     let lowResident=0,highResident=0,visibleTriangles=0;
     this.states.forEach((s:any)=>{if(s.low)lowResident++;if(s.high)highResident++;if(s.high||s.low)visibleTriangles+=s.chunk.lods.find((l:Lod)=>l.level===(s.high?0:1)).triangles;});
-    return {lowResident,highResident,inFlight:this.active.size,visibleTriangles,counters:{...this.counters},ready:this.status==='ready',status:this.status};
+    return {lowResident,highResident,inFlight:this.active.size,visibleTriangles,collisionTriangles:this.collisionTriangles||0,collisionBuildMs:this.collisionBuildMs||0,counters:{...this.counters},ready:this.status==='ready',status:this.status};
+  },
+  buildCollision:function(this:any) {
+    if(!this.data.playable)return;
+    const started=performance.now(),meshes:any[]=[];let length=0;
+    this.root.updateMatrixWorld(true);
+    this.states.forEach((state:any)=>state.low.traverse((object:any)=>{
+      const position=object.geometry?.attributes?.position;
+      if(!object.isMesh || !position)return;
+      const count=object.geometry.index?.count || position.count;
+      if(count%3)throw Error('Non-triangular terrain');
+      meshes.push(object);length+=count*3;
+    }));
+    if(!length || length>350000*9)throw Error('Terrain collision budget mismatch');
+    const vertices=new Float32Array(length),point=new THREE.Vector3();let offset=0;
+    for(const mesh of meshes){
+      const position=mesh.geometry.attributes.position,index=mesh.geometry.index,count=index?.count || position.count;
+      for(let i=0;i<count;i++){
+        point.fromBufferAttribute(position,index?index.getX(i):i).applyMatrix4(mesh.matrixWorld);
+        vertices[offset++]=point.x;vertices[offset++]=point.y;vertices[offset++]=point.z;
+      }
+    }
+    this.collision=new TriangleCollider(vertices);this.collisionTriangles=length/9;
+    this.collisionBuildMs=performance.now()-started;
   },
   disposeModel:function(this:any,model:any) { if(!model)return;model.removeFromParent();disposeHeroModel(model);this.counters.disposed++; },
   announce:function(this:any,error?:string) {this.refreshTelemetry();this.el.emit('level-ready',{status:this.status,authored:this.status==='ready',error});},
@@ -118,6 +145,7 @@ if(!AFRAME.components['world-stream'])AFRAME.registerComponent('world-stream',{
       if(job.level===1) {
         s.low=candidate;this.root.add(candidate);candidate=null;
         if([...this.states.values()].every((state:any)=>state.low)) {
+          this.buildCollision();
           this.el.setObject3D('world-stream',this.root);this.status='ready';this.announce();
         }
       } else {s.high=candidate;this.root.add(candidate);candidate=null;s.low.visible=false;}
@@ -131,7 +159,10 @@ if(!AFRAME.components['world-stream'])AFRAME.registerComponent('world-stream',{
   },
   updateSelection:function(this:any,p:Vec) {
     if(this.status!=='ready' || this.removed)return;
-    this.desired=selectDetailedChunks(this.manifest.chunks,p,this.desired);
+    // Manifest regions remain in source coordinates; art and fixed collision
+    // share the same root scale. Detail selection must use the inverse scale.
+    const scale=this.worldScale || 1;
+    this.desired=selectDetailedChunks(this.manifest.chunks,{x:p.x/scale,y:p.y/scale,z:p.z/scale},this.desired);
     this.queue=this.queue.filter((j:any)=>j.level===1 || this.desired.has(j.id));
     this.states.forEach((s:any,id:string)=>{
       if(!this.desired.has(id)) {
@@ -149,13 +180,16 @@ if(!AFRAME.components['world-stream'])AFRAME.registerComponent('world-stream',{
   },
   start:function(this:any):boolean {
     if(this.status!=='ready' || this.removed)return false;
-    const b=this.manifest.bounds;
+    const source=this.manifest.bounds,scale=this.worldScale || 1;
+    const b={min:{x:source.min.x*scale,y:source.min.y*scale,z:source.min.z*scale},max:{x:source.max.x*scale,y:source.max.y*scale,z:source.max.z*scale}};
     setWorld({bounds:{minX:b.min.x-20,maxX:b.max.x+20,minY:b.min.y,maxY:b.max.y+40,minZ:b.min.z-20,maxZ:b.max.z+20},boxes:[]});
+    if(this.data.playable)setTerrainSurface(this.collision || null);
     this.ownsWorld=true;
     const player=this.el.querySelector('#player'),flight=player?.components?.['fly-controls'];
-    if(player){player.object3D.position.copy(this.manifest.spawn);const health=player.components?.['player-component'];if(health){this.playerLimits ||= {component:health,min:health.data.minFlyingHeight,max:health.data.maxFlyingHeight};health.data.minFlyingHeight=b.min.y;health.data.maxFlyingHeight=b.max.y+40;}}
-    if(flight){flight.clearInput();flight.rotation.set(-.3,0,0,'YXZ');flight.applyLookRotation();flight.updateCamera(0);}
-    this.updateSelection(this.manifest.spawn);return true;
+    const spawn=this.data.playable?BRIDGEHEAD_START:this.manifest.spawn;
+    if(player){player.object3D.position.copy(spawn);const health=player.components?.['player-component'];if(health){this.playerLimits ||= {component:health,min:health.data.minFlyingHeight,max:health.data.maxFlyingHeight};health.data.minFlyingHeight=b.min.y;health.data.maxFlyingHeight=b.max.y+40;}}
+    if(flight){flight.clearInput();flight.rotation.set(this.data.playable?-.08:-.3,this.data.playable?-Math.PI/2:0,0,'YXZ');flight.applyLookRotation();flight.updateCamera(0);}
+    this.updateSelection(spawn);return true;
   },
   tick:function(this:any,_time:number,delta:number) {
     if(!this.el.isPlaying || this.status!=='ready' || !this.ownsWorld)return;
@@ -165,7 +199,7 @@ if(!AFRAME.components['world-stream'])AFRAME.registerComponent('world-stream',{
   remove:function(this:any) {
     this.removed=true;this.manifestAbort.abort();this.queue=[];this.desired.clear();this.active.forEach((job:any)=>job.abort.abort());
     this.states.forEach((s:any)=>{this.disposeModel(s.low);this.disposeModel(s.high);s.low=s.high=null;});
-    this.el.removeObject3D('world-stream');if(this.ownsWorld)resetWorld();
+    this.el.removeObject3D('world-stream');if(this.ownsWorld)resetWorld();this.collision=null;
     if(this.playerLimits){this.playerLimits.component.data.minFlyingHeight=this.playerLimits.min;this.playerLimits.component.data.maxFlyingHeight=this.playerLimits.max;}
   }
 });

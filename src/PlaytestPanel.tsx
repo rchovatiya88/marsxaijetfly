@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { moveInWorld, traceWorld, clearSpawn } from './arena-world';
+import { FrameBenchmark } from './FrameBenchmark';
+import { CapturePanel } from './CapturePanel';
+import { BRIDGEHEAD_APPROACHES, BRIDGEHEAD_EXTRACTION, BRIDGEHEAD_GATES, BRIDGEHEAD_EXITS, BRIDGEHEAD_ROUTE_PATHS, BRIDGEHEAD_EXTRACTION_PATH, BRIDGEHEAD_LOW_PEEK, BridgeheadRoute } from './mission/bridgehead-run';
+import { runBridgeheadInputCheck } from './bridgehead-input-check';
 
 // Explicit, local QA surface; no telemetry or test controls on the ordinary game URL.
 export function PlaytestPanel({sceneRef,telemetry,launch}: {sceneRef: any;telemetry:string;launch:()=>void}) {
@@ -11,6 +15,26 @@ export function PlaytestPanel({sceneRef,telemetry,launch}: {sceneRef: any;teleme
   useEffect(() => () => {stop.current=true;},[]);
   if (!enabled) return null;
   const frame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+  const inputCheck=async(repeats=1)=>{
+    setRunning(true);stop.current=false;const lines:string[]=[];
+    setReport('Starting continuous programmatic-input flight. No position or health changes after launch.');
+    try{
+      const resources:any[]=[];
+      for(let cycle=0;cycle<repeats;cycle++){
+        lines.push(`PAIR ${cycle+1}/${repeats}`);
+        await runBridgeheadInputCheck(sceneRef.current,launch,line=>{lines.push(line);setReport(lines.join('\n'));},()=>stop.current);
+        const scene=sceneRef.current;scene.components['game-manager'].resetMission();launch();
+        const start=performance.now();while(scene.components['world-stream']?.stats().inFlight && performance.now()-start<16000 && !stop.current)await frame();
+        await frame();await frame();scene.pause();
+        const info=scene.renderer.info.memory,stream=scene.components['world-stream']?.stats();
+        resources.push({pair:cycle+1,geometries:info.geometries,textures:info.textures,terrainTriangles:stream?.collisionTriangles});
+        lines.push(`Settled ${JSON.stringify(resources[resources.length-1])}`);setReport(lines.join('\n'));
+      }
+      lines.push(`Completed ${repeats*2} full programmatic-input wins and retries. This does not substitute for native input or fresh-player observations.`);setReport(lines.join('\n'));
+    }
+    catch(error){setReport(lines.join('\n')+`\nERROR ${String(error)}`);}
+    finally{sceneRef.current.pause();setRunning(false);}
+  };
   const checks = async () => {
     setRunning(true); const lines: string[]=[];
     const check = (name:string,ok:boolean) => { lines.push(`${ok ? 'PASS' : 'FAIL'} ${name}`); setReport(lines.join('\n')); };
@@ -212,6 +236,126 @@ export function PlaytestPanel({sceneRef,telemetry,launch}: {sceneRef: any;teleme
       setReport(lines.join('\n')+'\nScripted locomotion and aiming; real gate tests, weapon damage and extraction clock. Not human usability evidence.');
     } catch(error) {setReport(lines.join('\n')+`\nERROR ${String(error)}`);} finally {scene.pause();flight.clearInput();weapon.pause();setRunning(false);}
   };
+  const bridgeheadSmoke = async () => {
+    const scene=sceneRef.current,mission=scene.components['bridgehead-run'],stream=scene.components['world-stream'];
+    if(!mission || !stream) {setReport('Open ?bridgehead&playtest and wait for Bridgehead Run to load.');return;}
+    setRunning(true);stop.current=false;const lines:string[]=[];
+    const check=(name:string,ok:boolean)=>{lines.push(`${ok?'PASS':'FAIL'} ${name}`);setReport(lines.join('\n'));if(!ok)throw Error(name);};
+    const manager=scene.components['game-manager'];
+    const player:any=document.getElementById('player'),camera:any=document.getElementById('camera');
+    const flight=player.components['fly-controls'],health=player.components['player-component'];
+    const weapon=(document.getElementById('jetbike') as any).components['weapon-component'];
+    const renderer=scene.renderer,resourceCounts:number[]=[],frameSamples:number[]=[];
+    const normalBestBefore=localStorage.getItem('mars-bridgehead-best-v1');
+    try {
+      manager.resetMission();launch();
+      const beforeExit=BRIDGEHEAD_EXITS[1].position;
+      mission.previous={...beforeExit,x:beforeExit.x-3};player.object3D.position.copy({...beforeExit,x:beforeExit.x+1});mission.tick(0,16);
+      check('pre-entry bridge exit cannot skip route choice',mission.stage==='choice' && !mission.route && !mission.warden);
+      for(const point of BRIDGEHEAD_ROUTE_PATHS.high.slice(1,7)){mission.previous={...point};player.object3D.position.copy(point);mission.tick(0,16);}
+      const beforeHigh=BRIDGEHEAD_GATES[0].position;
+      mission.previous={...beforeHigh,x:beforeHigh.x-3};player.object3D.position.copy({...beforeHigh,x:beforeHigh.x+1});flight.speedMultiplier=1;flight.velocity.set(8,0,0);mission.tick(0,16);
+      check('unboosted high entry is rejected without reward',mission.stage==='choice' && !mission.route && !weapon.chargedShots && !health.shield);
+      manager.resetMission();await frame();await frame();
+      for(const route of ['high','low'] as BridgeheadRoute[]) {
+        manager.resetMission();launch();
+        const gate=BRIDGEHEAD_GATES.find(g=>g.id===route)!.position;
+        const path=BRIDGEHEAD_ROUTE_PATHS[route],entryIndex=path.findIndex(point=>point.x===gate.x&&point.y===gate.y&&point.z===gate.z);
+        for(const point of path.slice(1,entryIndex)){player.object3D.position.copy(point);mission.tick(0,16);}
+        check(`${route}: numbered entry course completed`,mission.courseProgress[route]===entryIndex);
+        mission.previous={...gate,x:gate.x-3};
+        player.object3D.position.copy({...gate,x:gate.x+1});
+        flight.speedMultiplier=route==='high'?2:1;flight.velocity.set(route==='high'?16:8,0,0);
+        mission.tick(0,16);flight.clearInput();
+        check(`${route}: ordered +X gate chooses route`,mission.route===route && mission.stage==='traverse');
+        check(`${route}: exclusive reward applied`,route==='high'?weapon.chargedShots===3:health.shield===30);
+        const exit=BRIDGEHEAD_EXITS.find(g=>g.id===route)!.position;
+        mission.previous={x:exit.x-4,y:exit.y,z:exit.z};player.object3D.position.set(exit.x+1,exit.y,exit.z);
+        mission.tick(0,16);
+        check(`${route}: bridge exit requires court approach before Warden`,mission.stage==='approach' && !mission.warden);
+        for(const point of path.slice(entryIndex+2)){player.object3D.position.copy(point);mission.tick(0,16);}
+        check(`${route}: court arrival starts Warden encounter`,mission.stage==='warden' && !!mission.warden);
+        scene.pause();
+        const loadStart=performance.now();
+        while(!mission.warden?.components?.['hero-model']?.model && !mission.warden?.components?.['hero-model']?.failed && performance.now()-loadStart<10000 && !stop.current)await frame();
+        check(`${route}: packaged Warden GLB loaded`,!!mission.warden?.components?.['hero-model']?.model);
+        const enemy=mission.warden.components?.['enemy-component'],hero=mission.warden.components?.['hero-model'];
+        enemy.setState('idle');check(`${route}: Warden idle clip mapped`,hero?.currentAnimation==='Baka_Idle' && !!hero?.action);
+        enemy.setState('attack');check(`${route}: Warden attack clip mapped`,hero?.currentAnimation==='Baka_Punch' && !!hero?.action);
+        enemy.setState('chase');check(`${route}: Warden run clip mapped`,hero?.currentAnimation==='Baka_Run' && !!hero?.action);
+        enemy.recoveryRemaining=1200;enemy.updateAI(.016);check(`${route}: recovery disarms and idles Warden`,enemy.currentState==='idle' && !enemy.seekBehavior.active && hero?.currentAnimation==='Baka_Idle');enemy.recoveryRemaining=0;
+        const guardedHealth=enemy.health;
+        check(`${route}: armor rejects premature damage`,enemy.takeDamage(25)===0 && enemy.health===guardedHealth);
+        player.object3D.position.copy(route==='low'?BRIDGEHEAD_LOW_PEEK:BRIDGEHEAD_APPROACHES[0].position);scene.play();
+        const start=performance.now();let shots=0;
+        while(mission.stage==='warden' && !manager.gameOver && !stop.current && performance.now()-start<35000) {
+          const frameStart=performance.now();await frame();frameSamples.push(performance.now()-frameStart);
+          if(!scene.isPlaying)throw Error('Fixture lost focus; rerun with this tab focused.');
+          const enemy=mission.warden.components?.['enemy-component'];if(!enemy || enemy.isDead)continue;
+          const target=enemy.el.object3D.position.clone();target.y+=1;
+          for(let i=0;i<8;i++) {
+            scene.object3D.updateMatrixWorld(true);
+            const origin=camera.object3D.getWorldPosition(new THREE.Vector3());
+            const aim=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(origin,target,new THREE.Vector3(0,1,0)));
+            flight.rotation.setFromQuaternion(aim,'YXZ');flight.applyLookRotation();
+          }
+          scene.object3D.updateMatrixWorld(true);
+          const ammo=weapon.ammoInClip;if(enemy.recoveryRemaining>0)weapon.shoot();if(weapon.ammoInClip<ammo)shots++;
+        }
+        check(`${route}: ordinary weapon defeats Warden (${shots} shots)`,mission.stage==='extraction' && !health.isDead);
+        check(`${route}: at least two attack and exposure cycles occur`,enemy.attackCycles>=2 && enemy.exposureWindows>=2);
+        check(`${route}: stationary pilot is punished by real bolts`,health.health<health.maxHealth || route==='low'&&health.shield<30);
+        check(`${route}: Warden death clip mapped before removal`,hero?.currentAnimation==='Baka_Dying' && !!hero?.action && mission.warden.parentNode);
+        player.object3D.position.copy(BRIDGEHEAD_EXTRACTION_PATH[0]);mission.tick(0,0);
+        player.object3D.position.copy(BRIDGEHEAD_EXTRACTION);
+        const held=mission.extractionTime;scene.pause();await frame();await frame();
+        check(`${route}: extraction clock freezes while paused`,mission.extractionTime===held);
+        let resultDetail:any=null;
+        scene.addEventListener('mission-ended',(event:any)=>{resultDetail=event.detail;},{once:true});
+        scene.play();const extractionStart=performance.now();
+        while(!manager.gameOver && performance.now()-extractionStart<5000 && !stop.current)await frame();
+        check(`${route}: extraction produces route result`,manager.gameOver && mission.stage==='complete' && !health.isDead);
+        check(`${route}: result reports mastery telemetry`,resultDetail?.route===route && resultDetail?.shots===shots && resultDetail?.chargesSpent===(route==='high'?3:0) && resultDetail?.hullLost>=0 && resultDetail?.seconds>=0);
+        manager.resetMission();await frame();await frame();
+        check(`${route}: retry clears reward and owned enemies`,!health.shield && !weapon.chargedShots && !manager.gameOver && !scene.querySelector('[enemy-component]'));
+        launch();
+        const settleStart=performance.now();
+        while(stream.stats().inFlight && performance.now()-settleStart<16000 && !stop.current)await frame();
+        await frame();await frame();scene.pause();
+        const counts=stream.stats();resourceCounts.push(renderer.info.memory.geometries);
+        check(`${route}: stream remains within resident budgets`,counts.lowResident===4 && counts.highResident<=2 && counts.inFlight<=2 && counts.visibleTriangles<=350000);
+        lines.push(`${route}: settled resources ${renderer.info.memory.geometries} geometries / ${renderer.info.memory.textures} textures`);
+      }
+      check('Both routes reuse renderer and stabilize resources',scene.renderer===renderer && Math.max(...resourceCounts)-Math.min(...resourceCounts)<=1);
+      check('QA best score is isolated from the pilot record',localStorage.getItem('mars-bridgehead-best-v1')===normalBestBefore && Number(localStorage.getItem('mars-bridgehead-qa-best-v1'))>0);
+      lines.push(`Reset geometry counts: ${resourceCounts.join(', ')}`);
+      const orderedFrames=[...frameSamples].sort((a,b)=>a-b);
+      const median=orderedFrames[Math.floor(orderedFrames.length*.5)] || 0,p95=orderedFrames[Math.min(orderedFrames.length-1,Math.floor(orderedFrames.length*.95))] || 0;
+      lines.push(`Embedded combat scheduling: ${frameSamples.length} samples · median ${median.toFixed(1)} ms · p95 ${p95.toFixed(1)} ms · viewport ${window.innerWidth}×${window.innerHeight} · render ${renderer.domElement.width}×${renderer.domElement.height}`);
+      manager.resetMission();launch();mission.chooseRoute('low');mission.spawnWarden();
+      let lossDetail:any=null,lossEvents=0;
+      const collectLoss=(event:any)=>{lossDetail=event.detail;lossEvents++;};
+      scene.addEventListener('mission-ended',collectLoss);
+      health.takeDamage(999);await frame();await frame();
+      check('loss emits one accurate terminal result',manager.gameOver && health.isDead && lossEvents===1 && lossDetail?.won===false && lossDetail?.route==='low' && lossDetail?.hullLost===health.maxHealth);
+      check('loss result is rendered for the pilot',document.body.querySelector('.mission-menu h1')?.textContent?.includes('SIGNAL')===true && document.body.querySelector('.menu-description')?.textContent?.includes('low route')===true);
+      manager.finishMission(false);
+      check('duplicate terminal calls cannot emit another result',lossEvents===1);
+      scene.removeEventListener('mission-ended',collectLoss);
+      manager.resetMission();await frame();await frame();
+      check('loss retry restores hull and clears Warden',!manager.gameOver && !health.isDead && health.health===health.maxHealth && !scene.querySelector('[enemy-component]'));
+      const lossGeometry:number[]=[];
+      for(let run=0;run<9;run++) {
+        launch();mission.chooseRoute(run%2?'high':'low');mission.spawnWarden();health.takeDamage(999);
+        await frame();manager.resetMission();
+        const cycleSettle=performance.now();while(performance.now()-cycleSettle<750 && !stop.current)await frame();
+        lossGeometry.push(renderer.info.memory.geometries);
+      }
+      check('ten loss/retry cycles have bounded settled geometry',Math.max(...lossGeometry)-Math.min(...lossGeometry)<=1 && lossGeometry[lossGeometry.length-1]<=lossGeometry[0]+1 && !scene.querySelector('[enemy-component]'));
+      lines.push(`Loss/retry geometry counts: ${lossGeometry.join(', ')}`);
+      setReport(lines.join('\n')+'\nScripted route placement and aim; actual gate logic, GLB combat, pause, extraction, retry and streaming. Not human usability evidence.');
+    } catch(error) {setReport(lines.join('\n')+`\nERROR ${String(error)}`);} finally {scene.pause();flight.clearInput();weapon.pause();setRunning(false);}
+  };
   const streamSmoke = async () => {
     const scene=sceneRef.current,stream=scene.components['world-stream'];
     if(!stream || stream.status!=='ready'){setReport('Open ?full-level&playtest and wait for the full overview.');return;}
@@ -249,5 +393,5 @@ export function PlaytestPanel({sceneRef,telemetry,launch}: {sceneRef: any;teleme
       setReport(lines.join('\n')+'\nScripted relocation tests actual chunk fetch/decode/eviction, not terrain collision or human traversal.');
     }catch(error){setReport(lines.join('\n')+'\nERROR '+String(error));}finally{scene.pause();flight.clearInput();setRunning(false);}
   };
-  return <aside className="playtest-panel"><strong>LOCAL BROWSER QA</strong><div>{telemetry}</div><button disabled={running} onClick={checks}>Run browser checks</button><button disabled={running} onClick={soak}>Run combat soak</button><button disabled={running} onClick={ridgeSmoke}>Run Ridge route smoke</button><button disabled={running} onClick={streamSmoke}>Run streaming smoke</button><button onClick={()=>{stop.current=true;}}>Stop soak</button><pre role="status">{report}</pre></aside>;
+  return <aside className="playtest-panel"><strong>LOCAL BROWSER QA</strong><div>{telemetry}</div><button disabled={running} onClick={checks}>Run browser checks</button><button disabled={running} onClick={soak}>Run combat soak</button><button disabled={running} onClick={ridgeSmoke}>Run Ridge route smoke</button><button disabled={running} onClick={bridgeheadSmoke}>Run Bridgehead route smoke</button><button disabled={running} onClick={()=>inputCheck()}>Fly both routes with input</button><button disabled={running} onClick={()=>inputCheck(5)}>Run 10 full input sorties</button><button disabled={running} onClick={streamSmoke}>Run streaming smoke</button><button onClick={()=>{stop.current=true;}}>Stop soak</button><pre role="status">{report}</pre><CapturePanel sceneRef={sceneRef} launch={launch} /><FrameBenchmark sceneRef={sceneRef} /></aside>;
 }

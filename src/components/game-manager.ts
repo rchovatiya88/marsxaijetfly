@@ -97,6 +97,7 @@ export default function initializeGameManager(): void {
             player?.components['fly-controls']?.resetMission();
             this.el.querySelector('#jetbike')?.components['weapon-component']?.resetMission();
             this.el.components?.['ridge-run']?.resetMission();
+            this.el.components?.['bridgehead-run']?.resetMission();
             for (const [id, value] of Object.entries({ 'level-value': this.level, 'score-value': 0, 'enemies-value': this.enemiesRemaining, 'combo-value': 'CHAIN ×1' })) {
                 const node = document.getElementById(id);
                 if (node) node.textContent = String(value);
@@ -112,6 +113,7 @@ export default function initializeGameManager(): void {
                 if (this.el.components?.['world-stream']) {
                     this.enemiesRemaining = 0;
                     this.el.components['world-stream'].start();
+                    this.el.components?.['bridgehead-run']?.start();
                     return;
                 }
                 if (this.el.components?.['ridge-run']) {
@@ -399,12 +401,29 @@ export default function initializeGameManager(): void {
             let best = this.score;
             try {
                 const ridge = this.el.components?.['ridge-run'];
-                const key = ridge ? (this.el.hasAttribute?.('data-playtest') ? 'mars-ridge-qa-best-v1' : 'mars-ridge-best-v1') : (this.el.hasAttribute?.('data-playtest') ? 'mars-qa-best-v1' : 'mars-best-v1');
+                const bridgehead = this.el.components?.['bridgehead-run'];
+                const qa = this.el.hasAttribute?.('data-playtest');
+                const key = bridgehead ? (qa ? 'mars-bridgehead-qa-best-v1' : 'mars-bridgehead-best-v1') : ridge ? (qa ? 'mars-ridge-qa-best-v1' : 'mars-ridge-best-v1') : (qa ? 'mars-qa-best-v1' : 'mars-best-v1');
                 best = Math.max(this.score, Number(localStorage.getItem(key)) || 0);
                 localStorage.setItem(key, String(best));
             } catch { /* Storage can be unavailable; the mission still ends. */ }
             const ridge = this.el.components?.['ridge-run'];
-            this.el.emit('mission-ended', { score: this.score, level: this.level, won, best, mode: ridge ? 'ridge-run' : 'waves', route: ridge?.route, seconds: Math.round(this.elapsed / 1000) });
+            const bridgehead = this.el.components?.['bridgehead-run'];
+            const player = this.el.querySelector?.('#player')?.components?.['player-component'];
+            const weapon = this.el.querySelector?.('#jetbike')?.components?.['weapon-component'];
+            this.el.emit('mission-ended', {
+                score: this.score,
+                level: this.level,
+                won,
+                best,
+                mode: bridgehead ? 'bridgehead-run' : ridge ? 'ridge-run' : 'waves',
+                route: bridgehead?.route || ridge?.route,
+                seconds: Math.round(this.elapsed / 1000),
+                shots: weapon?.shotsFired || 0,
+                chargesSpent: weapon?.chargesSpent || 0,
+                hullLost: Math.max(0, (player?.maxHealth || 0) - (player?.health || 0)),
+                shieldLeft: player?.shield || 0
+            });
         },
         onPlayerDied: function(this: any): void {
             this.finishMission(false);
@@ -417,7 +436,7 @@ export default function initializeGameManager(): void {
             const elapsed = Math.min(delta, 100);
             this.elapsed += elapsed;
             this.entityManager.update(elapsed / 1000);
-            if (this.el.components?.['ridge-run']) {
+            if (this.el.components?.['ridge-run'] || this.el.components?.['bridgehead-run']) {
                 const count = document.getElementById('enemies-value');
                 if (count) count.textContent = String(this.activeEnemiesCount);
                 return;

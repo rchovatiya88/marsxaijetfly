@@ -1,0 +1,62 @@
+C:\Users\roncho\Documents\repos\marsxaijetfly\scripts\build-bridgehead-v2.py:21: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name);m.diffuse_color=(*color,1);m.use_nodes=True;n=m.node_tree.nodes['Principled BSDF']
+16:00:07 | INFO: Data are loaded, start creating Blender stuff
+16:00:07 | INFO: Blender create Mesh node Scene
+16:00:07 | INFO: Blender create Mesh node Scene.001
+16:00:07 | INFO: Blender create Mesh node Scene.002
+16:00:07 | INFO: Blender create Mesh node Scene.003
+16:00:07 | INFO: Blender create Mesh node Scene.004
+16:00:07 | INFO: Blender create Mesh node Mesh
+16:00:07 | INFO: glTF import finished in 0.06s
+16:00:07 | INFO: Data are loaded, start creating Blender stuff
+16:00:07 | INFO: Blender create Mesh node Scene.005
+16:00:07 | INFO: Draco Decoder: Decode primitive Scene.005
+16:00:07 | INFO: glTF import finished in 0.30s
+C:\Users\roncho\Documents\repos\marsxaijetfly\scripts\build-bridgehead-v2.py:145: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  scene.world.use_nodes=True;bg=scene.world.node_tree.nodes['Background'];bg.inputs[0].default_value=(.12,.075,.075,1);bg.inputs[1].default_value=.8
+Info: Saved as "bridgehead-v2.blend"
+Info: Total files 3 | Changed 0 | Failed 0
+Info: Saved as "bridgehead-v2.blend"
+BLENDER_SCENE_FIRST_SAVED C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\bridgehead-v2.blend {"player": {"width": 0.9797780931255041, "height": 1.8, "length": 4.705897320882914, "posed": false}, "warden": {"width": 1.8735263581890882, "height": 2.15, "length": 1.1759515837250987, "posed": true}}
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+16:00:07 | INFO: Starting glTF 2.0 export
+16:00:07 | INFO: Extracting primitive: Cube.211
+16:00:08 | INFO: Primitives created: 1
+16:00:08 | INFO: Extracting primitive: Cube.285
+16:00:08 | INFO: Primitives created: 1
+16:00:08 | INFO: Extracting primitive: Cube.309
+16:00:08 | INFO: Primitives created: 1
+16:00:08 | INFO: Extracting primitive: Cube.178
+16:00:08 | INFO: Primitives created: 1
+16:00:08 | INFO: Extracting primitive: Cube.327
+16:00:08 | INFO: Primitives created: 1
+16:00:08 | INFO: Finished glTF 2.0 export in 0.06638956069946289 s
+
+16:00:08 | INFO: Data are loaded, start creating Blender stuff
+16:00:08 | INFO: Blender create Mesh node Cube.211
+16:00:08 | INFO: Blender create Mesh node Cube.285
+16:00:08 | INFO: Blender create Mesh node Cube.309
+16:00:08 | INFO: Blender create Mesh node Cube.178
+16:00:08 | INFO: Blender create Mesh node Cube.327
+16:00:08 | INFO: glTF import finished in 0.03s
+BRIDGEHEAD_V2_EXPORTED {"path": "public/models/bridgehead-route.glb", "sha256": "c9dfeb77507d6f50f34bb600768476910e94c7976e23ccfa17415ff23e826f16", "bytes": 173232, "triangles": 2593, "meshes": 5, "materials": 5, "textures": 0, "animations": 0, "bounds": {"min": [-53.04999923706055, -10.579999923706055, -49.0], "max": [94.0, 9.381999969482422, 39.038551330566406]}, "transform": "identity; already authored in scale-three world metres"}
+00:05.750  blend            | Read blend: "C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\bridgehead-v2.blend"
+00:13.969  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-launch.png'
+00:21.657  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-fork.png'
+00:31.203  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-high-descent.png'
+00:39.891  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-low-bridge.png'
+00:48.641  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-low-turn.png'
+00:56.953  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-high-court.png'
+01:05.797  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-low-cover.png'
+01:13.750  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-low-peek.png'
+01:20.938  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-exit.png'
+01:26.985  render           | Saved: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\bridgehead\v2-overview.png'
+Info: Read library: 'C:\Users\roncho\Documents\repos\marsxaijetfly\art\full-level\full-level.blend', '//..\full-level\full-level.blend', parent '<direct>'
+Info: Saved as "bridgehead-v2.blend"
+V2_REVIEW_POSES_CORRECTED
+V2_RENDER_COMPLETE
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+DracoDecoder | Decoded 12742 vertices, 17760 indices
+
+Blender quit

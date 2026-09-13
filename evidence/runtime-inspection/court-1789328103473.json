@@ -1,0 +1,196 @@
+{
+  "kind": "posed-runtime-inspection",
+  "view": "court",
+  "generation": 3,
+  "capturedAt": "2026-09-13T19:35:03.436Z",
+  "evidenceLimit": "Direct inspection placement and paused actors. Not natural traversal, combat, retry or human evidence.",
+  "buildScript": null,
+  "scenePaused": true,
+  "elapsedMs": 31.59999990463257,
+  "missionStage": "warden",
+  "player": {
+    "x": 12,
+    "y": 3.2,
+    "z": -11.8
+  },
+  "bikeLocal": {
+    "x": 0,
+    "y": -0.49796319027103264,
+    "z": 0
+  },
+  "movementCollider": {
+    "shape": "sphere",
+    "radius": 0.7,
+    "center": {
+      "x": 12,
+      "y": 3.2,
+      "z": -11.8
+    }
+  },
+  "camera": {
+    "world": {
+      "x": 5.881372064987741,
+      "y": 5.699999999999999,
+      "z": -12.801195381974784
+    },
+    "localBoom": {
+      "x": 0,
+      "y": 2.4999999999999996,
+      "z": 6.200000000000001
+    },
+    "configuredHeight": 2.5,
+    "configuredDistance": 6.2,
+    "pitch": -0.26191088405640633,
+    "yaw": -1.732989645896865,
+    "fov": 80,
+    "aspect": 1.7777777777777777
+  },
+  "hero": {
+    "loaded": true,
+    "failed": false,
+    "bounds": {
+      "min": {
+        "x": 9.62336776081804,
+        "y": 2.6978961982555996,
+        "z": -12.48221822986531
+      },
+      "max": {
+        "x": 14.361051794043428,
+        "y": 4.509553109620715,
+        "z": -11.165529136941114
+      },
+      "size": {
+        "x": 4.7376840332253884,
+        "y": 1.811656911365115,
+        "z": 1.3166890929241966
+      },
+      "projectedBounds": {
+        "minX": 0.45812582167532323,
+        "maxX": 0.581957304494337,
+        "minY": 0.42520211522561324,
+        "maxY": 0.7617558105412692,
+        "heightFraction": 0.33655369531565593,
+        "crosshairInside": true,
+        "allCornersInDepth": true
+      },
+      "projectionLimit": "Projected world AABB is conservative; it does not prove opaque-pixel occlusion."
+    }
+  },
+  "warden": {
+    "loaded": true,
+    "bounds": {
+      "min": {
+        "x": 18.952259199518302,
+        "y": 0,
+        "z": -12.824499350468205
+      },
+      "max": {
+        "x": 27.047740800481698,
+        "y": 2.1500000000000004,
+        "z": -7.175500649531795
+      },
+      "size": {
+        "x": 8.095481600963396,
+        "y": 2.1500000000000004,
+        "z": 5.64899870093641
+      },
+      "projectedBounds": {
+        "minX": 0.44531703929394456,
+        "maxX": 0.5809058283252863,
+        "minY": 0.43993472141522016,
+        "maxY": 0.592668571799256,
+        "heightFraction": 0.15273385038403586,
+        "crosshairInside": true,
+        "allCornersInDepth": true
+      },
+      "projectionLimit": "Projected world AABB is conservative; it does not prove opaque-pixel occlusion."
+    },
+    "state": "idle"
+  },
+  "aimRay": {
+    "origin": {
+      "x": 5.881372064987741,
+      "y": 5.699999999999999,
+      "z": -12.801195381974784
+    },
+    "target": {
+      "x": 101.20337431868649,
+      "y": -20.192674060797312,
+      "z": 2.7964107268859415
+    },
+    "blocked": true,
+    "hit": {
+      "t": 0.22825480704202578,
+      "point": {
+        "x": 27.63907729626529,
+        "y": -0.21012732154935687,
+        "z": -9.240966809279257
+      },
+      "normal": {
+        "x": -0.820504909680073,
+        "y": -0.006165644632980493,
+        "z": 0.5716062263631804
+      }
+    }
+  },
+  "focusRays": [
+    {
+      "name": "left visual muzzle",
+      "origin": {
+        "x": 13.696737358567994,
+        "y": 2.164152131190712,
+        "z": -12.261153346115481
+      },
+      "target": {
+        "x": 23,
+        "y": 1.05,
+        "z": -10
+      },
+      "blocked": false,
+      "hit": null
+    },
+    {
+      "name": "center damage gate",
+      "origin": {
+        "x": 13.580485760821245,
+        "y": 2.1521136941360677,
+        "z": -11.550702332987475
+      },
+      "target": {
+        "x": 23,
+        "y": 1.05,
+        "z": -10
+      },
+      "blocked": false,
+      "hit": null
+    },
+    {
+      "name": "right visual muzzle",
+      "origin": {
+        "x": 13.464234163074497,
+        "y": 2.140075257081423,
+        "z": -10.84025131985947
+      },
+      "target": {
+        "x": 23,
+        "y": 1.05,
+        "z": -10
+      },
+      "blocked": false,
+      "hit": null
+    }
+  ],
+  "renderer": {
+    "width": 1280,
+    "height": 720,
+    "draws": 36,
+    "triangles": 186755,
+    "geometries": 90,
+    "textures": 48
+  },
+  "streaming": {
+    "status": "ready",
+    "activeRequests": 0,
+    "terrainTriangles": 172065
+  }
+}

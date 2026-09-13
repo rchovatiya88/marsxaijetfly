@@ -1,0 +1,191 @@
+[
+  {
+    "name": "launch",
+    "player": {
+      "x": -57,
+      "y": -4.5,
+      "z": 32.1
+    },
+    "target": {
+      "x": -27,
+      "y": -8.2,
+      "z": 32.1
+    },
+    "camera": [
+      -63.20000076293945,
+      -2.0,
+      33.29999923706055
+    ],
+    "verticalFov": 80,
+    "shoulder": 1.2,
+    "kind": "posed offline Blender composition; yaw corrected; Warden faces player"
+  },
+  {
+    "name": "fork",
+    "player": {
+      "x": -45,
+      "y": 1,
+      "z": 12
+    },
+    "target": {
+      "x": -45,
+      "y": 8.4,
+      "z": -35.4
+    },
+    "camera": [
+      -43.79999923706055,
+      3.5,
+      18.200000762939453
+    ],
+    "verticalFov": 80,
+    "shoulder": 1.2,
+    "kind": "posed offline Blender composition; yaw corrected; Warden faces player"
+  },
+  {
+    "name": "high-descent",
+    "player": {
+      "x": -30,
+      "y": 8.4,
+      "z": -35.4
+    },
+    "target": {
+      "x": -18,
+      "y": -0.7,
+      "z": -35.4
+    },
+    "camera": [
+      -36.20000076293945,
+      10.899999618530273,
+      -34.20000076293945
+    ],
+    "verticalFov": 80,
+    "shoulder": 1.2,
+    "kind": "posed offline Blender composition; yaw corrected; Warden faces player"
+  },
+  {
+    "name": "low-bridge",
+    "player": {
+      "x": 0,
+      "y": -8.2,
+      "z": 32.1
+    },
+    "target": {
+      "x": 30,
+      "y": -6.4,
+      "z": 32.1
+    },
+    "camera": [
+      -6.199999809265137,
+      -5.699999809265137,
+      33.29999923706055
+    ],
+    "verticalFov": 80,
+    "shoulder": 1.2,
+    "kind": "posed offline Blender composition; yaw corrected; Warden faces player"
+  },
+  {
+    "name": "low-turn",
+    "player": {
+      "x": 30,
+      "y": -6.4,
+      "z": 32.1
+    },
+    "target": {
+      "x": 30,
+      "y": -1,
+      "z": 6
+    },
+    "camera": [
+      31.200000762939453,
+      -3.9000000953674316,
+      38.29999923706055
+    ],
+    "verticalFov": 80,
+    "shoulder": 1.2,
+    "kind": "posed offline Blender composition; yaw corrected; Warden faces player"
+  },
+  {
+    "name": "high-court",
+    "player": {
+      "x": 53,
+      "y": 5.6,
+      "z": -33
+    },
+    "target": {
+      "x": 69,
+      "y": 2.55,
+      "z": -27
+    },
+    "camera": [
+      46.77341079711914,
+      8.100000381469727,
+      -34.053367614746094
+    ],
+    "verticalFov": 80,
+    "shoulder": 1.2,
+    "kind": "posed offline Blender composition; yaw corrected; Warden faces player"
+  },
+  {
+    "name": "low-cover",
+    "player": {
+      "x": 53,
+      "y": 3.2,
+      "z": -16
+    },
+    "target": {
+      "x": 69,
+      "y": 2.55,
+      "z": -27
+    },
+    "camera": [
+      48.570777893066406,
+      5.699999809265137,
+      -11.498671531677246
+    ],
+    "verticalFov": 80,
+    "shoulder": 1.2,
+    "kind": "posed offline Blender composition; yaw corrected; Warden faces player"
+  },
+  {
+    "name": "low-peek",
+    "player": {
+      "x": 55,
+      "y": 3.2,
+      "z": -25
+    },
+    "target": {
+      "x": 69,
+      "y": 2.55,
+      "z": -27
+    },
+    "camera": [
+      49.03201675415039,
+      5.699999809265137,
+      -22.93524932861328
+    ],
+    "verticalFov": 80,
+    "shoulder": 1.2,
+    "kind": "posed offline Blender composition; yaw corrected; Warden faces player"
+  },
+  {
+    "name": "exit",
+    "player": {
+      "x": 80,
+      "y": 7.8,
+      "z": -39
+    },
+    "target": {
+      "x": 90,
+      "y": 7.8,
+      "z": -45
+    },
+    "camera": [
+      75.30093383789062,
+      10.300000190734863,
+      -34.78113555908203
+    ],
+    "verticalFov": 80,
+    "shoulder": 1.2,
+    "kind": "posed offline Blender composition; yaw corrected; Warden faces player"
+  }
+]

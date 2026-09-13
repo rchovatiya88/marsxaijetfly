@@ -23,6 +23,11 @@ interface EnemyComponentSchema {
   attackRange: number;
   weaponDamage: number;
   weaponCooldown: number;
+  recoveryTime: number;
+  windupTime: number;
+  aimTrackingTime: number;
+  guardDamageMultiplier: number;
+  attackAnimation: string;
   weaponAccuracy: number;
   weaponRange: number;
   enemyType: string;
@@ -55,6 +60,11 @@ export default function initializeEnemyComponent(): void {
                 attackRange: { type: 'number', default: 2 },
                 weaponDamage: { type: 'number', default: 15 },
                 weaponCooldown: { type: 'number', default: 2 },
+                recoveryTime: { type: 'number', default: 1.2 },
+                windupTime: { type: 'number', default: 0.85 },
+                aimTrackingTime: { type: 'number', default: 0 },
+                guardDamageMultiplier: { type: 'number', default: 1 },
+                attackAnimation: { type: 'string', default: 'Baka_Swipe' },
                 weaponAccuracy: { type: 'number', default: 0.7 },
                 weaponRange: { type: 'number', default: 50 },
                 enemyType: { type: 'string', default: 'normal' },
@@ -65,12 +75,26 @@ export default function initializeEnemyComponent(): void {
                     this.lastEnemyShot = -2000;
                     this.chargeRemaining = 0;
                     this.boltRemaining = 0;
+                    this.recoveryRemaining = 0;
+                    this.trackingRemaining = 0;
+                    this.attackCycles = 0;
+                    this.exposureWindows = 0;
+                    this.combatPhase = '';
                     this.attackOrigin = new THREE.Vector3();
                     this.attackTarget = new THREE.Vector3();
                     this.attackDirection = new THREE.Vector3();
                     this.enemyBolt = new THREE.Mesh(new THREE.SphereGeometry(0.24,8,6),new THREE.MeshBasicMaterial({color:'#ff684c'}));
                     this.enemyBolt.visible = false;
                     this.el.sceneEl.object3D.add(this.enemyBolt);
+                    if (this.data.guardDamageMultiplier < 1) {
+                        this.attackGuide = new THREE.Line(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(6,3)),
+                            new THREE.LineBasicMaterial({color:'#ffc56b',transparent:true,opacity:.72,depthWrite:false}));
+                        this.attackMarker = new THREE.Mesh(new THREE.RingGeometry(.78,1.03,24),
+                            new THREE.MeshBasicMaterial({color:'#ffc56b',side:THREE.DoubleSide,transparent:true,opacity:.85,depthWrite:false}));
+                        this.attackMarker.rotation.x=-Math.PI/2;
+                        this.attackGuide.visible=this.attackMarker.visible=false;
+                        this.el.sceneEl.object3D.add(this.attackGuide,this.attackMarker);
+                    }
                     this.weaponRaycaster = new THREE.Raycaster();
 
                     this.health = this.data.health;
@@ -146,12 +170,13 @@ export default function initializeEnemyComponent(): void {
             },
             enemyShoot: function(this: any): boolean {
                 const now = this.el.sceneEl.components['game-manager'].elapsed;
-                if (this.chargeRemaining > 0 || this.boltRemaining > 0 || now-this.lastEnemyShot < this.data.weaponCooldown*1000) return false;
+                if (this.chargeRemaining > 0 || this.boltRemaining > 0 || this.recoveryRemaining > 0 || now-this.lastEnemyShot < this.data.weaponCooldown*1000) return false;
                 this.attackOrigin.copy(this.el.object3D.position); this.attackOrigin.y += 1.2;
                 this.attackTarget.copy(this.playerEntity.object3D.position);
                 const delta = this.attackTarget.clone().sub(this.attackOrigin);
                 if (delta.length() > this.data.weaponRange || traceWorld(this.attackOrigin,delta)) return false;
-                this.chargeRemaining = 850;
+                this.chargeRemaining = this.data.windupTime * 1000;
+                this.trackingRemaining = Math.min(this.data.windupTime,this.data.aimTrackingTime) * 1000;
                 this.lastEnemyShot = now;
                 this.flashThreatWarning();
                 return true;
@@ -159,19 +184,27 @@ export default function initializeEnemyComponent(): void {
             updateAttack: function(this: any, delta: number): void {
                 if (this.isDead) return;
                 const ms = Math.min(delta,100);
+                if (this.recoveryRemaining > 0) this.recoveryRemaining = Math.max(0, this.recoveryRemaining - ms);
                 if (this.chargeRemaining > 0) {
+                    if (this.trackingRemaining > 0) {
+                        this.attackTarget.copy(this.playerEntity.object3D.position);
+                        this.trackingRemaining = Math.max(0,this.trackingRemaining-ms);
+                    }
                     this.chargeRemaining -= ms;
                     this.enemyHalo.material.color.set('#fff0a0');
                     if (this.chargeRemaining <= 0) {
-                        // Lock aim at charge start: movement during the warning dodges the shot.
+                        // Generic enemies retain early lock. Authored sentinels
+                        // track first, then give an explicit final lock window.
                         this.attackOrigin.copy(this.el.object3D.position); this.attackOrigin.y += 1.2;
                         this.attackDirection.copy(this.attackTarget).sub(this.attackOrigin).normalize();
                         this.enemyBolt.position.copy(this.attackOrigin);
                         this.enemyBolt.visible = true;
                         this.boltRemaining = 3000;
+                        this.attackCycles++;
                     }
                 } else this.enemyHalo.material.color.set(this.data.enemyColor);
-                if (this.boltRemaining > 0) {
+                const hadBolt = this.boltRemaining > 0;
+                if (hadBolt) {
                     const start = this.enemyBolt.position;
                     const step = this.attackDirection.clone().multiplyScalar(18*ms/1000);
                     const cover = traceWorld(start,step);
@@ -185,6 +218,39 @@ export default function initializeEnemyComponent(): void {
                     } else if (cover) this.boltRemaining = 0;
                     else { start.add(step); this.boltRemaining -= ms; }
                     this.enemyBolt.visible = this.boltRemaining > 0;
+                    if (this.boltRemaining <= 0) {
+                        this.recoveryRemaining = this.data.recoveryTime * 1000;
+                        this.exposureWindows++;
+                    }
+                }
+            },
+            updateCombatPresentation: function(this:any): void {
+                if (this.data.guardDamageMultiplier >= 1) return;
+                const phase=this.isDead?'defeated':this.chargeRemaining>0?(this.trackingRemaining>0?'tracking':'locked'):
+                    this.boltRemaining>0?'projectile':this.recoveryRemaining>0?'exposed':'armored';
+                if (phase!==this.combatPhase) {
+                    this.combatPhase=phase;
+                    this.el.sceneEl.emit('enemy-combat-phase',{id:this.el.id,phase,attackCycles:this.attackCycles,exposureWindows:this.exposureWindows});
+                }
+                if (this.enemyHalo) {
+                    this.enemyHalo.material.color.set(phase==='exposed'?'#78ffe1':phase==='locked'?'#ff684c':'#ffc56b');
+                    this.enemyHalo.scale.setScalar(phase==='exposed'?1.7:.9);
+                }
+                if (this.enemyGroundRing) this.enemyGroundRing.scale.setScalar(phase==='exposed'?1.65:.85);
+                if (this.attackGuide && this.attackMarker) {
+                    const visible=this.chargeRemaining>0 && !this.isDead;
+                    this.attackGuide.visible=this.attackMarker.visible=visible;
+                    if (visible) {
+                        const positions=this.attackGuide.geometry.attributes.position;
+                        positions.setXYZ(0,this.attackOrigin.x,this.attackOrigin.y,this.attackOrigin.z);
+                        positions.setXYZ(1,this.attackTarget.x,this.attackTarget.y,this.attackTarget.z);
+                        positions.needsUpdate=true;
+                        this.attackGuide.geometry.computeBoundingSphere();
+                        this.attackMarker.position.copy(this.attackTarget);
+                        this.attackGuide.material.color.set(phase==='locked'?'#ff684c':'#ffc56b');
+                        this.attackMarker.material.color.copy(this.attackGuide.material.color);
+                        this.attackMarker.scale.setScalar(phase==='locked'?1.25:1);
+                    }
                 }
             },
             flashThreatWarning: function(): void {
@@ -206,9 +272,19 @@ export default function initializeEnemyComponent(): void {
                 const origin = enemyPos.clone(); origin.y += 1.2;
                 const blocked = traceWorld(origin,playerPos.clone().sub(origin));
                 this.enemyShoot();
-                this.setState(this.chargeRemaining > 0 ? 'attack' : 'chase');
-                this.seekBehavior.active = horizontal > 10 || !!blocked;
+                const recovering = this.recoveryRemaining > 0;
+                const anchored = this.data.speed <= 0;
+                this.setState(this.chargeRemaining > 0 ? 'attack' : recovering || anchored ? 'idle' : 'chase');
+                this.seekBehavior.active = !anchored && !recovering && (horizontal > 10 || !!blocked);
                 this.separationBehavior.active = false;
+                if (anchored) {
+                    // The authored sentinel stays on its platform, including after
+                    // hit reactions. Old arena clamps cannot move a court actor.
+                    this.vehicle.position.copy(enemyPos);
+                    this.vehicle.velocity.set(0,0,0);
+                    if (distance > 0.1) this.el.object3D.lookAt(new THREE.Vector3(playerPos.x,enemyPos.y,playerPos.z));
+                    return;
+                }
                 if (this.seekBehavior.active) {
                     this.seekBehavior.target.set(playerPos.x,0,playerPos.z);
                     if (blocked) {
@@ -354,11 +430,13 @@ export default function initializeEnemyComponent(): void {
             },
             setState: function(this: any, state: string): void {
                 try {
-                    if (this.currentState === state) return;
+                    const changed = this.currentState !== state;
                     this.currentState = state;
-
-                    // We don't change the color of the model since we're using a GLTF model
-                    // Instead we could add a visual effect or animation here if desired
+                    if (!changed && !this.el.components?.['hero-model']?.model) return;
+                    const clip = state === 'attack' ? this.data.attackAnimation : state === 'chase' ? 'Baka_Run' : state === 'death' ? 'Baka_Dying' : 'Baka_Idle';
+                    const options=state==='death'?{fade:.06,duration:.8,once:true}:
+                        state==='attack' && this.data.guardDamageMultiplier<1?{fade:.1,duration:this.data.windupTime,once:true}:{fade:.18};
+                    this.el.components?.['hero-model']?.playAnimation?.(clip, options);
                 } catch (error) {
                     console.error('Error setting state:', error);
                 }
@@ -413,9 +491,12 @@ export default function initializeEnemyComponent(): void {
                     console.error('Error updating health bar:', error);
                 }
             },
-            takeDamage: function(this: any, amount: number, hitPosition?: THREE.Vector3): void {
+            takeDamage: function(this: any, amount: number, hitPosition?: THREE.Vector3): number {
                 try {
-                    if (this.isDead) return;
+                    if (this.isDead) return 0;
+                    if (this.data.guardDamageMultiplier < 1 && this.recoveryRemaining <= 0) amount *= this.data.guardDamageMultiplier;
+                    if (amount <= 0) return 0;
+                    const applied=Math.min(this.health,amount);
 
                     this.health = Math.max(0, this.health - amount);
                     this.lastDamageTime = performance.now();
@@ -430,7 +511,7 @@ export default function initializeEnemyComponent(): void {
                     const flashIntensity = amount > 20 ? 200 : 100;
                     this.flashColor('white', this.currentState === 'idle' ? 'red' : 'orange', flashIntensity);
 
-                    if (this.playerEntity && this.playerEntity.object3D && !this.isDead) {
+                    if (this.data.speed > 0 && this.playerEntity && this.playerEntity.object3D && !this.isDead) {
                         const playerPos = this.playerEntity.object3D.position;
                         const enemyPos = this.el.object3D.position;
                         const direction = new THREE.Vector3()
@@ -444,18 +525,21 @@ export default function initializeEnemyComponent(): void {
 
                     if (this.health <= 0) {
                         this.die();
-                        return;
+                        return applied;
                     } else {
-                        this.setState('chase');
-                        if (this.playerEntity && this.playerEntity.object3D) {
+                        // Damage cannot erase the wind-up pose or recovery rule.
+                        this.setState(this.chargeRemaining > 0 ? 'attack' : this.data.speed <= 0 || this.recoveryRemaining > 0 ? 'idle' : 'chase');
+                        if (this.data.speed > 0 && !this.recoveryRemaining && this.playerEntity && this.playerEntity.object3D) {
                             const playerPos = this.playerEntity.object3D.position;
                             this.seekBehavior.target.copy(new YUKA.Vector3(playerPos.x, 0, playerPos.z));
                             this.seekBehavior.active = true;
                             this.separationBehavior.active = true;
                         }
                     }
+                    return applied;
                 } catch (error) {
                     console.error('Error taking damage:', error);
+                    return 0;
                 }
             },
             showDamageNumber: function(this: any, amount: number, position: THREE.Vector3): void {
@@ -553,6 +637,10 @@ export default function initializeEnemyComponent(): void {
                 try {
                     if (this.isDead) return;
                     this.isDead = true;
+                    if (this.attackGuide) this.attackGuide.visible=false;
+                    if (this.attackMarker) this.attackMarker.visible=false;
+                    this.deathRemaining = 900;
+                    this.setState('death');
                     const healthBar = this.el.querySelector('.enemy-health-container');
                     if (healthBar) healthBar.setAttribute('visible', false);
 
@@ -625,13 +713,17 @@ export default function initializeEnemyComponent(): void {
                         }
                     }, 1200);
 
-                    if (this.el.parentNode) this.el.parentNode.removeChild(this.el);
                 } catch (error) {
                     console.error('Error handling enemy death:', error);
                 }
             },
             tick: function(this: any, time: number, delta: number): void {
                 try {
+                    if (this.isDead) {
+                        this.deathRemaining -= Math.min(delta,100);
+                        if (this.deathRemaining <= 0 && this.el.parentNode) this.el.parentNode.removeChild(this.el);
+                        return;
+                    }
                     const dt = Math.min(delta,100) / 1000;
                     this.updateAI(dt);
                     this.updateAttack(delta);
@@ -645,6 +737,7 @@ export default function initializeEnemyComponent(): void {
                         const material = this.enemyGroundRing.material as THREE.MeshBasicMaterial;
                         material.opacity = this.currentState === 'attack' ? 0.62 : this.currentState === 'chase' ? 0.42 : 0.24;
                     }
+                    this.updateCombatPresentation();
 
                     const healthBarContainer = this.el.querySelector('.enemy-health-container');
                     if (healthBarContainer) {
@@ -695,6 +788,7 @@ export default function initializeEnemyComponent(): void {
                         (gameManager as any).components['game-manager'].unregisterEnemy(this);
                     }
                     if (this.enemyBolt) { this.enemyBolt.removeFromParent(); this.enemyBolt.geometry.dispose(); this.enemyBolt.material.dispose(); }
+                    for (const visual of [this.attackGuide,this.attackMarker]) if (visual) {visual.removeFromParent();visual.geometry.dispose();visual.material.dispose();}
                     if (this.enemyResources) this.enemyResources.forEach((resource: any) => resource.dispose?.());
                 } catch (error) {
                     console.error('Error removing enemy component:', error);
