@@ -4,6 +4,11 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
 
+function loadModule(file, globals = {}) {
+  const exports = {};
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText, {exports,require,...globals});
+  return exports;
+}
 function component(file, name) {
   const definitions = {};
   const aframe = { components: definitions, registerComponent: (key, value) => definitions[key] = value };
@@ -15,6 +20,7 @@ function component(file, name) {
   const source = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
   vm.runInNewContext(source, {
     exports: {}, require: id => {
+      if (id === '../arena-world') return loadModule('src/arena-world.ts');
       if (id === './aframe-export') return { default: aframe };
       if (id === '../game-audio') return { gameAudio: { resume() {}, startAmbient() {}, stopAmbient() {}, pulse() {} } };
       return require(id);
@@ -125,7 +131,7 @@ test('forward flight stays level while looking up', () => {
   playerObj.position.set(0, 6, 0);
   flight.el = { sceneEl: { isPlaying: true }, components: {}, emit() {} };
   flight.playerObj = playerObj;
-  flight.cameraRigEl = { object3D: { position: { set() {} } } };
+  flight.cameraRigEl = { object3D: new THREE.Object3D() };
   flight.mouseLocked = true;
   flight.rotation = new THREE.Euler(-Math.PI / 3, 0, 0, 'YXZ');
   flight.rotationVector = new THREE.Vector3();
@@ -165,7 +171,7 @@ test('weapon ray follows camera world transform under a rotated player', () => {
     set: (origin, direction) => { ray = { origin: origin.clone(), direction: direction.clone() }; },
     intersectObjects: () => []
   };
-  weapon.el = { sceneEl: { isPlaying: true }, emit() {} };
+  weapon.el = { object3D: new THREE.Object3D(), sceneEl: { isPlaying: true }, emit() {} };
   weapon.ammoInClip = 30;
   weapon.lastShot = -10000;
   weapon.data.accuracy = 1;
@@ -193,7 +199,7 @@ test('weapon damages active enemy through forgiving combat hit volume', () => {
   };
   document.querySelector = selector => selector === '#camera' ? { object3D: camera } : null;
   document.getElementById = id => id === 'level' ? null : { textContent: '', style: {} };
-  weapon.el = { sceneEl: { isPlaying: true, components: { 'game-manager': { activeEnemies: [enemy] } } }, emit() {} };
+  weapon.el = { object3D: new THREE.Object3D(), sceneEl: { isPlaying: true, components: { 'game-manager': { activeEnemies: [enemy] } } }, emit() {} };
   weapon.raycaster = new THREE.Raycaster();
   weapon.levelRaycaster = new THREE.Raycaster();
   weapon.rayHitPoint = new THREE.Vector3();
@@ -221,4 +227,61 @@ test('weapon visual bolts originate from both bike muzzles', () => {
   assert.equal(starts.length, 2);
   assert.ok(starts[0].distanceTo(new THREE.Vector3(9.28, 1.45, 2.4)) < 1e-6);
   assert.ok(starts[1].distanceTo(new THREE.Vector3(10.72, 1.45, 2.4)) < 1e-6);
+});
+
+
+test('swept cover collision blocks boost and upward tunneling, slides tangentially', () => {
+  const {moveInWorld} = loadModule('src/arena-world.ts');
+  const p={x:-9,y:2,z:-8};moveInWorld(p,{x:0,y:0,z:-100});assert.ok(p.z>-14.71 && p.z<-14.6);
+  const q={x:0,y:2,z:-16};moveInWorld(q,{x:0,y:30,z:0});assert.ok(q.y<2.91 && q.y>2.8);
+  const r={x:-9,y:2,z:-8};moveInWorld(r,{x:4,y:0,z:-30});assert.ok(r.x>-5.1 && r.z>-15);
+});
+test('cover occludes symmetrically, altitude clears cover, spawn remains inside arena', () => {
+  const {traceWorld,clearSpawn}=loadModule('src/arena-world.ts');
+  assert.ok(traceWorld({x:-12,y:1,z:3},{x:0,y:0,z:-10}));
+  assert.ok(traceWorld({x:-12,y:1,z:-7},{x:0,y:0,z:10}));
+  assert.equal(traceWorld({x:-12,y:5,z:3},{x:0,y:0,z:-10}),null);
+  assert.equal(clearSpawn(-12,-2),false);assert.equal(clearSpawn(30,0),false);assert.equal(clearSpawn(0,0),true);
+});
+test('settings tolerate denied storage and reject malformed values', () => {
+  const denied=loadModule('src/settings.ts',{localStorage:{getItem(){throw Error('denied')},setItem(){throw Error('denied')}}});
+  assert.equal(denied.readSettings().volume,0.7);assert.doesNotThrow(()=>denied.saveSettings({}));
+  const malformed=loadModule('src/settings.ts',{localStorage:{getItem:()=>'{"sensitivity":900,"volume":"loud","invertY":true}'}});
+  assert.equal(malformed.readSettings().sensitivity,1.5);assert.equal(malformed.readSettings().volume,0.7);assert.equal(malformed.readSettings().invertY,true);
+});
+
+test('enemy projectile damages a stationary player once and uses 3D range', () => {
+  const THREE=require('three');
+  const {instance:enemy}=component('src/components/enemy-component.ts','enemy-component');
+  const player=new THREE.Object3D();player.position.set(0,1.2,12);
+  let damage=0;
+  enemy.el={object3D:new THREE.Object3D(),sceneEl:{components:{'game-manager':{elapsed:10000}}}};
+  enemy.playerEntity={object3D:player,components:{'player-component':{takeDamage:amount=>damage+=amount}}};
+  Object.assign(enemy,{lastEnemyShot:-10000,chargeRemaining:0,boltRemaining:0,attackOrigin:new THREE.Vector3(),attackTarget:new THREE.Vector3(),attackDirection:new THREE.Vector3(),enemyBolt:new THREE.Object3D(),enemyHalo:{material:{color:new THREE.Color()}}});
+  enemy.flashThreatWarning=()=>{};
+  assert.equal(enemy.enemyShoot(),true);assert.equal(damage,0);
+  for(let i=0;i<40;i++)enemy.updateAttack(100);
+  assert.equal(damage,enemy.data.weaponDamage);
+  player.position.set(0,100,1);enemy.lastEnemyShot=-10000;
+  assert.equal(enemy.enemyShoot(),false);
+});
+test('star field shares one geometry, is frame-rate independent and disposes resources', () => {
+  const {instance:stars}=component('src/components/star-field-component.ts','star-field');
+  let object;stars.el={setObject3D:(name,value)=>object=value,removeObject3D(){}};
+  stars.data.starCount=180;stars.init();
+  assert.equal(object.isPoints,true);assert.equal(stars.geometry.attributes.position.count,180);
+  const before=stars.geometry.attributes.position.getZ(0);stars.tick(16,16);
+  let distance=stars.geometry.attributes.position.getZ(0)-before;
+  if(distance<0)distance+=stars.data.depth;
+  assert.ok(Math.abs(distance-stars.data.speed*0.96)<0.0001);
+  let disposed=0;stars.geometry.addEventListener('dispose',()=>disposed++);stars.material.addEventListener('dispose',()=>disposed++);stars.remove();assert.equal(disposed,2);
+});
+test('chase camera shortens before entering solid cover', () => {
+  const THREE=require('three');const {instance:flight}=component('src/components/fly-controls.ts','fly-controls');
+  flight.playerObj=new THREE.Object3D();flight.playerObj.position.set(-9,2,-20);
+  flight.cameraRigEl={object3D:new THREE.Object3D()};flight.playerObj.add(flight.cameraRigEl.object3D);
+  flight.updateCamera(0.016);
+  assert.ok(flight.cameraRigEl.object3D.position.z<3.2);
+  flight.playerObj.position.set(0,3,12);flight.updateCamera(0.016);
+  assert.equal(flight.cameraRigEl.object3D.position.z,8);
 });

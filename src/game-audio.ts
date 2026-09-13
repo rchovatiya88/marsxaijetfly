@@ -1,4 +1,5 @@
 class GameAudio {
+  private volume = 0.7;
   private context: AudioContext | null = null;
   private master: GainNode | null = null;
   private ambient: OscillatorNode | null = null;
@@ -10,7 +11,7 @@ class GameAudio {
     if (!AudioCtor) return null;
     this.context = new AudioCtor();
     this.master = this.context.createGain();
-    this.master.gain.value = 0.24;
+    this.master.gain.value = this.volume * 0.24;
     this.master.connect(this.context.destination);
     return this.context;
   }
@@ -18,9 +19,14 @@ class GameAudio {
   resume(): void {
     const context = this.getContext();
     if (!context) return;
-    context.resume?.();
+    void context.resume?.().catch(() => {});
   }
 
+  setVolume(volume: number): void {
+    this.volume = Math.max(0,Math.min(1,volume));
+    if (this.master) this.master.gain.value = this.volume*0.24;
+  }
+  pause(): void { if (this.context?.state === 'running') void this.context.suspend().catch(() => {}); }
   startAmbient(): void {
     const context = this.getContext();
     if (!context || !this.master || this.ambient) return;
@@ -71,6 +77,7 @@ class GameAudio {
     gain.connect(this.master);
     oscillator.start(now);
     oscillator.stop(now + settings.length + 0.02);
+    oscillator.onended = () => { oscillator.disconnect(); filter.disconnect(); gain.disconnect(); };
   }
 }
 

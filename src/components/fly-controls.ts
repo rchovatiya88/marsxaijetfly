@@ -7,6 +7,7 @@
  */
 
 // Import THREE.js
+import { moveInWorld, traceWorld } from '../arena-world';
 import * as THREE from 'three';
 import AFRAME_EXPORT from './aframe-export';
 
@@ -20,8 +21,9 @@ export default function initializeFlyControls(): void {
         movementSpeed: { type: 'number', default: 25 },
         lookSensitivity: { type: 'number', default: 0.1 },
         rollSpeed: { type: 'number', default: 0.05 },
-        pitchSpeed: { type: 'number', default: 0.1 },
-        yawSpeed: { type: 'number', default: 0.1 },
+        pitchSpeed: { type: 'number', default: 1.2 },
+        yawSpeed: { type: 'number', default: 1.8 },
+        invertY: { type: 'boolean', default: false },
         dragToLook: { type: 'boolean', default: false },
         autoForward: { type: 'boolean', default: false }
       },
@@ -182,7 +184,7 @@ export default function initializeFlyControls(): void {
         // Apply mouse movement directly to rotation
         const sensitivity = this.data.lookSensitivity;
         this.rotation.y -= movementX * sensitivity * 0.002;
-        this.rotation.x -= movementY * sensitivity * 0.002;
+        this.rotation.x -= movementY * sensitivity * 0.002 * (this.data.invertY ? -1 : 1);
         
         // Limit pitch to avoid flipping
         this.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.rotation.x));
@@ -270,11 +272,9 @@ export default function initializeFlyControls(): void {
             .addScaledVector(this.upVector, moveDir.y * speed);
           
           // Apply movement inside the performance arena.
-          this.playerObj.position.add(moveDelta);
-          this.playerObj.position.x = Math.max(-38, Math.min(38, this.playerObj.position.x));
-          this.playerObj.position.y = Math.max(1.8, Math.min(26, this.playerObj.position.y));
-          this.playerObj.position.z = Math.max(-48, Math.min(28, this.playerObj.position.z));
-          this.velocity.copy(moveDelta).divideScalar(dt || 0.016);
+          const before = this.playerObj.position.clone();
+          moveInWorld(this.playerObj.position, moveDelta);
+          this.velocity.copy(this.playerObj.position).sub(before).divideScalar(dt || 0.016);
           const player = this.el.components['player-component'];
           if (player) { player.velocity.copy(this.velocity); player.isSprinting = this.speedMultiplier > 1; }
           
@@ -286,6 +286,8 @@ export default function initializeFlyControls(): void {
           });
         }
         
+        const player = this.el.components['player-component'];
+        if (player) { player.velocity.copy(this.velocity); player.isSprinting = this.speedMultiplier > 1 && this.velocity.lengthSq() > 0; }
         // Update camera to follow player
         this.updateCamera(dt);
       },
@@ -294,7 +296,14 @@ export default function initializeFlyControls(): void {
         if (!this.cameraRigEl) return;
         
         // The camera rig is a child of the player: its position is local.
-        this.cameraRigEl.object3D.position.set(0, 2, 8);
+        this.playerObj.updateMatrixWorld(true);
+        const anchor = this.playerObj.localToWorld(new THREE.Vector3(0, 0.5, 0));
+        const desired = this.playerObj.localToWorld(new THREE.Vector3(0, 2, 8));
+        desired.y = Math.max(0.6, desired.y);
+        const delta = desired.clone().sub(anchor);
+        const hit = traceWorld(anchor, delta, 0.25);
+        const safe = anchor.addScaledVector(delta, hit ? Math.max(0, hit.t - 0.04) : 1);
+        this.cameraRigEl.object3D.position.copy(this.playerObj.worldToLocal(safe));
       },
 
       clearInput: function() {

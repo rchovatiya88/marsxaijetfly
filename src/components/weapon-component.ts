@@ -6,6 +6,7 @@
  */
 
 // Import THREE.js - A-Frame is imported globally in App.js
+import { traceWorld } from '../arena-world';
 import * as THREE from 'three';
 import AFRAME_EXPORT from './aframe-export';
 import { gameAudio } from '../game-audio';
@@ -46,7 +47,8 @@ export default function initializeWeaponComponent(): void {
         },
         init: function(this: any): void {
             try {
-                this.lastShot = 0;
+                this.lastShot = -10000;
+                this.shotClock = 0;
                 this.isReloading = false;
                 this.ammoInClip = this.data.clipSize;
                 this.reloadTimer = null;
@@ -93,22 +95,43 @@ export default function initializeWeaponComponent(): void {
                 const group = new THREE.Group();
                 this.bikeResources = [];
                 const part = (geometry: THREE.BufferGeometry, color: string, x: number, y: number, z: number, emissive = false) => {
-                    const material = new THREE.MeshStandardMaterial({ color, roughness: 0.45, metalness: 0.5,
-                        emissive: emissive ? color : '#000000', emissiveIntensity: emissive ? 2 : 0 });
+                    const material = new THREE.MeshStandardMaterial({ color: new THREE.Color(color).convertSRGBToLinear(), roughness: 0.45, metalness: 0.5,
+                        emissive: new THREE.Color(emissive ? color : '#000000').convertSRGBToLinear(), emissiveIntensity: emissive ? 1.2 : 0 });
                     const mesh = new THREE.Mesh(geometry, material);
                     mesh.position.set(x, y, z);
                     group.add(mesh);
                     this.bikeResources.push(geometry, material);
                     return mesh;
                 };
-                part(new THREE.BoxGeometry(0.7, 0.35, 2.4), '#ed7851', 0, 0, 0);
-                part(new THREE.BoxGeometry(0.48, 0.3, 0.8), '#162c38', 0, 0.3, -0.4);
+                const hull = new THREE.BufferGeometry();
+                hull.setAttribute('position', new THREE.Float32BufferAttribute([
+                    -.46,-.18,1.05, .46,-.18,1.05, -.46,.28,1.05, .46,.28,1.05,
+                    -.12,-.12,-1.85, .12,-.12,-1.85, -.12,.08,-1.85, .12,.08,-1.85
+                ],3));
+                hull.setIndex([0,1,2,1,3,2,4,6,5,5,6,7,0,2,4,4,2,6,1,5,3,5,7,3,2,3,6,3,7,6,0,4,1,1,4,5]);
+                hull.computeVertexNormals();
+                part(hull,'#c06a43',0,0,0);
+                const canopy=part(new THREE.SphereGeometry(.4,12,8),'#142b3e',0,.3,-.05);
+                canopy.scale.set(.8,.65,1.6);
+                (canopy.material as THREE.MeshStandardMaterial).roughness=.16;
+                part(new THREE.BoxGeometry(.32,.13,.6),'#202630',0,.28,.65);
+                this.enginePlumes=[];
                 for (const x of [-0.72, 0.72]) {
-                    part(new THREE.BoxGeometry(0.3, 0.3, 1.7), '#343642', x, -0.1, 0.3);
-                    part(new THREE.BoxGeometry(0.22, 0.18, 0.16), '#78ffe1', x, -0.1, 1.18, true);
-                    part(new THREE.BoxGeometry(0.1, 0.1, 1.4), '#a8b9bc', x, 0, -1.0);
+                    const pod=part(new THREE.CylinderGeometry(.21,.26,1.7,10),'#34404b',x,-.1,.28);
+                    pod.rotation.x=Math.PI/2;
+                    const collar=part(new THREE.CylinderGeometry(.28,.28,.2,10),'#a5a49a',x,-.1,1.06);
+                    collar.rotation.x=Math.PI/2;
+                    const nozzle=part(new THREE.CylinderGeometry(.19,.19,.05,10),'#63d8ed',x,-.1,1.18,true);
+                    nozzle.rotation.x=Math.PI/2;
+                    const plume=part(new THREE.ConeGeometry(.16,.75,10),'#62d9ef',x,-.1,1.58,true);
+                    plume.rotation.x=Math.PI/2;this.enginePlumes.push(plume);
+                    const cannon=part(new THREE.CylinderGeometry(.07,.1,1.2,8),'#9aa8aa',x,-.04,-1.04);
+                    cannon.rotation.x=Math.PI/2;
+                    const fin=part(new THREE.BoxGeometry(.08,.46,.75),'#b9623d',x*1.24,.15,.72);
+                    fin.rotation.z=x>0?-.28:.28;
                 }
-                part(new THREE.BoxGeometry(1.7, 0.09, 0.5), '#b75038', 0, -0.1, 0.3);
+                part(new THREE.BoxGeometry(1.65,.08,.38),'#27343f',0,-.1,.3);
+                part(new THREE.BoxGeometry(.12,.025,1.0),'#ecdab1',0,.17,-.95);
                 bikeEntity.setObject3D('mesh', group);
                 this.el.appendChild(bikeEntity);
                 this.bikeEntity = bikeEntity;
@@ -177,33 +200,8 @@ export default function initializeWeaponComponent(): void {
                 console.error('Error on mouse up:', error);
             }
         },
-        startFiring: function(this: any): void {
-            try {
-                if (this.fireLoopId !== null) {
-                    clearInterval(this.fireLoopId);
-                }
-                this.shoot();
-                this.fireLoopId = setInterval(() => {
-                    if (!this.mouseDown) {
-                        this.stopFiring();
-                        return;
-                    }
-                    this.shoot();
-                }, this.data.cooldown * 1000);
-            } catch (error) {
-                console.error('Error starting automatic fire:', error);
-            }
-        },
-        stopFiring: function(this: any): void {
-            try {
-                if (this.fireLoopId !== null) {
-                    clearInterval(this.fireLoopId);
-                    this.fireLoopId = null;
-                }
-            } catch (error) {
-                console.error('Error stopping automatic fire:', error);
-            }
-        },
+        startFiring: function(this: any): void { this.shoot(); },
+        stopFiring: function(this: any): void { this.mouseDown = false; },
         updateAmmoDisplay: function(this: any): void {
             try {
                 const ammoDisplay = document.getElementById('ammo-display');
@@ -264,40 +262,7 @@ export default function initializeWeaponComponent(): void {
         },
         
         applyWeaponFeedback: function(this: any): void {
-            try {
-                // Flash effect for bike weapons instead of recoil
-                const flashDuration = 100; // milliseconds
-                
-                // Create temporary muzzle flash at weapon points
-                const leftMuzzle = document.createElement('a-entity');
-                leftMuzzle.setAttribute('position', '-0.3 -0.4 -1.0');
-                leftMuzzle.setAttribute('light', {
-                    type: 'point',
-                    color: '#ff0',
-                    intensity: 2,
-                    distance: 0.5
-                });
-                
-                const rightMuzzle = document.createElement('a-entity');
-                rightMuzzle.setAttribute('position', '0.3 -0.4 -1.0');
-                rightMuzzle.setAttribute('light', {
-                    type: 'point',
-                    color: '#ff0',
-                    intensity: 2,
-                    distance: 0.5
-                });
-                
-                this.el.appendChild(leftMuzzle);
-                this.el.appendChild(rightMuzzle);
-                
-                // Remove after a short duration
-                setTimeout(() => {
-                    if (leftMuzzle.parentNode) leftMuzzle.parentNode.removeChild(leftMuzzle);
-                    if (rightMuzzle.parentNode) rightMuzzle.parentNode.removeChild(rightMuzzle);
-                }, flashDuration);
-            } catch (error) {
-                console.error('Error applying weapon feedback:', error);
-            }
+            // Pooled emissive bolts supply muzzle feedback without adding/removing lights.
         },
         createMuzzleFlash: function(this: any): void {
             try {
@@ -431,15 +396,6 @@ export default function initializeWeaponComponent(): void {
                 disc.setAttribute('material', 'emissive: #888; emissiveIntensity: 0.5');
                 impactEffect.appendChild(disc);
                 
-                // Add a light to the impact point
-                impactEffect.setAttribute('light', {
-                    type: 'point',
-                    color: '#888',
-                    intensity: 1.0,
-                    distance: 1.0,
-                    decay: 10
-                });
-                
                 // Add to scene with null check
                 const sceneEl = document.querySelector('a-scene');
                 if (!sceneEl) {
@@ -460,7 +416,7 @@ export default function initializeWeaponComponent(): void {
         shoot: function(this: any): void {
             try {
                 if (!this.el.sceneEl.isPlaying) return;
-                const now = performance.now();
+                const now = this.shotClock || 0;
                 if (this.isReloading || this.ammoInClip <= 0 || now - this.lastShot < this.data.cooldown * 1000) {
                     if (this.ammoInClip <= 0) this.reload();
                     return;
@@ -496,10 +452,14 @@ export default function initializeWeaponComponent(): void {
 
                 const enemyHit = this.findEnemyHit(weaponPosition, direction);
                 const environmentHit = this.findEnvironmentHit(weaponPosition, direction);
-                const tracerEnd = enemyHit?.point || environmentHit?.point || weaponPosition.clone().addScaledVector(direction, Math.min(this.data.range, 42));
-                this.createWeaponBolts(tracerEnd, direction, enemyHit ? '#fff0a0' : '#78ffe1');
+                const visibleHit = enemyHit && (!environmentHit || enemyHit.distance < environmentHit.distance) ? enemyHit : null;
+                const tracerEnd = visibleHit?.point || environmentHit?.point || weaponPosition.clone().addScaledVector(direction, Math.min(this.data.range, 42));
+                // Third-person camera can see over cover: verify the physical muzzles too.
+                const muzzle = this.el.object3D.localToWorld(new THREE.Vector3(0, -0.55, -1.6));
+                const muzzleBlock = traceWorld(muzzle, tracerEnd.clone().sub(muzzle));
+                this.createWeaponBolts(muzzleBlock ? muzzle.clone().lerp(tracerEnd, muzzleBlock.t) : tracerEnd, direction, visibleHit && !muzzleBlock ? '#fff0a0' : '#78ffe1');
 
-                if (enemyHit && (!environmentHit || enemyHit.distance <= environmentHit.distance + 1.5)) {
+                if (visibleHit && !muzzleBlock) {
                     enemyHit.enemy.takeDamage(this.data.damage, enemyHit.point);
                     gameAudio.pulse('hit');
                     this.showHitMarker();
@@ -521,7 +481,7 @@ export default function initializeWeaponComponent(): void {
             for (const offset of muzzleOffsets) {
                 const start = this.el.object3D.localToWorld(offset.clone());
                 const visualEnd = end.clone();
-                if (visualEnd.distanceTo(start) < 2) visualEnd.copy(start).addScaledVector(direction, 10);
+
                 this.createBolt(start, visualEnd, color);
             }
         },
@@ -537,56 +497,25 @@ export default function initializeWeaponComponent(): void {
             }
         },
         createBolt: function(this: any, start: THREE.Vector3, end: THREE.Vector3, color = '#78ffe1'): void {
-            const sceneEl = document.querySelector('a-scene');
-            if (!sceneEl?.object3D) return;
-            const midpoint = start.clone().lerp(end, 0.5);
+            const scene = this.el.sceneEl.object3D;
+            if (!this.boltPool) {
+                this.boltGeometry = new THREE.CylinderGeometry(0.07, 0.04, 1, 6);
+                this.boltPool = Array.from({length: 12}, () => {
+                    const material = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.9, depthWrite:false});
+                    const mesh = new THREE.Mesh(this.boltGeometry, material);
+                    mesh.visible = false; scene.add(mesh);
+                    return {mesh, remaining:0};
+                });
+                this.boltIndex = 0;
+            }
+            const item = this.boltPool[this.boltIndex++ % this.boltPool.length];
             const direction = end.clone().sub(start);
-            const length = Math.max(0.6, Math.min(36, direction.length()));
-            direction.normalize();
-            const geometry = new THREE.CylinderGeometry(0.11, 0.04, length, 10, 1, true);
-            const glowGeometry = new THREE.CylinderGeometry(0.32, 0.12, length, 12, 1, true);
-            const flareGeometry = new THREE.SphereGeometry(0.28, 12, 8);
-            const material = new THREE.MeshBasicMaterial({
-                color,
-                transparent: true,
-                opacity: 0.95,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-                depthTest: false
-            });
-            const glowMaterial = new THREE.MeshBasicMaterial({
-                color,
-                transparent: true,
-                opacity: 0.22,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-                depthTest: false
-            });
-            const bolt = new THREE.Mesh(geometry, material);
-            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-            const flare = new THREE.Mesh(flareGeometry, material);
-            const group = new THREE.Group();
-            group.add(glow, bolt);
-            group.position.copy(midpoint);
-            group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
-            flare.position.copy(start);
-            const light = new THREE.PointLight(new THREE.Color(color), 1.5, 9, 2);
-            light.position.copy(start);
-            sceneEl.object3D.add(group, flare, light);
-            this.tracerResources.push(geometry, glowGeometry, flareGeometry, material, glowMaterial);
-            const cleanup = setTimeout(() => {
-                sceneEl.object3D.remove(group, flare, light);
-                geometry.dispose();
-                glowGeometry.dispose();
-                flareGeometry.dispose();
-                material.dispose();
-                glowMaterial.dispose();
-                this.tracerResources = this.tracerResources.filter((resource: any) =>
-                    resource !== geometry && resource !== glowGeometry && resource !== flareGeometry && resource !== material && resource !== glowMaterial
-                );
-                this.boltCleanupTimers = this.boltCleanupTimers.filter((timer: any) => timer !== cleanup);
-            }, 320);
-            this.boltCleanupTimers.push(cleanup);
+            item.mesh.position.copy(start).lerp(end, 0.5);
+            item.mesh.scale.set(1,Math.max(0.01,direction.length()),1);
+            item.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
+            item.mesh.material.color.set(color);
+            item.mesh.visible = true;
+            item.remaining = 100;
         },
         findEnemyHit: function(this: any, origin: THREE.Vector3, direction: THREE.Vector3): { enemy: any; point: THREE.Vector3; distance: number } | null {
             const manager = this.el.sceneEl?.components?.['game-manager'];
@@ -632,18 +561,9 @@ export default function initializeWeaponComponent(): void {
             return best;
         },
         findEnvironmentHit: function(this: any, origin: THREE.Vector3, direction: THREE.Vector3): { point: THREE.Vector3; normal: THREE.Vector3; distance: number } | null {
-            const level = document.getElementById('level') as any;
-            if (!level?.object3D) return null;
-            this.levelRaycaster.set(origin, direction);
-            this.levelRaycaster.far = this.data.range;
-            const hits = this.levelRaycaster.intersectObject(level.object3D, true);
-            if (!hits.length) return null;
-            const hit = hits[0];
-            return {
-                point: hit.point,
-                normal: hit.face?.normal || new THREE.Vector3(0, 1, 0),
-                distance: hit.distance
-            };
+            const delta = direction.clone().multiplyScalar(this.data.range);
+            const hit = traceWorld(origin, delta);
+            return hit ? {point:origin.clone().addScaledVector(delta,hit.t),normal:new THREE.Vector3(hit.normal.x,hit.normal.y,hit.normal.z),distance:hit.t*this.data.range} : null;
         },
                 playHitSound: function(this: any): void {
             try {
@@ -676,6 +596,9 @@ export default function initializeWeaponComponent(): void {
             }
         },
         tick: function(this: any, time: number, delta: number): void {
+            this.shotClock = (this.shotClock || 0) + Math.min(delta,100);
+            if (this.mouseDown && this.data.automatic) this.shoot();
+            this.boltPool?.forEach((item: any) => { item.remaining -= Math.min(delta,100); item.mesh.visible = item.remaining > 0; });
             if (this.isReloading) {
                 this.reloadRemaining -= Math.min(delta, 100);
                 if (this.reloadRemaining <= 0) {
@@ -687,6 +610,9 @@ export default function initializeWeaponComponent(): void {
             // Hover bike animations and updates
             const dt = delta / 1000; // Convert to seconds
             this.hoverTime += dt;
+            const flight = this.el?.parentEl?.components?.['fly-controls'];
+            const thrust = Math.min(1,(flight?.velocity?.length() || 0)/50);
+            this.enginePlumes?.forEach((plume:any) => { plume.scale.y = .7+thrust*.9+Math.sin(this.hoverTime*24)*.06; });
             
             // Update thruster light intensity based on movement
             if (this.thrusterParticles.length > 0) {
@@ -737,6 +663,8 @@ export default function initializeWeaponComponent(): void {
         },
         remove: function(this: any): void {
             try {
+                this.boltPool?.forEach((item: any) => { item.mesh.removeFromParent(); item.mesh.material.dispose(); });
+                this.boltGeometry?.dispose();
                 document.removeEventListener('mousedown', this.onMouseDown);
                 document.removeEventListener('mouseup', this.onMouseUp);
                 document.removeEventListener('keydown', this.onReloadKey);

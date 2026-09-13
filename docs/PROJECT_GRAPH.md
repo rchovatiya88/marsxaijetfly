@@ -31,8 +31,10 @@ flowchart TD
   Init --> Manager["game-manager"]
   Init --> Navmesh["simple-navmesh-constraint"]
 
-  Scene --> Level["public/models/level1.glb"]
-  Scene --> NavmeshAsset["public/models/level1_navmesh.glb"]
+  Scene --> Arena["procedural arena"]
+  App --> World["arena-world.ts: shared cover / collision"]
+  App --> Settings["settings.ts: local preferences"]
+  App --> QA["PlaytestPanel.tsx: optional browser QA"]
   Scene --> PlayerEntity["#player"]
   Scene --> Manager
 
@@ -47,9 +49,11 @@ flowchart TD
   Enemy --> Yuka["YUKA steering"]
   Enemy --> Player
   Weapon --> Enemy
-  Weapon --> Level
+  Weapon --> World
+  Enemy --> World
+  Fly --> World
   Fly --> Player
-  Navmesh --> NavmeshAsset
+  Navmesh -. legacy, not attached .-> NavmeshAsset["preserved navmesh GLB"]
 ```
 
 ## Gameplay ownership

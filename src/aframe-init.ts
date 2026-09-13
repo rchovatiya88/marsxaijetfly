@@ -1,5 +1,8 @@
 // This file ensures all A-Frame components are properly initialized
 
+import './components/mars-environment';
+import './components/hero-model';
+
 // Import all component initializers
 import initializeUtils from './components/utils';
 import initializeHitboxComponent from './components/hitbox-component';

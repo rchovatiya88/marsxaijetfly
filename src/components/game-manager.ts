@@ -5,6 +5,7 @@
  */
 
 // Import THREE.js and YUKA - A-Frame is imported globally in App.js
+import { clearSpawn } from '../arena-world';
 import * as THREE from 'three';
 import * as YUKA from 'yuka';
 import AFRAME_EXPORT from './aframe-export';
@@ -76,7 +77,7 @@ export default function initializeGameManager(): void {
                 if (this.gameStarted) return;
                 this.gameStarted = true;
                 this.showMessage(`Get ready!`, 2000);
-                this.nextLevelIn = 2000;
+                this.nextLevelIn = this.data.gameStartDelay;
             } catch (error) {
                 console.error('Error starting game:', error);
             }
@@ -146,37 +147,15 @@ export default function initializeGameManager(): void {
                     const distToPlayer = new THREE.Vector3(x - playerPos.x, 0, z - playerPos.z).length();
                     
                     if (distToPlayer >= minDistanceFromPlayer) {
-                        const obstacles = document.querySelectorAll('.obstacle');
-                        let validPosition = true;
-                        
-                        for (let i = 0; i < obstacles.length; i++) {
-                            const obstacle = obstacles[i] as AFrameElement;
-                            const obstaclePos = obstacle.getAttribute('position');
-                            const obstacleWidth = Number(obstacle.getAttribute('width')) || 1;
-                            const distToObstacle = new THREE.Vector3(
-                                x - obstaclePos.x, 
-                                0, 
-                                z - obstaclePos.z
-                            ).length();
-                            
-                            if (distToObstacle < obstacleWidth + 1) {
-                                validPosition = false;
-                                break;
-                            }
-                        }
-                        
-                        if (validPosition) {
-                            return { x, z };
-                        }
+                        if (clearSpawn(x,z)) return {x,z};
                     }
                 }
                 
-                // If all attempts fail, return a position at a random angle
-                const angle = Math.random() * Math.PI * 2;
-                return { 
-                    x: Math.cos(angle) * this.data.spawnRadius, 
-                    z: Math.sin(angle) * this.data.spawnRadius 
-                };
+                // Deterministic safe fallback stays inside the playable arena.
+                for (const z of [-40, -10, 18]) for (const x of [-20, 0, 20]) {
+                    if (clearSpawn(x,z) && Math.hypot(x-playerPos.x,z-playerPos.z) >= 10) return {x,z};
+                }
+                return {x:0,z:-40};
             } catch (error) {
                 console.error('Error finding valid spawn position:', error);
                 return { x: 0, z: -10 };
@@ -264,6 +243,15 @@ export default function initializeGameManager(): void {
                     enemyType: randomType,
                     enemyColor: color
                 });
+
+                // Wave-three tanks get the authored animated pilot when it loads.
+                // The procedural enemy remains the hitbox-safe fallback.
+                if (this.level >= 3 && randomType === 'tank') {
+                    enemy.setAttribute('hero-model', {
+                        src: 'url(/models/enemy.glb)',
+                        targetHeight: 2.15
+                    });
+                }
                 
                 // Add hitbox component for improved hit detection
                 enemy.setAttribute('hitbox', {
@@ -294,7 +282,7 @@ export default function initializeGameManager(): void {
                 if (scoreValueEl) scoreValueEl.textContent = String(this.score);
                 
                 const position = enemy.el.getAttribute('position');
-                this.showPointsGained(pointsGained, position);
+                this.showMessage(`+${pointsGained} · CHAIN ×${this.combo}`, 900);
             } catch (error) {
                 console.error('Error handling enemy killed:', error);
             }
@@ -367,8 +355,9 @@ export default function initializeGameManager(): void {
             this.nextLevelIn = null;
             let best = this.score;
             try {
-                best = Math.max(this.score, Number(localStorage.getItem('mars-best-v1')) || 0);
-                localStorage.setItem('mars-best-v1', String(best));
+                const key = this.el.hasAttribute?.('data-playtest') ? 'mars-qa-best-v1' : 'mars-best-v1';
+                best = Math.max(this.score, Number(localStorage.getItem(key)) || 0);
+                localStorage.setItem(key, String(best));
             } catch { /* Storage can be unavailable; the mission still ends. */ }
             this.el.emit('mission-ended', { score: this.score, level: this.level, won, best });
         },

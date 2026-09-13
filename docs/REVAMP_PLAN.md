@@ -2,6 +2,10 @@
 
 Updated 2026-09-13. This is a planning document, not a commitment to throw away the current prototype.
 
+## Day 0 evidence now available
+
+The latest iteration implemented the measurement panel, shared swept collision, fair ranged attacks, bolt pooling, star batching and production asset pruning inside the existing runtime. Package size is 3.1 MB. Three scripted full victories and twenty browser assertions are recorded in `docs/VALIDATION.md`. The latest 720p embedded-browser combat sample measured 32.2 ms median / 42.5 ms p95; the original 1080p target remains unmet. No direct-Three spike has been created. First isolate ordinary-browser CPU/GPU cost and compare idle frame pacing; these embedded samples alone do not establish A-Frame as the bottleneck. The proposed spike below remains a bounded comparison, not permission to delete the working build.
+
 ## Recommendation
 
 If performance still feels bad after the combat repair, run one short direct-Three.js spike before adding more gameplay. Do not spend weeks polishing the current A-Frame stack until the spike answers whether the game feels better with a leaner renderer loop.
@@ -160,3 +164,8 @@ These are internal targets. Record actual machine, browser, resolution, build ha
 ## Next action
 
 Start with Day 0. Measure the current build on the user's machine, then create the direct Three.js spike behind a feature flag. Do not delete the A-Frame prototype until the comparison proves the new path.
+
+
+Browser pacing caveat: a separate page with no game/WebGL measured 300 requestAnimationFrame samples at 49.3 ms median / 51.5 ms p95 in the same automation environment. This is slower than the combat samples, so automated scheduling/visibility/host effects confound those FPS values. Resource counts, collision checks and mission outcomes are still observed evidence; do not infer a hardware FPS ceiling, reliable speedup, or engine bottleneck from these timings. Repeat in a normal foreground browser with CPU/GPU tools.
+
+A repeat with the game tab closed measured 17.0 ms median / 33.6 ms p95 (300 idle frames). This reinforces the need to isolate tab/workload conditions; it does not prove all combat cost is automation. Installed A-Frame source also confirmed scene.pause() still renders. The app now suspends its animation loop on document hidden and restores rendering on visibility return, while gameplay remains explicitly paused until resumed.

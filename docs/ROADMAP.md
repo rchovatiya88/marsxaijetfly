@@ -1,6 +1,23 @@
 # Red Horizon delivery roadmap
 
+**Next-agent review:** Read [NEXT_AGENT_CRITICAL_REVIEW.md](NEXT_AGENT_CRITICAL_REVIEW.md) for the September 13 critical audit, evidence limits and ordered fixes.
+**Premium vertical slice:** Read [PREMIUM_GLTF_DIRECTION.md](PREMIUM_GLTF_DIRECTION.md); the next design experiment is one authored Ridge Run route with an animated GLB elite rival.
+**Asset constraint:** Read [ASSET_LEVEL_AUDIT.md](ASSET_LEVEL_AUDIT.md); do not load `level1.glb` wholesale or attach its navmesh directly to the 3D flight controller.
+**Master plan:** Read [PREMIUM_GAME_MASTER_PLAN.md](PREMIUM_GAME_MASTER_PLAN.md) for the ordered Ridge Run milestones and agent acceptance gates.
+
 The selected business model is premium paid. Current working title: Red Horizon. Names, price points, and content quantities are hypotheses until tested. This backlog describes the path from today's prototype to a sellable game; unchecked items are not implemented promises.
+
+## Current progress — September 13 browser QA iteration
+
+- P1.1: embedded-browser fixtures and three scripted full victories now verified; human input and Chrome/Firefox/Safari coverage remain open.
+- P1.2: simplified swept cover collision, sliding, vertical bounds and chase-camera clearance implemented/tested. Exact art colliders and human corner testing remain.
+- P1.3: 3D ranged attacks, shared cover, 850 ms telegraph and dodgeable projectiles implemented/tested. Human threat readability and enemy spacing remain.
+- P1.5/P1.6: generated audio, pause/mute, persisted volume/sensitivity/reduced effects/invert-Y implemented. Mix audition and remapping remain.
+- P3.1/P3.2: real frame measurements captured, bolts pooled, stars batched, healthbar geometry churn and shot lights removed. Embedded-browser median is about 31 FPS at 720p; 60 FPS gate not met.
+- P3.3: production packaging reduced from about 51 MB to 3.1 MB; source assets preserved. Nested-path hosted-browser verification remains.
+- P3.5: local fixture/soak panel exists at `?playtest`, with no external telemetry. This is engineering QA, not a human behavior analytics export.
+
+Immediate next tasks: lock the Ridge Run asset contract; extract one level corridor into shell/collision/nav/marker outputs; implement async level-runtime fallback; then build the authored route/rival/extraction loop. Keep the phase gates below—scripted success does not establish enjoyment or paid value.
 
 ## Phase 0 — runnable prototype
 
@@ -71,4 +88,4 @@ Do not implement payment or entitlements as a client-side localStorage flag. Do 
 
 ## First next-agent task
 
-Start with P1.1 and P1.2. Read `AGENTS.md`, `docs/PROJECT_MEMORY.md`, and `docs/VALIDATION.md`. Reproduce the current demo before changing it. Implement simplified swept level collision and test a fast diagonal approach to a thin wall, sliding along an edge, and ascending under an overhang. Keep the single flight controller and camera world-space aiming intact. Update the validation record with exact observations, not assumed success.
+Start with [PREMIUM_GAME_MASTER_PLAN.md](PREMIUM_GAME_MASTER_PLAN.md), [ASSET_LEVEL_AUDIT.md](ASSET_LEVEL_AUDIT.md), `AGENTS.md`, the latest section in `docs/PROJECT_MEMORY.md` and `docs/VALIDATION.md`. Inventory the dirty tree and source assets, create the asset ledger and Ridge Run export contract, then run the fixed browser QA baseline before changing gameplay. Keep the single controller and shared runtime until comparative evidence supports migration.

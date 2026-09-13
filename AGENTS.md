@@ -10,6 +10,8 @@ Build a fun premium paid single-player Mars jetbike game. The user explicitly ch
 - `docs/ROADMAP.md`: ordered backlog and acceptance criteria.
 - `docs/VALIDATION.md`: what actually passed and what remains untested.
 - `docs/RESEARCH.md`: primary-source commercial and technical research.
+- `docs/PREMIUM_GAME_MASTER_PLAN.md`: current premium-game goal, Blender/GLB pipeline, runtime contracts, budgets and agent task queue.
+- `docs/ASSET_LEVEL_AUDIT.md`: verified model/level/navmesh facts and the rules for using them.
 
 ## Repository skills
 

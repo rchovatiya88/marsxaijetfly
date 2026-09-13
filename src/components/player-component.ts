@@ -263,7 +263,7 @@ export default function initializePlayerComponent(): void {
         takeDamage: function(this: any, amount: number): void {
             try {
                 if (this.isDead) return;
-                const now = performance.now();
+                const now = this.el.sceneEl.components['game-manager'].elapsed;
                 this.health -= amount;
                 gameAudio.pulse('damage');
                 this.createDamageEffect();
@@ -298,22 +298,8 @@ export default function initializePlayerComponent(): void {
                 document.removeEventListener('keydown', this.onKeyDown);
                 document.removeEventListener('keyup', this.onKeyUp);
                 
-                // Create explosion effect
-                const explosion = document.createElement('a-entity');
-                explosion.setAttribute('position', this.el.object3D.position);
-                explosion.setAttribute('particle-system', {
-                    preset: 'dust',
-                    particleCount: 100,
-                    color: '#0ff,#00f,#fff,#f0f',
-                    size: 0.5,
-                    duration: 1.0,
-                    direction: 'sphere',
-                    velocity: 5,
-                    opacity: 0.8,
-                    blending: 'additive'
-                });
-                document.querySelector('a-scene')!.appendChild(explosion);
-                
+                // The result overlay owns defeat feedback. Do not allocate a particle cloud
+                // that can never finish once mission-ended pauses the scene.
                 // Hide the jetbike
                 const jetbike = document.querySelector('#jetbike');
                 if (jetbike) {
@@ -330,7 +316,7 @@ export default function initializePlayerComponent(): void {
                 const dt = delta / 1000;
                 if (this.el.sceneEl.isPlaying) {
                     this.updateMovement(dt);
-                    const now = performance.now();
+                    const now = this.el.sceneEl.components['game-manager'].elapsed;
                     if (this.health < this.maxHealth && now - this.lastDamageTime > 5000) {
                         this.health += 5 * dt;
                         if (this.health > this.maxHealth) {

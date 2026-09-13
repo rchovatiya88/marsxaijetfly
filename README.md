@@ -17,13 +17,13 @@ Open http://localhost:5173. Click **Launch Sortie**; if mouse capture is blocked
 |---|---|
 | WASD | Fly |
 | E / Q | Ascend / descend |
-| Mouse | Aim |
+| Mouse / arrow keys | Aim / turn |
 | Left click / hold | Fire |
 | Shift | Boost |
 | R | Reload |
 | Escape | Pause |
 
-Sensitivity and reduced damage-overlay effects are available in the menu. Best score is local to the browser. The full human playtest checklist is in [docs/VALIDATION.md](docs/VALIDATION.md).
+Sensitivity, reduced screen effects, invert-Y and audio volume persist between runs. Best score is local to the browser. The full human playtest checklist is in [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ## Build and verify
 
@@ -46,8 +46,17 @@ The Vite Three bridge reuses A-Frame's runtime. The separate Three package suppl
 - [A-Frame versus Three.js revamp plan](docs/REVAMP_PLAN.md)
 - [Verification and known gaps](docs/VALIDATION.md)
 - [Next-agent memory](docs/PROJECT_MEMORY.md)
+- [Premium game master plan](docs/PREMIUM_GAME_MASTER_PLAN.md)
+- [Level and asset audit](docs/ASSET_LEVEL_AUDIT.md)
 - [Repository agent guidance](AGENTS.md)
 
 Two reusable development/product skills live in `.agents/skills/`. The original models are preserved. The active bike and default arena are procedural because playability and frame time are the current priority; an embedded texture in the original jetbike GLB is corrupt.
 
-The prototype still needs collision work, enemy fairness, audio, human balance tests, asset-rights verification, and paid-edition packaging. Nothing has been published or monetized.
+The prototype now has shared swept cover collision, telegraphed enemy projectiles, live radar and pooled shot effects. It still needs ordinary-browser performance profiling, human balance tests, complete mission reset, asset-rights verification, and paid-edition packaging. Nothing has been published or monetized.
+
+
+## Repeatable browser QA
+
+Open `http://127.0.0.1:4173/?playtest` after building and starting preview. **Run browser checks** exercises actual A-Frame/Three objects and cleanup, then ends in defeat. Reload before **Run combat soak**, which drives an ordinary-weapon scripted pilot through up to 90 seconds of combat and reports frame timing and renderer counts. These are engineering tests, not human playtests. QA best score is stored separately. The normal game URL hides all QA controls.
+
+A small browser-only pacing baseline is available from the development server at `http://127.0.0.1:5173/tests/browser-frame-baseline.html`. It is excluded from production packaging. See `docs/VALIDATION.md` for measurements and limitations.

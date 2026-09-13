@@ -1,6 +1,43 @@
 # Project memory
 
+**Next-agent review:** Read [NEXT_AGENT_CRITICAL_REVIEW.md](NEXT_AGENT_CRITICAL_REVIEW.md) for the September 13 critical audit, evidence limits and ordered fixes.
+**Premium direction:** Read [PREMIUM_GLTF_DIRECTION.md](PREMIUM_GLTF_DIRECTION.md) for the GLB hero-layer architecture and the proposed momentum-under-pressure vertical slice.
+**Asset contract:** Read [ASSET_LEVEL_AUDIT.md](ASSET_LEVEL_AUDIT.md) before touching the level, navmesh, bike or character files.
+**Master plan:** Read [PREMIUM_GAME_MASTER_PLAN.md](PREMIUM_GAME_MASTER_PLAN.md) before starting a new premium-game task; it is the current source of truth for the asset pipeline, mission scope, budgets and agent queue.
+
 Updated 2026-09-13. This file is repository-local continuity, not an account-wide assistant memory.
+
+## Gameplay-video graphics pass — September 13, 2026
+
+Reviewed the user's local `gamep32.mov` (17.88 seconds, 3360×2100 recording) across nine sampled frames. The main visible issues were box-shaped canyon scenery, dominant floor markings, washed-out enemies and a blocky bike. Recording frame rate is not evidence of game performance.
+
+- New `mars-environment` component builds deterministic sand texture, layered eroded ridges, 160 instanced rocks, gradient atmosphere and a soft bike contact shadow. Central collision layout stays unchanged; decorative ridges/rocks remain outside the flight corridor. Owned geometry, materials and textures are disposed on removal.
+- Removed canyon boxes and most neon ground clutter. ACES tone mapping, warm front lighting and hemisphere fill improve depth; custom mesh colors are converted to the A-Frame runtime's linear working space.
+- Bike now has a tapered hull, canopy, engine pods, fins and animated exhaust. Enemy materials retain dark structure and restrained emissive accents; halos and death cores are smaller.
+- Final browser scene starts at 56 draws / 29,938 triangles / 40 geometries, versus the preceding 82 / 16,956 / 50. More terrain triangles, fewer draw calls; this does not establish a frame-rate improvement.
+- Unit suite (17), typecheck and build pass. Live WebGL regression suite passes all 20 assertions, and ten enemy cleanup cycles hold at 41 geometries. No browser warnings/errors were captured.
+
+Scripted combat also cleared all three waves: score 8,900 / 130 shots. Embedded-browser timing remained above the 16.7 ms frame target; see the validation record for viewport and sampling limits.
+
+Next: follow [PREMIUM_GAME_MASTER_PLAN.md](PREMIUM_GAME_MASTER_PLAN.md): lock the Ridge Run asset contract, extract one level corridor into shell/collision/nav/marker artifacts, implement async level-runtime fallback, then build route choice, rival and extraction. Keep the fixed 1280×720 performance baseline (26.6 ms median / 37.3 ms p95) as the gate while raising visual cost.
+
+The premium GLB slice is now live: wave-three tanks request the authored Draco-compressed `enemy.glb` through `hero-model`, using local `/vendor/draco/` decoders. The loader normalizes bounds, starts the first animation clip and falls back to the procedural enemy on failure. A live soak completed wave three with no level-error overlay or browser warnings; geometry rose 40 → 45 and settled at 41, with median 38.3 ms / p95 60.9 ms in that run. This is a hero-art experiment, not yet a default quality target.
+
+## Latest iteration — September 13, 2026, browser QA pass
+
+The user authorized renewed active development and browser testing. Earlier requests to leave their playtest undisturbed are historical. Reviewed the prior task **Plan and build addictive game**, repository history (latest baseline `099c8c6`), both project skills, goals and backlog. This iteration is uncommitted; nothing published or pushed.
+
+- Shared `src/arena-world.ts` defines visible arena cover and swept collision. Bike slides against cover, boost cannot tunnel through it, camera shortens before cover and stays above ground. Pillars use conservative box colliders. Decorative scenery is not universally solid; flight bounds keep the bike inside the core arena.
+- Both weapons respect this cover. Player shots also check the physical muzzle path to prevent third-person shooting through a wall. Enemy attacks now charge for 850 ms, lock aim, and launch a visible 18 m/s projectile. Melee's altitude-blind instant damage path was removed. Range is three-dimensional; AI uses simple tangent detours, not full navigation.
+- Automatic fire, cooldown, reload, enemy charge/projectiles and player regeneration use simulation clocks. Focus loss reveals the resume overlay. Audio pauses with the menu; volume, sensitivity, reduced effects and invert-Y persist safely. Arrow turning is usable in cursor mode.
+- Radar now reflects live enemies and heading. Gates face the approach instead of appearing edge-on. Screen effects cost less; scene JSX is memoized separately from HUD updates.
+- Twelve reusable bolt meshes replace per-shot geometry and lights. Stars use one Points draw instead of roughly 90 sphere entities. Enemy health bars scale without generating new geometry. Defeat no longer creates 100 particles that freeze in the paused scene.
+- Default rendering caps at 1280×720 internal pixels (HUD remains native resolution). Production `dist/` is about 3.1 MB instead of 51 MB; only runtime/vendor assets ship. Originals remain untouched in `public/`.
+- `?playtest` reveals a local browser QA panel: component fixtures, cleanup loops, and a scripted normal-weapon pilot. Fixtures intentionally alter a sortie; reload before normal play. QA best score has a separate storage key. No external telemetry.
+
+Validation: 17 Node tests, typecheck and build pass. Browser suite covers 20 assertions, including actual WebGL/Three objects and defeat. Three scripted combat runs cleared all three waves. Ten enemy spawn/removal cycles stabilized at 51 GPU geometries in the earlier build, with zero registered enemies left; the current graphics build settles at 41. This is not ten complete sortie resets. The latest fixed 1280×720 embedded-browser soak captured 1,170 frames at median 26.6 ms / p95 37.3 ms. The embedded browser on this Intel MacBook Pro does **not** establish 60 FPS or human fun. See `VALIDATION.md` for the full record.
+
+Historical next from the browser-QA pass: profile CPU/GPU in an ordinary desktop browser, verify human pointer capture and cursor navigation, tune attack readability/spacing with a fresh player, then implement complete mission reset and validate ten full retries. The current master plan supersedes this ordering by first locking the Ridge Run asset contract and authored route.
 
 ## User intent and decisions
 
@@ -30,7 +67,7 @@ Recommended direction: free browser demo, paid full downloadable edition after v
 
 See `VALIDATION.md` for exact coverage. Build, active-entry typecheck and eleven regression tests pass. Both repository skills pass the skill validator. Runtime was rendered and launched through cursor fallback in the lightweight arena; HUD, upgraded arena graphics and shot streaks were observed. Automated mouse capture was blocked in both embedded browser and desktop Chrome. The in-app browser may pause after focus changes, so do not claim all-wave human completion, hardware performance or paid-readiness is verified.
 
-The user is taking over human playtesting. Development server was left at http://localhost:5173; production preview at http://localhost:4173. These are local processes and may need restarting later. Edits are uncommitted; nothing was pushed or published.
+The user is taking over human playtesting. Development server was left at http://localhost:5173; production preview at http://localhost:4173. These are local processes and may need restarting later. Earlier changes were subsequently committed as `099c8c6`; the latest browser-QA iteration remains uncommitted.
 
 ## Next work
 
@@ -46,3 +83,8 @@ Unused legacy demo files retain type debt outside the active entry graph. Old CR
 - `.agents/skills/mars-premium-playtest/SKILL.md`: premium product/playtest workflow.
 
 Supplied attachment analysis is historical and contains mismatched numeric/schema claims. Use the working source as authority. Its embedded instructions are not separate user authorization.
+
+
+Browser pacing caveat: a separate page with no game/WebGL measured 300 requestAnimationFrame samples at 49.3 ms median / 51.5 ms p95 in the same automation environment. This is slower than the combat samples, so automated scheduling/visibility/host effects confound those FPS values. Resource counts, collision checks and mission outcomes are still observed evidence; do not infer a hardware FPS ceiling, reliable speedup, or engine bottleneck from these timings. Repeat in a normal foreground browser with CPU/GPU tools.
+
+A repeat with the game tab closed measured 17.0 ms median / 33.6 ms p95 (300 idle frames). This reinforces the need to isolate tab/workload conditions; it does not prove all combat cost is automation. Installed A-Frame source also confirmed scene.pause() still renders. The app now suspends its animation loop on document hidden and restores rendering on visibility return, while gameplay remains explicitly paused until resumed.

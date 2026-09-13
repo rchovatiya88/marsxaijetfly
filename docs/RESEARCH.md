@@ -154,3 +154,10 @@ Stop expanding content if those gates fail. Allocate another bounded iteration t
 [^13]: CrazyGames. [Developer documentation](https://docs.crazygames.com/). Accessed September 13, 2026. Basic versus full launch monetization.
 
 Local evidence: checked-out `src/App.tsx`, `src/aframe-init.ts`, `src/components/`, build configuration and model binaries; supplied `rchovatiya88-marsxaijetfly.txt` repository export and `pasted-text.txt` analysis. Local assets have not been independently cleared for commercial redistribution.
+
+
+## September 13 browser-QA implementation references
+
+Reviewed [Super Shooter Kit](https://github.com/supermedium/aframe-super-shooter-kit), [A-Blast bullet system](https://github.com/aframevr/a-blast/blob/master/src/systems/bullet.js), and the [official Three.js FPS example](https://github.com/mrdoob/three.js/blob/master/examples/games_fps.html). Shooter Kit documents bounded bullet pools and simple target bounds; A-Blast supplies an example of separating bullet management; the Three FPS example demonstrates separating world collision from art with player movement resolution. Applied those architectural ideas in original code: bounded bolt meshes, shared simplified cover queries and camera/player collision. No third-party game assets or source implementations were copied. Current Three example APIs were not imported into the older A-Frame runtime.
+
+Profiling changed the recommendation: batching stars reduced scene resource cost but did not independently improve sampled frame time. A 720p internal render cap and cheaper screen effects gave the best observed production sample (32.2 ms median, 42.5 ms p95) in the embedded browser, still short of the aspirational 60 FPS target. Treat this as local evidence under automation, not a cross-hardware promise. Next research should diagnose main-thread versus GPU cost in a normal desktop browser, then test human control and threat readability before expanding content.

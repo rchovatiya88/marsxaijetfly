@@ -5,6 +5,7 @@
  */
 
 // Import THREE.js and YUKA - A-Frame is imported globally in App.js
+import { traceWorld } from '../arena-world';
 import * as THREE from 'three';
 import * as YUKA from 'yuka';
 import AFRAME_EXPORT from './aframe-export';
@@ -61,7 +62,15 @@ export default function initializeEnemyComponent(): void {
             },
             init: function(this: any): void {
                 try {
-                    this.lastEnemyShot = 0;
+                    this.lastEnemyShot = -2000;
+                    this.chargeRemaining = 0;
+                    this.boltRemaining = 0;
+                    this.attackOrigin = new THREE.Vector3();
+                    this.attackTarget = new THREE.Vector3();
+                    this.attackDirection = new THREE.Vector3();
+                    this.enemyBolt = new THREE.Mesh(new THREE.SphereGeometry(0.24,8,6),new THREE.MeshBasicMaterial({color:'#ff684c'}));
+                    this.enemyBolt.visible = false;
+                    this.el.sceneEl.object3D.add(this.enemyBolt);
                     this.weaponRaycaster = new THREE.Raycaster();
 
                     this.health = this.data.health;
@@ -136,94 +145,46 @@ export default function initializeEnemyComponent(): void {
                 }
             },
             enemyShoot: function(this: any): boolean {
-                try {
-                    const now = this.el.sceneEl.components['game-manager'].elapsed;
-                    const timeSinceLastShot = now - this.lastEnemyShot;
-
-                    if (timeSinceLastShot < this.data.weaponCooldown * 1000) {
-                        return false;
-                    }
-
-                    const playerPos = this.playerEntity.object3D.position;
-                    const enemyPos = this.el.object3D.position;
-                    const distance = new THREE.Vector3(playerPos.x - enemyPos.x, 0, playerPos.z - enemyPos.z).length();
-
-                    if (distance <= this.data.weaponRange) {
-                        const direction = new THREE.Vector3()
-                            .subVectors(playerPos, enemyPos)
-                            .normalize();
-
-                        const accuracySpread = 1.0 - this.data.weaponAccuracy;
-                        direction.x += (Math.random() - 0.5) * accuracySpread * 0.2;
-                        direction.y += (Math.random() - 0.5) * accuracySpread * 0.2;
-                        direction.normalize();
-
-                        this.weaponRaycaster.set(enemyPos, direction);
-                        this.weaponRaycaster.far = this.data.weaponRange;
-
-                        const intersects = this.weaponRaycaster.intersectObject(this.playerEntity.object3D, true);
-
-                        if (intersects.length > 0) {
-                            this.lastEnemyShot = now;
-                            this.createEnemyShootEffect(enemyPos, direction);
-                            this.flashThreatWarning();
-
-                            if (this.playerEntity.components['player-component']) {
-                                this.playerEntity.components['player-component'].takeDamage(this.data.weaponDamage);
-                            }
-
-                            return true;
-                        }
-                    }
-                    return false;
-                } catch (error) {
-                    console.error('Error in enemy shooting:', error);
-                    return false;
-                }
+                const now = this.el.sceneEl.components['game-manager'].elapsed;
+                if (this.chargeRemaining > 0 || this.boltRemaining > 0 || now-this.lastEnemyShot < this.data.weaponCooldown*1000) return false;
+                this.attackOrigin.copy(this.el.object3D.position); this.attackOrigin.y += 1.2;
+                this.attackTarget.copy(this.playerEntity.object3D.position);
+                const delta = this.attackTarget.clone().sub(this.attackOrigin);
+                if (delta.length() > this.data.weaponRange || traceWorld(this.attackOrigin,delta)) return false;
+                this.chargeRemaining = 850;
+                this.lastEnemyShot = now;
+                this.flashThreatWarning();
+                return true;
             },
-            createEnemyShootEffect: function(this: any, position: THREE.Vector3, direction: THREE.Vector3): void {
-                try {
-                    const muzzleFlash = document.createElement('a-entity');
-                    muzzleFlash.setAttribute('position', position);
-                    muzzleFlash.setAttribute('light', {
-                        type: 'point',
-                        color: '#f00',
-                        intensity: 1.5,
-                        distance: 1.0,
-                        decay: 10
-                    });
-                    
-                    // Add a small sphere to represent the muzzle flash
-                    const sphere = document.createElement('a-sphere');
-                    sphere.setAttribute('radius', 0.1);
-                    sphere.setAttribute('color', '#f00');
-                    sphere.setAttribute('material', 'emissive: #f00; emissiveIntensity: 1.0');
-                    sphere.setAttribute('opacity', 0.7);
-                    muzzleFlash.appendChild(sphere);
-                    
-                    document.querySelector('a-scene')!.appendChild(muzzleFlash);
-
-                    const scene = document.querySelector('a-scene')!.object3D;
-                    const material = new THREE.LineBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
-                    const endPoint = new THREE.Vector3()
-                        .copy(position)
-                        .add(direction.multiplyScalar(this.data.weaponRange));
-                    const geometry = new THREE.BufferGeometry().setFromPoints([position, endPoint]);
-                    const line = new THREE.Line(geometry, material);
-                    scene.add(line);
-
-                    setTimeout(() => {
-                        if (muzzleFlash.parentNode) {
-                            muzzleFlash.parentNode.removeChild(muzzleFlash);
-                        }
-                        scene.remove(line);
-                        line.geometry.dispose();
-                        line.material.dispose();
-                    }, 100);
-
-                    // Enemy shoot visual effect only
-                } catch (error) {
-                    console.error('Error creating enemy shoot effect:', error);
+            updateAttack: function(this: any, delta: number): void {
+                if (this.isDead) return;
+                const ms = Math.min(delta,100);
+                if (this.chargeRemaining > 0) {
+                    this.chargeRemaining -= ms;
+                    this.enemyHalo.material.color.set('#fff0a0');
+                    if (this.chargeRemaining <= 0) {
+                        // Lock aim at charge start: movement during the warning dodges the shot.
+                        this.attackOrigin.copy(this.el.object3D.position); this.attackOrigin.y += 1.2;
+                        this.attackDirection.copy(this.attackTarget).sub(this.attackOrigin).normalize();
+                        this.enemyBolt.position.copy(this.attackOrigin);
+                        this.enemyBolt.visible = true;
+                        this.boltRemaining = 3000;
+                    }
+                } else this.enemyHalo.material.color.set(this.data.enemyColor);
+                if (this.boltRemaining > 0) {
+                    const start = this.enemyBolt.position;
+                    const step = this.attackDirection.clone().multiplyScalar(18*ms/1000);
+                    const cover = traceWorld(start,step);
+                    const toPlayer = this.playerEntity.object3D.position.clone().sub(start);
+                    const t = Math.max(0,Math.min(1,toPlayer.dot(step)/(step.lengthSq() || 1)));
+                    const near = start.clone().addScaledVector(step,t);
+                    const hit = near.distanceTo(this.playerEntity.object3D.position) < 0.9;
+                    if (hit && (!cover || t < cover.t)) {
+                        this.playerEntity.components['player-component'].takeDamage(this.data.weaponDamage);
+                        this.boltRemaining = 0;
+                    } else if (cover) this.boltRemaining = 0;
+                    else { start.add(step); this.boltRemaining -= ms; }
+                    this.enemyBolt.visible = this.boltRemaining > 0;
                 }
             },
             flashThreatWarning: function(): void {
@@ -237,54 +198,34 @@ export default function initializeEnemyComponent(): void {
                 // Sound function removed
             },
             updateAI: function(this: any, dt: number): void {
-                try {
-                    if (this.isDead) return;
-                    if (!this.playerEntity || !this.playerEntity.object3D) return;
-
-                    const playerPos = this.playerEntity.object3D.position;
-                    const enemyPos = this.el.object3D.position;
-                    const distance = new THREE.Vector3(playerPos.x - enemyPos.x, 0, playerPos.z - enemyPos.z).length();
-
-                    this.updateCollisionAvoidance();
-
-                    if (distance <= this.data.detectionRange) {
-                        if (distance <= this.data.attackRange) {
-                            if (this.currentState !== 'attack') {
-                                this.setState('attack');
-                            }
-
-                            this.enemyShoot();
-
-                            this.attackPlayer();
-
-                            this.seekBehavior.active = false;
-                            this.separationBehavior.active = false;
-                        } else {
-                            if (this.currentState !== 'chase') {
-                                this.setState('chase');
-                            }
-                            this.seekBehavior.target.copy(new YUKA.Vector3(playerPos.x, 0, playerPos.z));
-                            this.seekBehavior.active = true;
-                            this.separationBehavior.active = true;
-                        }
-                    } else {
-                        if (this.currentState !== 'idle') {
-                            this.setState('idle');
-                        }
-                        this.seekBehavior.active = false;
-                        this.separationBehavior.active = false;
+                if (this.isDead || !this.playerEntity?.object3D) return;
+                const playerPos = this.playerEntity.object3D.position;
+                const enemyPos = this.el.object3D.position;
+                const distance = enemyPos.distanceTo(playerPos);
+                const horizontal = Math.hypot(playerPos.x-enemyPos.x,playerPos.z-enemyPos.z);
+                const origin = enemyPos.clone(); origin.y += 1.2;
+                const blocked = traceWorld(origin,playerPos.clone().sub(origin));
+                this.enemyShoot();
+                this.setState(this.chargeRemaining > 0 ? 'attack' : 'chase');
+                this.seekBehavior.active = horizontal > 10 || !!blocked;
+                this.separationBehavior.active = false;
+                if (this.seekBehavior.active) {
+                    this.seekBehavior.target.set(playerPos.x,0,playerPos.z);
+                    if (blocked) {
+                        // A short tangent detour keeps simple cover from trapping the pursuer.
+                        this.seekBehavior.target.set(enemyPos.x+(playerPos.z-enemyPos.z)*0.5,0,enemyPos.z-(playerPos.x-enemyPos.x)*0.5);
                     }
-
-                    this.el.object3D.position.x = this.vehicle.position.x;
-                    this.el.object3D.position.z = this.vehicle.position.z;
-
-                    if ((this.currentState === 'chase' || this.currentState === 'attack') && distance > 0.1) {
-                        const lookAt = new THREE.Vector3(playerPos.x, enemyPos.y, playerPos.z);
-                        this.el.object3D.lookAt(lookAt);
-                    }
-                } catch (error) {
-                    console.error('Error updating enhanced AI:', error);
+                } else this.vehicle.velocity.set(0,0,0);
+                const step = new THREE.Vector3(this.vehicle.position.x-enemyPos.x,0,this.vehicle.position.z-enemyPos.z);
+                const collision = traceWorld(origin,step,0.65);
+                if (collision) {
+                    this.vehicle.position.x = enemyPos.x; this.vehicle.position.z = enemyPos.z;
+                    this.vehicle.velocity.set(0,0,0);
                 }
+                enemyPos.x = Math.max(-23,Math.min(23,this.vehicle.position.x));
+                enemyPos.z = Math.max(-45,Math.min(22,this.vehicle.position.z));
+                this.vehicle.position.x = enemyPos.x; this.vehicle.position.z = enemyPos.z;
+                if (distance > 0.1) this.el.object3D.lookAt(new THREE.Vector3(playerPos.x,enemyPos.y,playerPos.z));
             },
             createEnemyModel: function(this: any): void {
                 try {
@@ -300,9 +241,10 @@ export default function initializeEnemyComponent(): void {
                     };
                     const color = colorMap[this.data.enemyColor] || this.data.enemyColor || '#ff4f45';
                     const group = new THREE.Group();
-                    const bodyMaterial = new THREE.MeshStandardMaterial({ color, roughness: 0.52, metalness: 0.25 });
+                    group.userData.heroFallback = true;
+                    const bodyMaterial = new THREE.MeshStandardMaterial({ color: new THREE.Color(color).multiplyScalar(0.5), roughness: 0.62, metalness: 0.4 });
                     const darkMaterial = new THREE.MeshStandardMaterial({ color: '#26171a', roughness: 0.75, metalness: 0.12 });
-                    const glowMaterial = new THREE.MeshStandardMaterial({ color: '#f7fff2', emissive: color, emissiveIntensity: 1.8 });
+                    const glowMaterial = new THREE.MeshStandardMaterial({ color: '#273443', emissive: color, emissiveIntensity: 0.85 });
                     const dangerMaterial = new THREE.MeshBasicMaterial({
                         color,
                         transparent: true,
@@ -328,23 +270,27 @@ export default function initializeEnemyComponent(): void {
                     const visor = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.1, 0.08), glowMaterial);
                     visor.position.set(0, 1.02, -0.39);
                     const halo = new THREE.Mesh(
-                        new THREE.TorusGeometry(0.82, 0.035, 6, 28),
+                        new THREE.TorusGeometry(0.69, 0.025, 6, 28),
                         new THREE.MeshBasicMaterial({
                             color,
                             transparent: true,
-                            opacity: 0.82,
+                            opacity: 0.55,
                             blending: THREE.AdditiveBlending,
                             depthWrite: false
                         })
                     );
                     halo.position.y = 1.24;
                     halo.rotation.x = Math.PI / 2;
-                    const groundRing = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.035, 6, 40), dangerMaterial);
+                    const groundRing = new THREE.Mesh(new THREE.TorusGeometry(1.12, 0.023, 6, 32), dangerMaterial);
                     groundRing.position.y = -0.62;
                     groundRing.rotation.x = Math.PI / 2;
                     const targetSpine = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.25, 0.08), dangerMaterial);
                     targetSpine.position.set(0, 0.45, 0.48);
                     group.add(groundRing, body, chestPlate, head, core, shoulder, leftFin, rightFin, visor, halo, targetSpine);
+                    for (const mat of [bodyMaterial,darkMaterial,glowMaterial,dangerMaterial,halo.material]) {
+                        mat.color.convertSRGBToLinear();
+                        if ('emissive' in mat) (mat as THREE.MeshStandardMaterial).emissive.convertSRGBToLinear();
+                    }
                     this.enemyGroup = group;
                     this.enemyHalo = halo;
                     this.enemyGroundRing = groundRing;
@@ -417,26 +363,11 @@ export default function initializeEnemyComponent(): void {
                     console.error('Error setting state:', error);
                 }
             },
-            attackPlayer: function(this: any): void {
-                try {
-                    const now = this.el.sceneEl.components['game-manager'].elapsed;
-                    if (now - this.lastAttack < this.data.attackRate * 1000) {
-                        return;
-                    }
-                    this.lastAttack = now;
-                    if (this.playerEntity && this.playerEntity.components['player-component']) {
-                        this.playerEntity.components['player-component'].takeDamage(this.data.attackPower);
-                    }
-                    this.flashColor('darkred', 'red', 200);
-                } catch (error) {
-                    console.error('Error attacking player:', error);
-                }
-            },
             createHealthBar: function(this: any): void {
                 try {
                     const healthBarContainer = document.createElement('a-entity');
                     healthBarContainer.setAttribute('position', '0 2.3 0');
-                    healthBarContainer.setAttribute('id', 'health-bar-container');
+                    healthBarContainer.setAttribute('class', 'enemy-health-container');
 
                     const healthBarBg = document.createElement('a-plane');
                     healthBarBg.setAttribute('width', '1');
@@ -450,10 +381,10 @@ export default function initializeEnemyComponent(): void {
                     healthBar.setAttribute('height', '0.08');
                     healthBar.setAttribute('color', '#00FF00');
                     healthBar.setAttribute('position', '0 0 0.001');
-                    healthBar.setAttribute('id', 'health-bar');
+                    healthBar.setAttribute('class', 'enemy-health-fill');
                     healthBarContainer.appendChild(healthBar);
 
-                    healthBarContainer.setAttribute('look-at', '[camera]');
+                    healthBarContainer.object3D.lookAt(this.playerEntity.object3D.position);
 
                     this.el.appendChild(healthBarContainer);
                 } catch (error) {
@@ -462,14 +393,14 @@ export default function initializeEnemyComponent(): void {
             },
             updateHealthBar: function(this: any): void {
                 try {
-                    const healthBar = this.el.querySelector('#health-bar');
+                    const healthBar = this.el.querySelector('.enemy-health-fill');
                     if (!healthBar) return;
 
                     const healthPercent = Math.max(0, this.health / this.maxHealth);
                     const width = 0.98 * healthPercent;
 
-                    healthBar.setAttribute('width', width);
-                    healthBar.setAttribute('position', `${(width - 0.98) / 2} 0 0.001`);
+                    healthBar.object3D.scale.x = healthPercent;
+                    healthBar.object3D.position.x = (width - 0.98) / 2;
 
                     if (healthPercent <= 0.25) {
                         healthBar.setAttribute('color', '#FF0000');
@@ -491,7 +422,7 @@ export default function initializeEnemyComponent(): void {
 
                     if (hitPosition) {
                         this.createHitEffect(hitPosition);
-                        this.showDamageNumber(amount, hitPosition.clone().add(new THREE.Vector3(0, 0.5, 0)));
+
                     }
 
                     this.updateHealthBar();
@@ -620,7 +551,7 @@ export default function initializeEnemyComponent(): void {
                 try {
                     if (this.isDead) return;
                     this.isDead = true;
-                    const healthBar = this.el.querySelector('#health-bar-container');
+                    const healthBar = this.el.querySelector('.enemy-health-container');
                     if (healthBar) healthBar.setAttribute('visible', false);
 
                     const enemyModel = this.el.querySelector('.enemy-body');
@@ -646,7 +577,7 @@ export default function initializeEnemyComponent(): void {
                     
                     // Add an explosion-like effect with spheres
                     const core = document.createElement('a-sphere');
-                    core.setAttribute('radius', 0.75);
+                    core.setAttribute('radius', 0.4);
                     core.setAttribute('color', '#fff0a0');
                     core.setAttribute('material', 'shader: flat; color: #fff0a0; opacity: 0.95; transparent: true');
                     core.setAttribute('opacity', 0.9);
@@ -698,8 +629,9 @@ export default function initializeEnemyComponent(): void {
             },
             tick: function(this: any, time: number, delta: number): void {
                 try {
-                    const dt = delta / 1000;
+                    const dt = Math.min(delta,100) / 1000;
                     this.updateAI(dt);
+                    this.updateAttack(delta);
                     this.updateHitbox();
 
                     if (this.enemyHalo && this.enemyGroundRing) {
@@ -711,9 +643,9 @@ export default function initializeEnemyComponent(): void {
                         material.opacity = this.currentState === 'attack' ? 0.62 : this.currentState === 'chase' ? 0.42 : 0.24;
                     }
 
-                    const healthBarContainer = this.el.querySelector('#health-bar-container');
+                    const healthBarContainer = this.el.querySelector('.enemy-health-container');
                     if (healthBarContainer) {
-                        healthBarContainer.setAttribute('look-at', '[camera]');
+                        healthBarContainer.object3D.lookAt(this.playerEntity.object3D.position);
                     }
                 } catch (error) {
                     console.error('Error in enemy tick:', error);
@@ -759,6 +691,7 @@ export default function initializeEnemyComponent(): void {
                         (gameManager as any).components['game-manager'].entityManager.remove(this.vehicle);
                         (gameManager as any).components['game-manager'].unregisterEnemy(this);
                     }
+                    if (this.enemyBolt) { this.enemyBolt.removeFromParent(); this.enemyBolt.geometry.dispose(); this.enemyBolt.material.dispose(); }
                     if (this.enemyResources) this.enemyResources.forEach((resource: any) => resource.dispose?.());
                 } catch (error) {
                     console.error('Error removing enemy component:', error);
