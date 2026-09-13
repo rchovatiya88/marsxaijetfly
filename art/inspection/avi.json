@@ -1,0 +1,47 @@
+{
+  "source": "public\\models\\avi.glb",
+  "bytes": 1549240,
+  "sha256": "0935c851ddb2106f3722ffeab7fc765cfd5afef64f5d5874ab17ef2af7d9bd19",
+  "blender": "5.2.1 LTS",
+  "objects": 3,
+  "meshes": 2,
+  "triangles": 3708,
+  "bounds": {
+    "min": [
+      -0.9510578513145447,
+      -0.9999999403953552,
+      -1.0
+    ],
+    "max": [
+      0.9510578513145447,
+      0.9999999403953552,
+      1.7459169626235962
+    ]
+  },
+  "materials": [
+    "Scifi_city:lambert2"
+  ],
+  "animations": [
+    "Elbow_punch",
+    "Hit_to_head",
+    "Idle",
+    "Left_strafe",
+    "Mma_kick",
+    "Punch",
+    "Qaud_punch",
+    "Right_strafe",
+    "Run",
+    "Walking"
+  ],
+  "images": [
+    {
+      "name": "PolygonScifi_03_A",
+      "size": [
+        2048,
+        2048
+      ]
+    }
+  ],
+  "render": "art/inspection/avi.png",
+  "status": "imported-and-rendered"
+}

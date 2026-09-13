@@ -1,0 +1,53 @@
+{
+  "source": "public\\models\\jetbickavi.glb",
+  "bytes": 5023548,
+  "sha256": "1cf86c47785aab014e664bef994626a42e79b821f72e1ff02f954c2dda62ec37",
+  "blender": "5.2.1 LTS",
+  "objects": 8,
+  "meshes": 7,
+  "triangles": 8843,
+  "bounds": {
+    "min": [
+      -0.9510578513145447,
+      -2.6062867641448975,
+      -1.0
+    ],
+    "max": [
+      0.9510578513145447,
+      1.805782675743103,
+      2.17294979095459
+    ]
+  },
+  "materials": [
+    "phong1.001",
+    "PolygonScifiWorlds_Mat_01_A.001"
+  ],
+  "animations": [
+    "ArmatureAction.001"
+  ],
+  "images": [
+    {
+      "name": "Emissive_03",
+      "size": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "PolygonScifi_04_A",
+      "size": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_03_A",
+      "size": [
+        4096,
+        4096
+      ]
+    }
+  ],
+  "render": "art/inspection/jetbickavi.png",
+  "status": "imported-and-rendered"
+}

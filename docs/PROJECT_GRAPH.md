@@ -126,6 +126,8 @@ flowchart TD
 
 ## Current pressure points
 
+> The following diagram is historical: production packaging and swept collision have since been repaired. It is not current evidence of engine or rendering cost. See `VALIDATION.md` and `RIDGE_RUN_PRD.md` for active work.
+
 ```mermaid
 flowchart TD
   Perf["Performance still bad"]

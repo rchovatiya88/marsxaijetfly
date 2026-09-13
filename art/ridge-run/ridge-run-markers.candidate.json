@@ -1,0 +1,82 @@
+{
+  "status": "candidate-layout-study",
+  "units": "metres",
+  "runtimeAxes": "Y-up",
+  "mapping": "Blender=(gameX,-gameZ,gameY); glTF export_yup restores runtime axes",
+  "markers": [
+    {
+      "name": "player_spawn",
+      "game": [
+        0,
+        3,
+        12
+      ],
+      "radius": 0,
+      "blender": [
+        0,
+        -12,
+        3
+      ]
+    },
+    {
+      "name": "high_gate",
+      "game": [
+        -6,
+        10,
+        -8
+      ],
+      "radius": 2.8,
+      "route": "high",
+      "color": "cyan",
+      "blender": [
+        -6,
+        8,
+        10
+      ]
+    },
+    {
+      "name": "low_gate",
+      "game": [
+        6,
+        3.5,
+        -8
+      ],
+      "radius": 2.8,
+      "route": "low",
+      "color": "amber",
+      "blender": [
+        6,
+        8,
+        3.5
+      ]
+    },
+    {
+      "name": "warden",
+      "game": [
+        0,
+        0,
+        -30
+      ],
+      "radius": 0,
+      "blender": [
+        0,
+        30,
+        0
+      ]
+    },
+    {
+      "name": "extraction",
+      "game": [
+        0,
+        3.5,
+        -41
+      ],
+      "radius": 4,
+      "blender": [
+        0,
+        41,
+        3.5
+      ]
+    }
+  ]
+}

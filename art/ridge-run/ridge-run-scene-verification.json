@@ -1,0 +1,447 @@
+{
+  "source": "public/models/level1.glb",
+  "sourceSha256": "44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db",
+  "sourceModules": [
+    {
+      "object": "Cliff_-1_0",
+      "source": "SM_Env_Rock_Large_03",
+      "gameCenter": [
+        -22.0,
+        5.5,
+        18
+      ],
+      "size": [
+        12,
+        17,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_-1_1",
+      "source": "SM_Env_Rock_Large_01",
+      "gameCenter": [
+        -23.7,
+        7.5,
+        5
+      ],
+      "size": [
+        12,
+        21,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_-1_2",
+      "source": "SM_Env_Rock_Large_03",
+      "gameCenter": [
+        -22.0,
+        6.0,
+        -9
+      ],
+      "size": [
+        12,
+        18,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_-1_3",
+      "source": "SM_Env_Rock_Large_01",
+      "gameCenter": [
+        -23.7,
+        9.0,
+        -23
+      ],
+      "size": [
+        12,
+        24,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_-1_4",
+      "source": "SM_Env_Rock_Large_03",
+      "gameCenter": [
+        -22.0,
+        6.5,
+        -39
+      ],
+      "size": [
+        12,
+        19,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_-1_5",
+      "source": "SM_Env_Rock_Large_01",
+      "gameCenter": [
+        -23.7,
+        10.0,
+        -51
+      ],
+      "size": [
+        12,
+        26,
+        17
+      ]
+    },
+    {
+      "object": "Spire_-1_0",
+      "source": "SM_Env_Rock_03",
+      "gameCenter": [
+        -30,
+        15,
+        11
+      ],
+      "size": [
+        8,
+        36,
+        10
+      ]
+    },
+    {
+      "object": "Spire_-1_1",
+      "source": "SM_Env_Rock_03",
+      "gameCenter": [
+        -30,
+        15,
+        -17
+      ],
+      "size": [
+        8,
+        36,
+        10
+      ]
+    },
+    {
+      "object": "Spire_-1_2",
+      "source": "SM_Env_Rock_03",
+      "gameCenter": [
+        -30,
+        15,
+        -45
+      ],
+      "size": [
+        8,
+        36,
+        10
+      ]
+    },
+    {
+      "object": "Cliff_1_0",
+      "source": "SM_Env_Rock_Large_03",
+      "gameCenter": [
+        22.0,
+        5.5,
+        18
+      ],
+      "size": [
+        12,
+        17,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_1_1",
+      "source": "SM_Env_Rock_Large_01",
+      "gameCenter": [
+        23.7,
+        7.5,
+        5
+      ],
+      "size": [
+        12,
+        21,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_1_2",
+      "source": "SM_Env_Rock_Large_03",
+      "gameCenter": [
+        22.0,
+        6.0,
+        -9
+      ],
+      "size": [
+        12,
+        18,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_1_3",
+      "source": "SM_Env_Rock_Large_01",
+      "gameCenter": [
+        23.7,
+        9.0,
+        -23
+      ],
+      "size": [
+        12,
+        24,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_1_4",
+      "source": "SM_Env_Rock_Large_03",
+      "gameCenter": [
+        22.0,
+        6.5,
+        -39
+      ],
+      "size": [
+        12,
+        19,
+        17
+      ]
+    },
+    {
+      "object": "Cliff_1_5",
+      "source": "SM_Env_Rock_Large_01",
+      "gameCenter": [
+        23.7,
+        10.0,
+        -51
+      ],
+      "size": [
+        12,
+        26,
+        17
+      ]
+    },
+    {
+      "object": "Spire_1_0",
+      "source": "SM_Env_Rock_03",
+      "gameCenter": [
+        30,
+        15,
+        11
+      ],
+      "size": [
+        8,
+        36,
+        10
+      ]
+    },
+    {
+      "object": "Spire_1_1",
+      "source": "SM_Env_Rock_03",
+      "gameCenter": [
+        30,
+        15,
+        -17
+      ],
+      "size": [
+        8,
+        36,
+        10
+      ]
+    },
+    {
+      "object": "Spire_1_2",
+      "source": "SM_Env_Rock_03",
+      "gameCenter": [
+        30,
+        15,
+        -45
+      ],
+      "size": [
+        8,
+        36,
+        10
+      ]
+    },
+    {
+      "object": "High_bridge_0",
+      "source": "SM_Bld_Bridge_01_17",
+      "gameCenter": [
+        -6,
+        6.2,
+        -2
+      ],
+      "size": [
+        7,
+        0.8,
+        9
+      ]
+    },
+    {
+      "object": "Bridge_support_0",
+      "source": "SM_Bld_Column_02",
+      "gameCenter": [
+        -9,
+        2,
+        -2
+      ],
+      "size": [
+        1.3,
+        7,
+        1.5
+      ]
+    },
+    {
+      "object": "High_bridge_1",
+      "source": "SM_Bld_Bridge_01_17",
+      "gameCenter": [
+        -6,
+        6.2,
+        -11
+      ],
+      "size": [
+        7,
+        0.8,
+        9
+      ]
+    },
+    {
+      "object": "Bridge_support_1",
+      "source": "SM_Bld_Column_02",
+      "gameCenter": [
+        -9,
+        2,
+        -11
+      ],
+      "size": [
+        1.3,
+        7,
+        1.5
+      ]
+    },
+    {
+      "object": "West_barracks",
+      "source": "SM_Bld_Corp_Barracks_01",
+      "gameCenter": [
+        -15,
+        4,
+        -29
+      ],
+      "size": [
+        7,
+        8,
+        11
+      ]
+    },
+    {
+      "object": "East_comms",
+      "source": "SM_Bld_Corp_Comms_Tower_01__1_",
+      "gameCenter": [
+        16,
+        8,
+        -34
+      ],
+      "size": [
+        6,
+        16,
+        6
+      ]
+    },
+    {
+      "object": "Cargo_-13_5",
+      "source": "SM_Prop_Container_01",
+      "gameCenter": [
+        -13,
+        1.5,
+        5
+      ],
+      "size": [
+        2.5,
+        3,
+        5
+      ]
+    },
+    {
+      "object": "Cargo_14_-19",
+      "source": "SM_Prop_Container_01",
+      "gameCenter": [
+        14,
+        1.5,
+        -19
+      ],
+      "size": [
+        2.5,
+        3,
+        5
+      ]
+    },
+    {
+      "object": "Cargo_-12_-42",
+      "source": "SM_Prop_Container_01",
+      "gameCenter": [
+        -12,
+        1.5,
+        -42
+      ],
+      "size": [
+        2.5,
+        3,
+        5
+      ]
+    },
+    {
+      "object": "Relay_aerial",
+      "source": "SM_Prop_Antenna_01",
+      "gameCenter": [
+        -15,
+        11,
+        -29
+      ],
+      "size": [
+        1.2,
+        8,
+        1.2
+      ]
+    },
+    {
+      "object": "Launch",
+      "source": "SM_Bld_Platform_Large_03",
+      "gameCenter": [
+        0,
+        0.15,
+        12
+      ],
+      "size": [
+        11,
+        0.3,
+        7
+      ]
+    },
+    {
+      "object": "Extraction",
+      "source": "SM_Bld_Platform_Large_03",
+      "gameCenter": [
+        0,
+        0.15,
+        -41
+      ],
+      "size": [
+        12,
+        0.3,
+        8
+      ]
+    },
+    {
+      "object": "Warden_stage",
+      "source": "SM_Bld_Platform_Large_03",
+      "gameCenter": [
+        0,
+        0.1,
+        -30
+      ],
+      "size": [
+        7,
+        0.2,
+        7
+      ]
+    }
+  ],
+  "shellBytes": 2629384,
+  "staticTriangles": 33197,
+  "staticMeshes": 7,
+  "reimportMeshCount": 7,
+  "colliderBoxes": 24,
+  "status": "export-render-reimport-passed",
+  "limitations": "Conservative AABB proxies; licensing unverified; preview actors excluded shell; not production/fun validation"
+}

@@ -1,5 +1,9 @@
 # Red Horizon premium game master plan
 
+Latest expansion: full original layout now has an explicitly experimental LOD/streaming survey (`?full-level`), eight verified derived assets and browser eviction evidence. `FULL_LEVEL_STREAMING_RESEARCH.md` contains the comprehensive technical/design plan. Next is stable mission collision and route markers on the actual bridges/outpost, then measured shared-texture/instancing optimization and human input/route playtests. Survey mode intentionally has no combat or terrain collision. Player now uses seated AVI plus the supplied standalone textured bike; camera pitch is separate from level bike yaw.
+
+> Current checkpoint (September 13, authored-scene pass): two-route gameplay, in-place reset, Blender-authored GLB environment, matching box collision and real seated bike/Warden are integrated. Mouse drag fallback is corrected. Next execute human mouse/route clarity playtests, proxy-boundary tuning, Warden attack/death animation, then measured material/performance polish. Read `PROJECT_MEMORY.md`, `VALIDATION.md` and `RIDGE_RUN_PRD.md` for evidence and open gates. The three-branch milestones below are the earlier broader plan; broken route is deferred. The Warden is a ground rock enemy, not a mounted rival. This note supersedes conflicting order and visual assumptions below.
+
 This document is the working contract for building a small premium game from the current prototype. It is written for future agents, artists and gameplay programmers. It separates verified repository facts from design decisions and experiments. It does not authorize installing software, publishing a build, spending money or opening a store account.
 
 ## 1. North-star outcome

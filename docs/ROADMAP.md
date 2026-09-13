@@ -9,6 +9,11 @@ The selected business model is premium paid. Current working title: Red Horizon.
 
 ## Current progress — September 13 browser QA iteration
 
+- Whole-source survey implemented at `?full-level`, including bounded actual LOD fetch/eviction and42 passing tests. Read `FULL_LEVEL_STREAMING_RESEARCH.md` and `art/full-level/README.md` for verified costs and scene evidence. Next adaptation is a mapped bridge/outpost mission with fixed collision/markers; do not equate survey flight with collision-ready gameplay. Optimize duplicated textures/instance baking before expanding downloads.
+
+- Latest authored pass: Ridge Run is default with real level-derived shell, repaired-material seated bike and GLB Warden. Both exported collision routes and 33 automated tests pass; both browser mission branches win/reset. Full scene is `art/ridge-run/ridge-run.blend`. Mouse hover drift and stale drag anchors are fixed.
+- Immediate queue: (1) human foreground mouse/route playtest, (2) visible mesh/collision boundary tuning, (3) Warden attack/death choreography, (4) material and measured performance polish, (5) provenance and external playtest gates. Automated success does not close premium validation.
+
 - P1.1: embedded-browser fixtures and three scripted full victories now verified; human input and Chrome/Firefox/Safari coverage remain open.
 - P1.2: simplified swept cover collision, sliding, vertical bounds and chase-camera clearance implemented/tested. Exact art colliders and human corner testing remain.
 - P1.3: 3D ranged attacks, shared cover, 850 ms telegraph and dodgeable projectiles implemented/tested. Human threat readability and enemy spacing remain.
@@ -17,7 +22,18 @@ The selected business model is premium paid. Current working title: Red Horizon.
 - P3.3: production packaging reduced from about 51 MB to 3.1 MB; source assets preserved. Nested-path hosted-browser verification remains.
 - P3.5: local fixture/soak panel exists at `?playtest`, with no external telemetry. This is engineering QA, not a human behavior analytics export.
 
-Immediate next tasks: lock the Ridge Run asset contract; extract one level corridor into shell/collision/nav/marker outputs; implement async level-runtime fallback; then build the authored route/rival/extraction loop. Keep the phase gates below—scripted success does not establish enjoyment or paid value.
+## Active execution order — Windows / Blender pass
+
+Use [RIDGE_RUN_PRD.md](RIDGE_RUN_PRD.md) as the design work order and [VALIDATION.md](VALIDATION.md) for completed checks. Blender MCP setup, model renders, a material-repaired bike candidate and generated concepts now have concrete artifacts; see [ASSET_LEDGER.md](ASSET_LEDGER.md) and [BLENDER_MCP_SETUP.md](BLENDER_MCP_SETUP.md).
+
+1. Stabilize the running build and in-place reset; test both optional Ridge Run gate/reward paths, Warden resolution, extraction, pause and retry. Keep forced lifecycle fixtures distinct from ten complete combat sorties.
+2. Capture fixed 1280×720 diagnostics on this Windows host, then a foreground CPU/GPU baseline with three comparable runs. Embedded timing does not certify hardware performance.
+3. Observe five fresh players: route understanding, intentional maneuver, first hit, pause recovery and voluntary replay. Select one dominant blocker and retest after its fix.
+4. Turn the approved two-route blockout into a Blender-authored bridge/chasm corridor. Export visual shell, supported box proxies, aligned ground data and versioned markers. The hazardous third route is deferred. Preserve source city and bike; the grounded Warden matches the actual model.
+5. Load optional art with failure fallback, activate collider/marker changes only at launch/retry, verify both branches again and repeat the same benchmark. Map named Warden animation states and review bike/camera clearance before admission.
+6. Test a fresh ten-player group, then decide content scope, saves/controller/accessibility, packaging, provenance and premium value. Full edition work follows evidence of the slice's clarity and replay.
+
+Keep the phase gates below—scripted victories do not establish enjoyment, replay intent, or paid value.
 
 ## Phase 0 — runnable prototype
 

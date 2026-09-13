@@ -83,14 +83,17 @@ export default function initializeFlyControls(): void {
         // Mouse tracking
         this.mouseEnabled = true;
         this.mouseLocked = false;
+        this.cursorDragging = false;
+        this.cursorPosition = null;
         
         // Bind event handlers
         this.bindEvents();
         
         // Set initial position for camera
         if (this.cameraRigEl) {
-          this.cameraRigEl.setAttribute('position', {x: 0, y: 3, z: 8});
+          this.cameraRigEl.setAttribute('position', {x: 0, y: 2, z: 8});
         }
+        this.applyLookRotation();
         
         console.log('Fly controls initialized');
       },
@@ -105,6 +108,8 @@ export default function initializeFlyControls(): void {
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
         this.handlePointerLockChange = this.handlePointerLockChange.bind(this);
+        this.handleMouseOut = this.handleMouseOut.bind(this);
+        this.handleContextMenu = this.handleContextMenu.bind(this);
         
         // Add event listeners to document (not window)
         document.addEventListener('keydown', this.handleKeyDown);
@@ -113,18 +118,23 @@ export default function initializeFlyControls(): void {
         document.addEventListener('mousedown', this.handleMouseDown);
         document.addEventListener('mouseup', this.handleMouseUp);
         document.addEventListener('pointerlockchange', this.handlePointerLockChange);
+        document.addEventListener('mouseout', this.handleMouseOut);
+        document.addEventListener('contextmenu', this.handleContextMenu);
         
         console.log('Fly controls events bound');
       },
       
       handlePointerLockChange: function() {
-        this.mouseLocked = document.pointerLockElement === document.body;
+        this.mouseLocked = document.pointerLockElement === document.body || document.pointerLockElement === this.el.sceneEl.canvas;
+        this.cursorDragging = false;
+        this.cursorPosition = null;
         if ((!this.mouseLocked && !this.data.dragToLook)) this.clearInput();
         console.log('Pointer lock changed:', this.mouseLocked ? 'locked' : 'unlocked');
       },
       
       handleKeyDown: function(event) {
         if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook)) return;
+        if (event.target?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
         
         switch (event.code) {
           case 'KeyW': this.moveState.forward = 1; break;
@@ -140,8 +150,6 @@ export default function initializeFlyControls(): void {
           case 'ArrowDown': this.moveState.pitchDown = 1; break;
           case 'ArrowLeft': this.moveState.yawLeft = 1; break;
           case 'ArrowRight': this.moveState.yawRight = 1; break;
-          case 'KeyZ': this.moveState.rollLeft = 1; break;
-          case 'KeyX': this.moveState.rollRight = 1; break;
         }
         
         this.updateMovementVector();
@@ -175,32 +183,63 @@ export default function initializeFlyControls(): void {
       
       handleMouseMove: function(event) {
         if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook) || !this.mouseEnabled) return;
-        
-        const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-        const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-        
-
-        
-        // Apply mouse movement directly to rotation
+        let movementX: number, movementY: number;
+        if (this.mouseLocked) {
+          movementX = event.movementX ?? event.mozMovementX ?? event.webkitMovementX ?? 0;
+          movementY = event.movementY ?? event.mozMovementY ?? event.webkitMovementY ?? 0;
+        } else {
+          // Unlocked movementX varies by browser/display scaling. Use CSS-pixel
+          // deltas only during a drag begun on the game canvas. Release to recenter.
+          if (event.target !== this.el.sceneEl.canvas || !this.cursorDragging || !(event.buttons & 3)) {
+            this.cursorPosition = null;
+            if (!(event.buttons & 3)) this.cursorDragging = false;
+            return;
+          }
+          const previous = this.cursorPosition;
+          this.cursorPosition = {x:event.clientX,y:event.clientY};
+          if (!previous) return;
+          movementX = event.clientX - previous.x;
+          movementY = event.clientY - previous.y;
+        }
+        if (!Number.isFinite(movementX) || !Number.isFinite(movementY)) return;
+        // Direct relative motion has no trailing smoothing drift after release.
         const sensitivity = this.data.lookSensitivity;
-        this.rotation.y -= movementX * sensitivity * 0.002;
-        this.rotation.x -= movementY * sensitivity * 0.002 * (this.data.invertY ? -1 : 1);
-        
-        // Limit pitch to avoid flipping
-        this.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.rotation.x));
-        
-        // Update quaternion
-        this.rotationQuaternion.setFromEuler(this.rotation);
-        this.playerObj.quaternion.copy(this.rotationQuaternion);
+        this.rotation.y -= movementX * sensitivity * 0.004;
+        this.rotation.x -= movementY * sensitivity * 0.004 * (this.data.invertY ? -1 : 1);
+        this.applyLookRotation();
+      },
+
+      applyLookRotation: function() {
+        // The bike/boom own yaw only. Pitch belongs to the camera at the end of
+        // the boom: aiming must not orbit the camera through terrain or roll the horizon.
+        this.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, this.rotation.x));
+        this.rotation.z = 0;
+        this.playerObj.rotation.set(0, this.rotation.y, 0, 'YXZ');
+        if (this.cameraRigEl) this.cameraRigEl.object3D.quaternion.identity();
+        if (this.cameraObj) this.cameraObj.rotation.set(this.rotation.x, 0, 0, 'YXZ');
       },
       
       handleMouseDown: function(event) {
         if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook)) return;
+        if (!this.mouseLocked) {
+          if (event.target !== this.el.sceneEl.canvas || (event.button !== 0 && event.button !== 2)) return;
+          this.cursorDragging = true;
+          this.cursorPosition = {x:event.clientX,y:event.clientY};
+          event.preventDefault?.();
+        }
         this.mouseEnabled = true;
       },
       
       handleMouseUp: function(event) {
-        if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook)) return;
+        if (!(event.buttons & 3)) { this.cursorDragging = false; this.cursorPosition = null; }
+      },
+
+      handleMouseOut: function(event) {
+        if (event.target === this.el.sceneEl.canvas) this.cursorPosition = null;
+      },
+
+      handleContextMenu: function(event) {
+        if (event.target === this.el.sceneEl.canvas && this.data.enabled && this.el.sceneEl.isPlaying && this.data.dragToLook) event.preventDefault();
       },
       
       updateMovementVector: function() {
@@ -216,7 +255,7 @@ export default function initializeFlyControls(): void {
         
         this.rotationVector.x = (-moveState.pitchDown + moveState.pitchUp);
         this.rotationVector.y = (-moveState.yawRight + moveState.yawLeft);
-        this.rotationVector.z = (-moveState.rollRight + moveState.rollLeft);
+        this.rotationVector.z = 0;
       },
       
       tick: function(time, delta) {
@@ -236,15 +275,8 @@ export default function initializeFlyControls(): void {
           // Apply keyboard rotation
           this.rotation.x += rotAmount.x;
           this.rotation.y += rotAmount.y;
-          this.rotation.z += rotAmount.z;
-          
-          // Limit pitch to avoid flipping
-          this.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.rotation.x));
-          
-          // Update quaternion
-          this.rotationQuaternion.setFromEuler(this.rotation);
-          this.playerObj.quaternion.copy(this.rotationQuaternion);
         }
+        this.applyLookRotation();
         
         this.velocity.set(0, 0, 0);
         // Apply movement if any direction keys are pressed
@@ -299,7 +331,7 @@ export default function initializeFlyControls(): void {
         this.playerObj.updateMatrixWorld(true);
         const anchor = this.playerObj.localToWorld(new THREE.Vector3(0, 0.5, 0));
         const desired = this.playerObj.localToWorld(new THREE.Vector3(0, 2, 8));
-        desired.y = Math.max(0.6, desired.y);
+        if (!this.el?.sceneEl?.components?.['world-stream']?.ownsWorld) desired.y = Math.max(0.6, desired.y);
         const delta = desired.clone().sub(anchor);
         const hit = traceWorld(anchor, delta, 0.25);
         const safe = anchor.addScaledVector(delta, hit ? Math.max(0, hit.t - 0.04) : 1);
@@ -307,6 +339,8 @@ export default function initializeFlyControls(): void {
       },
 
       clearInput: function() {
+        this.cursorDragging = false;
+        this.cursorPosition = null;
         for (const key in this.moveState) this.moveState[key] = 0;
         this.speedMultiplier = 1;
         this.moveVector.set(0, 0, 0);
@@ -314,6 +348,18 @@ export default function initializeFlyControls(): void {
         this.velocity.set(0, 0, 0);
       },
 
+      resetMission: function() {
+        this.clearInput();
+        this.rotation.set(0, 0, 0, 'YXZ');
+        this.rotationQuaternion.identity();
+        this.playerObj.position.set(0, 3, 12);
+        this.playerObj.quaternion.identity();
+        this.cameraRigEl.object3D.position.set(0, 2, 8);
+        this.cameraRigEl.object3D.quaternion.identity();
+        this.cameraObj.quaternion.identity();
+        this.applyLookRotation();
+        this.updateCamera(0);
+      },
       pause: function() { this.clearInput(); },
 
       remove: function() {
@@ -326,6 +372,8 @@ export default function initializeFlyControls(): void {
         document.removeEventListener('mousedown', this.handleMouseDown);
         document.removeEventListener('mouseup', this.handleMouseUp);
         document.removeEventListener('pointerlockchange', this.handlePointerLockChange);
+        document.removeEventListener('mouseout', this.handleMouseOut);
+        document.removeEventListener('contextmenu', this.handleContextMenu);
         
         console.log('Fly controls removed');
       }

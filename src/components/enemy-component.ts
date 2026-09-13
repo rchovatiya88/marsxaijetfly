@@ -461,6 +461,7 @@ export default function initializeEnemyComponent(): void {
             showDamageNumber: function(this: any, amount: number, position: THREE.Vector3): void {
                 try {
                     const damageText = document.createElement('a-text');
+                    damageText.setAttribute('data-mission-effect', '');
                     damageText.setAttribute('value', amount.toString());
                     damageText.setAttribute('color', '#FF0000');
                     damageText.setAttribute('position', position);
@@ -497,6 +498,7 @@ export default function initializeEnemyComponent(): void {
             createHitEffect: function(this: any, position: THREE.Vector3): void {
                 try {
                     const hitEffect = document.createElement('a-entity');
+                    hitEffect.setAttribute('data-mission-effect', '');
                     hitEffect.setAttribute('position', position);
                     const mainSphere = document.createElement('a-sphere');
                     mainSphere.setAttribute('radius', 0.22);
@@ -573,6 +575,7 @@ export default function initializeEnemyComponent(): void {
 
                     const position = this.el.object3D.position;
                     const deathEffect = document.createElement('a-entity');
+                    deathEffect.setAttribute('data-mission-effect', '');
                     deathEffect.setAttribute('position', position);
                     
                     // Add an explosion-like effect with spheres

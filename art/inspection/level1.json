@@ -1,0 +1,146 @@
+{
+  "source": "public\\models\\level1.glb",
+  "bytes": 5165060,
+  "sha256": "44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db",
+  "blender": "5.2.1 LTS",
+  "objects": 2298,
+  "meshes": 2292,
+  "triangles": 1169700,
+  "bounds": {
+    "min": [
+      -534.4024047851562,
+      -541.92822265625,
+      -386.2936706542969
+    ],
+    "max": [
+      312.2490539550781,
+      219.5161895751953,
+      186.05215454101562
+    ]
+  },
+  "materials": [
+    "Glass_01",
+    "Ground_material",
+    "PolygonSciFiWorlds_Env_Triplanar_Corp",
+    "PolygonScifiWorlds_Mat_01_A",
+    "PolygonScifiWorlds_Mat_01_A_Triplanar",
+    "PolygonScifiWorlds_Mat_01_B",
+    "PolygonScifiWorlds_Mat_01_C",
+    "PolygonScifiWorlds_Mat_02_A",
+    "PolygonScifiWorlds_Mat_02_B",
+    "PolygonScifiWorlds_Mat_03_A",
+    "PolygonScifiWorlds_Mat_03_B",
+    "PolygonScifiWorlds_Mat_03_C",
+    "PolygonScifiWorlds_Mat_04_B"
+  ],
+  "animations": [],
+  "images": [
+    {
+      "name": "Emissive_01",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "Emissive_02",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "Emissive_03",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "Emissive_04",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "Emissive_Mask",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_01_A",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_01_B",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_02_A",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_02_B",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_03_A",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_03_A.001",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_03_C",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_04_B",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_A_01_Normal",
+      "size": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_A_01_Normal_8k",
+      "size": [
+        512,
+        512
+      ]
+    }
+  ],
+  "render": "art/inspection/level1.png",
+  "status": "imported-and-rendered"
+}

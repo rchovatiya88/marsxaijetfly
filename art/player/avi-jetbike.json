@@ -1,0 +1,56 @@
+{
+  "sources": [
+    {
+      "path": "C:\\Users\\roncho\\Documents\\OrnaLabs\\MarsX\\Models\\jetbick.glb",
+      "sha256": "18bb18be931effbfbdbc914d17233817f51074946277ca9013961ec129ef5425"
+    },
+    {
+      "path": "C:\\Users\\roncho\\Documents\\repos\\marsxaijetfly\\public\\models\\avi.glb",
+      "sha256": "0935c851ddb2106f3722ffeab7fc765cfd5afef64f5d5874ab17ef2af7d9bd19"
+    }
+  ],
+  "output": "C:\\Users\\roncho\\Documents\\repos\\marsxaijetfly\\public\\models\\avi-jetbike.glb",
+  "bytes": 1982588,
+  "sha256": "fda06b60d00888c9ae4eb8d5c9fa78278bed880a40a1d911c0a2a76f192198b2",
+  "license": "source rights unverified",
+  "pose": "static seated deformation; editable rig preserved in Blender",
+  "textures": [
+    {
+      "name": "Emissive_01",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "PolygonScifi_03_A",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_01_A",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_A_01_Normal_8k",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "Render Result",
+      "size": [
+        0,
+        0
+      ]
+    }
+  ],
+  "reimport_meshes": 6,
+  "reimport_images_valid": true
+}

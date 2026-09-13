@@ -2,6 +2,53 @@
 
 Baseline recorded September 13, 2026. This is a playable development prototype, not a release certification.
 
+## Whole-level streaming survey — September 13, 2026
+
+- `npm test`:42 pass; typecheck and production build pass (`index-B3G6fJO2.js`). Eight final GLBs reimported; actual-low render caught split-vertex decimation tears, corrected by welding derived copies before simplification. Original source hash unchanged.
+- Full original inspected in Blender top/oblique renders and through official MCP screenshot of opened full-level scene. Don McCurdy viewer loaded/orbited original after Chrome permissions updated;339 validation warnings remain untriaged. A successful visual import is not a clean validator report.
+- Packaged Chrome `?full-level&playtest`: all4 coarse chunks visible, whole layout screenshot reviewed;3 near/far cycles passed11 streaming assertions. All3 far returns74 geometries/43 textures, zero streamed errors. 172,065 coarse triangles, selective environment budget350,000. Source original remains1,169,700 triangles offline.
+- Actual Resource Timing: manifest195ms; coarse q00/q01 at359ms, q10 at481ms, q11 at513ms; high q10/q01 only at12,775ms after scripted approach. Reentries refetched at13,306ms and13,837–13,838ms. This proves separate deferred requests, not incremental byte-range decoding or faster FPS. Requests can use browser HTTP cache.
+- Complete derived storage19,763,576bytes; initial coarse~8.52MB. More than original5.17MB due to baked instances/duplicate textures. GPU counts plateau under tested cycles; total CPU/bitmap memory and target-hardware frame times remain open. No terrain collision, navmesh or combat in survey. Default Ridge and original sources preserved.
+
+## Latest authored scene and mouse pass — September 13, 2026
+
+AVI/new-bike follow-up:35 tests/typecheck/build pass (`index-CCHR1qcu.js`). Blender seated-pose render reviewed, playerGLB reimported (six meshes, valid textures), actual Chrome chase view reviewed and heading corrected180°. Diagonal drag changed yaw/pitch without pitching bike; Escape and drag resume worked. Pointer lock request rejected in automated Chrome, so human captured-mouse feel remains open. Both Ridge branches still passed17 assertions, ordinary8/11-shot wins, reset54 geometries/6 textures. New player source texture maps retained at1024; posed mesh static at runtime, editable armature in Blender. Source files preserved.
+
+- `npm test`: 33/33 pass, including actual exported collision file traversal for both routes, authored marker matching, atomic level load, fallback, late disposal and three mouse regression cases.
+- Final typecheck/build pass (`index-Cp4A2wx_.js`); wave browser regression suite also passes, with spawn/remove and ten forced retries stable at 41 geometries. Captured authored-scene console contained no errors. `git diff --check` passes with line-ending notices only.
+- Embedded-browser Ridge smoke: 17 assertions pass on real shell/player/enemy GLBs. High/low routes defeated Warden using ordinary weapon logic in 8/11 shots, extracted, reset to 54 geometries/4 textures and reused the renderer. Locomotion/aiming in this fixture are scripted, not human playability evidence.
+- Visually inspected final Blender render and running game: canyon/bridge/outpost shell, seated animated bike, high/low rings and restored sunset sky. Actual browser canvas drag visibly rotated view and fired only while left held. Native pointer-lock and right-drag human ergonomics remain unverified; unit tests cover locked relative input and drag gating.
+- Export/reimport receipt: seven shell meshes, 33,197 triangles, 2,629,384 bytes; 24 conservative collision boxes. Above earlier 1.5 MB shell target; no new claim of 60 FPS or premium readiness. Both routes pass solver sweeps, but visible-mesh/proxy boundary polish remains.
+
+## Earlier Windows / Blender / Ridge Run pass — September 13, 2026
+
+This section supersedes older current-state claims. Host inventory: AMD Ryzen 5 5600X, NVIDIA GeForce RTX 3060, with Microsoft Remote Display Adapter also present. Browser: Codex embedded Chromium 152 on Windows; fixed 1280×720 viewport/render pixels for diagnostics. This does not prove which physical GPU serviced the browser or foreground hardware performance.
+
+### Build and behavior
+
+- Repaired out-of-sync `package-lock.json`; original `npm ci --legacy-peer-deps` failed because the lock omitted current Vite dependencies. Regenerated the lock, then clean installation succeeded. Large lock diff removes stale CRA-era dependency graph. npm reported eight dependency findings (one low, five moderate, two high); release triage remains, no forced major upgrade was applied.
+- `npm test`: **24/24 pass**; active-entry typecheck and production build pass. `git diff --check` passes, with Windows line-ending notices only. Candidate runtime bundle: `index-f85CJU-a.js`.
+- Production now explicitly includes `models/enemy.glb` (1,054,800 bytes; SHA-256 `16415bf5a5b8dfa0440c7689451eb68f5a4b724ab74bb862a1cec7ceb54cdb69`). Earlier build config copied only vendor files, so earlier packaged authored-GLB claims must not be treated as proved model admission.
+- In-place reset retains scene/renderer and restores player, input, enemies, effects, weapon, clocks, score and React result state. Browser wave fixtures passed **23 assertions**, including ten forced alternating win/defeat retries. Enemy cleanup and reset both returned 41 geometries across all ten fixture cycles. These forced endings are not ten full combat missions.
+- Optional `?ridge-run`: high boosted forward gate grants three double-damage shots, low gate grants 30 shield; defeat Warden, hold extraction for one simulation second, reset. Real packaged Warden GLB loads. Named idle animation is used; final attack/death choreography is not implemented.
+- Hero loader now uses A-Frame's own loader/Draco runtime, disposes owned resources and late loads after removal, and normalizes detached from translated enemy parents. Regression tests cover disposal and translated-parent alignment. Final browser screenshot visibly shows the spiked Warden aligned with the combat target.
+- Ridge browser smoke passes **17 assertions**: both swept route choices/rewards, both real GLB loads, ordinary weapon defeats (high eight shots, low eleven), charge consumption, paused extraction, win, reset and renderer identity. Scripted movement/aiming places the pilot; it does not prove a human can navigate the route. Reset resource counts are 41 geometries / 2 textures on both routes. Captured warning/error logs were empty.
+- Repeated the final Ridge smoke five times without reloading (ten short scripted route/combat/extraction runs). All returned 41 geometries / 2 textures after reset. This extends lifecycle evidence to real weapon kills and extraction, but still skips natural traversal through scripted positions and is not ten full-length human sorties.
+
+### Asset and design evidence
+
+Final production combat diagnostic (`index-f85CJU-a.js`, 1280×720): wave-three victory, score 11,900, 93 shots, 989 warmed frame intervals, median **31.2 ms**, p95 **32.1 ms**. Geometries 41 → 43 at result, settling to **41**. The earlier same-session build before hero cleanup settled at 45 after combat; final disposal removes that observed residual geometry. Encounters are not seeded and timings are embedded-browser scheduling samples, so this is not a controlled speedup or 60 FPS claim. Final wave/retry fixtures also passed all 23 assertions.
+
+All six sources imported and rendered in Blender 5.2.1 LTS; hashes, bounds, images and animations recorded under `art/inspection`. Visual review established bridge/chasm/outpost level motifs and the grounded rocky Warden silhouette. The source bike renders magenta and has two images Blender cannot decode. A separate material-replacement study exports and displays in Don McCurdy's viewer; first white-emission defect was corrected on inspection. One viewer warning remains untriaged; runtime bike admission is not claimed.
+
+Official Blender MCP was configured and verified through real MCP initialization, 26-tool discovery and successful read-only scene queries. The live GUI was preserved. New native tool discovery may require restarting Codex. See `BLENDER_MCP_SETUP.md`.
+
+`art/ridge-run/` contains an editable candidate Blender blockout, render and separate shell/proxy/marker GLBs. Reimport succeeds; five marker coordinates round-trip within 1 mm. It is not integrated gameplay collision or extracted city art. Two generated concept boards and exact prompts are under `art/concepts/`; neither is a gameplay screenshot.
+
+### Evidence still required
+
+Natural input traversal of both routes, real pointer capture, ten full-length natural sorties, foreground CPU/GPU profiling, authored geometry collision/occlusion agreement, animation-state review, denied/failed asset browser matrix, fresh-player comprehension/replay and commercial provenance remain open. No human enjoyment, price acceptance or premium readiness is inferred from the automated passes. The PRD defines the observe → one fix → same regression → fresh-player retest loop.
+
 ## Video-driven graphics verification — September 13, 2026
 
 Reviewed `/Users/ronakchovatiya/Downloads/gamep32.mov`: 17.88-second, 3360×2100, 60 Hz video. Sampled nine frames across the clip and inspected an enlarged combat frame. The recording shows firing, movement, reload and pause. It does not measure renderer frame time.

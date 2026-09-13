@@ -1,0 +1,25 @@
+{
+  "blender": "5.2.1 LTS",
+  "exports": [
+    {
+      "file": "ridge-run-shell.candidate.glb",
+      "bytes": 114424,
+      "reimportedObjects": 35,
+      "status": "passed"
+    },
+    {
+      "file": "ridge-run-collision.candidate.glb",
+      "bytes": 26132,
+      "reimportedObjects": 18,
+      "status": "passed"
+    },
+    {
+      "file": "ridge-run-markers.candidate.glb",
+      "bytes": 860,
+      "reimportedObjects": 5,
+      "status": "passed"
+    }
+  ],
+  "render": "ridge-run-blockout.png",
+  "limits": "Authoring reimport only; no runtime collision or performance validation"
+}

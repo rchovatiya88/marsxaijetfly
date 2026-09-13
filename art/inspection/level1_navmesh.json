@@ -1,0 +1,28 @@
+{
+  "source": "public\\models\\level1_navmesh.glb",
+  "bytes": 147084,
+  "sha256": "ca4120312f1d155ed03fb950633623444a1eee6c923f78147c03a79e51100cd4",
+  "blender": "5.2.1 LTS",
+  "objects": 1,
+  "meshes": 1,
+  "triangles": 11999,
+  "bounds": {
+    "min": [
+      -457.56671142578125,
+      -438.2882080078125,
+      -242.08143615722656
+    ],
+    "max": [
+      292.95001220703125,
+      101.63672637939453,
+      26.827442169189453
+    ]
+  },
+  "materials": [
+    "Default OBJ"
+  ],
+  "animations": [],
+  "images": [],
+  "render": "art/inspection/level1_navmesh.png",
+  "status": "imported-and-rendered"
+}

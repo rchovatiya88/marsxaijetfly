@@ -10,7 +10,14 @@ export default defineConfig(({ command }) => ({
   plugins: [{
     name: 'playable-assets-only',
     closeBundle() {
-      if (command === 'build') cpSync('public/vendor', 'dist/vendor', { recursive: true });
+      if (command === 'build') {
+        cpSync('public/vendor', 'dist/vendor', { recursive: true });
+        cpSync('public/models/enemy.glb', 'dist/models/enemy.glb', { recursive: true });
+        cpSync('public/models/avi-jetbike.glb', 'dist/models/avi-jetbike.glb');
+        cpSync('public/models/ridge-run-shell.glb', 'dist/models/ridge-run-shell.glb');
+        cpSync('public/models/level1-stream', 'dist/models/level1-stream', { recursive: true });
+        cpSync('public/mission', 'dist/mission', { recursive: true });
+      }
     }
   }, {
     name: 'aframe-three-runtime',

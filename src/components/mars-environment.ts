@@ -103,6 +103,9 @@ export default function initializeMarsEnvironment(): void {
           }`
       });
       const sky=mesh(new THREE.SphereGeometry(450,32,16),skyMaterial);sky.renderOrder=-10;
+      // Atmosphere remains visible when authored GLB terrain replaces fallback ground.
+      this.sky = sky;
+      this.el.sceneEl.object3D.add(sky);
       // Baked contact shading gives the bike altitude cues without realtime shadow maps.
       const shadowCanvas=document.createElement('canvas');shadowCanvas.width=shadowCanvas.height=64;
       const sc=shadowCanvas.getContext('2d')!,gradient=sc.createRadialGradient(32,32,1,32,32,31);
@@ -117,7 +120,7 @@ export default function initializeMarsEnvironment(): void {
       const pos=this.player?.object3D?.position;
       if(pos){this.shadow.position.set(pos.x,0.01,pos.z);this.shadow.scale.setScalar(1+pos.y*.06);this.shadow.material.opacity=Math.max(.12,.8-pos.y*.025);}
     },
-    remove:function(this:any){this.el.removeObject3D('mesh');this.resources.forEach((r:any)=>r.dispose());}
+    remove:function(this:any){this.sky?.parent?.remove(this.sky);this.el.removeObject3D('mesh');this.resources.forEach((r:any)=>r.dispose());}
   });
 }
 initializeMarsEnvironment();

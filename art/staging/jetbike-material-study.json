@@ -1,0 +1,24 @@
+{
+  "source": "public\\models\\jetbickavi.glb",
+  "source_sha256": "1cf86c47785aab014e664bef994626a42e79b821f72e1ff02f954c2dda62ec37",
+  "output": "art\\staging\\jetbike-material-study.glb",
+  "output_sha256": "8fcdb2be9dc0e80c3d4a82dfee76bea723fb266fef4f3facfa1d2d508f82899c",
+  "bytes": 1567028,
+  "blender": "5.2.1 LTS",
+  "repairs": [
+    {
+      "material": "phong1.001",
+      "missing_image": "Emissive_03"
+    },
+    {
+      "material": "phong1.001",
+      "missing_image": "PolygonScifi_04_A"
+    },
+    {
+      "material": "PolygonScifiWorlds_Mat_01_A.001",
+      "missing_image": "Emissive_03"
+    }
+  ],
+  "status": "material replacement study; not recovered original textures; not runtime admitted",
+  "license": "source provenance unverified; local inspection only"
+}

@@ -1,5 +1,9 @@
 # Level and model audit
 
+Latest explicitly approved scope: full source retained in `art/full-level/full-level.blend`, with complete-layout LOD derivatives in `public/models/level1-stream/` for `?full-level`. This survey supersedes the earlier prohibition on whole-scene *inspection*, not the requirement for separately authored mission collision. It has no terrain collision or combat. Ridge Run remains the default playable mission. Player is now the newly supplied textured standalone bike plus seated AVI in `public/models/avi-jetbike.glb`; neither original was overwritten.
+
+> New direct visual evidence: all six files were imported and rendered in Blender 5.2.1 on Windows. See `ASSET_LEDGER.md` and `art/inspection/`. The level is a chasm with bridges and industrial outposts. The enemy is a spiked rock humanoid. Expanded per-object Blender triangles differ from unique source mesh counts; do not mix these metrics.
+
 September 13, 2026
 
 ## What the files actually are

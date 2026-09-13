@@ -1,5 +1,7 @@
 # Red Horizon revamp plan
 
+> Historical architecture proposal. The current decision is to retain A-Frame and build the playable Ridge Run experiment. No engine spike is scheduled without a reproducible profile implicating runtime overhead. Old payload/collision claims below predate the repaired baseline; consult `VALIDATION.md` and `RIDGE_RUN_PRD.md`.
+
 Updated 2026-09-13. This is a planning document, not a commitment to throw away the current prototype.
 
 ## Day 0 evidence now available

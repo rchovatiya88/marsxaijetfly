@@ -1,0 +1,51 @@
+{
+  "units": "metres",
+  "axes": "Y-up",
+  "markers": [
+    {
+      "id": "player_spawn",
+      "position": {
+        "x": 0,
+        "y": 3,
+        "z": 12
+      },
+      "radius": 0
+    },
+    {
+      "id": "high_gate",
+      "position": {
+        "x": -6,
+        "y": 10,
+        "z": -8
+      },
+      "radius": 2.8
+    },
+    {
+      "id": "low_gate",
+      "position": {
+        "x": 6,
+        "y": 3.5,
+        "z": -8
+      },
+      "radius": 2.8
+    },
+    {
+      "id": "warden",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": -30
+      },
+      "radius": 0
+    },
+    {
+      "id": "extraction",
+      "position": {
+        "x": 0,
+        "y": 3.5,
+        "z": -41
+      },
+      "radius": 4
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "source": "public\\models\\enemy.glb",
+  "bytes": 1054800,
+  "sha256": "16415bf5a5b8dfa0440c7689451eb68f5a4b724ab74bb862a1cec7ceb54cdb69",
+  "blender": "5.2.1 LTS",
+  "objects": 3,
+  "meshes": 2,
+  "triangles": 6000,
+  "bounds": {
+    "min": [
+      -7206.66552734375,
+      -6270.72119140625,
+      -1.0
+    ],
+    "max": [
+      7208.70556640625,
+      2915.6298828125,
+      16622.42578125
+    ]
+  },
+  "materials": [
+    "Material.001"
+  ],
+  "animations": [
+    "Baka_Dying",
+    "Baka_Idle",
+    "Baka_Punch",
+    "Baka_Run",
+    "Baka_Swipe",
+    "Baka_Walk"
+  ],
+  "images": [
+    {
+      "name": "PolygonScifiWorlds_Texture_02_A",
+      "size": [
+        256,
+        256
+      ]
+    }
+  ],
+  "render": "art/inspection/enemy.png",
+  "status": "imported-and-rendered"
+}

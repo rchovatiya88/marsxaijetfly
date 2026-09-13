@@ -5,12 +5,18 @@ import { ARENA_PROPS } from './arena-world';
 import { readSettings, saveSettings } from './settings';
 import { PlaytestPanel } from './PlaytestPanel';
 import { gameAudio } from './game-audio';
+import { RIDGE_GATES, EXTRACTION } from './mission/ridge-run';
+import './components/level-runtime';
+import './components/world-stream';
 
 declare global {
   namespace JSX { interface IntrinsicElements { 'a-scene': any; 'a-entity': any; 'a-camera': any; 'a-light': any; } }
 }
 
-type Result = { score: number; level: number; won: boolean; best: number };
+type Result = { score: number; level: number; won: boolean; best: number; mode?: string; route?: string; seconds?: number };
+const modeParams = new URLSearchParams(window.location.search);
+const fullMode = modeParams.has('full-level');
+const ridgeMode = !fullMode && (modeParams.has('ridge-run') || (!modeParams.has('arena') && !modeParams.has('playtest')));
 
 const RUNWAY_LINES = [-6, 6];
 const BEACONS = [
@@ -27,6 +33,7 @@ const HUD_SPEED_LINES = Array.from({ length: 12 }, (_, index) => index);
 export default function App(): JSX.Element {
   const sceneRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
+  const [worldReady, setWorldReady] = useState(!ridgeMode && !fullMode);
   const [started, setStarted] = useState(false);
   const [paused, setPaused] = useState(false);
   const [error, setError] = useState('');
@@ -39,6 +46,9 @@ export default function App(): JSX.Element {
   const [volume, setVolume] = useState(settings.volume);
   const [radar, setRadar] = useState<{x:number;y:number}[]>([]);
   const [telemetry, setTelemetry] = useState('');
+  const [streamInfo, setStreamInfo] = useState('Loading whole-level overview…');
+  const [objective, setObjective] = useState('Choose a gate · high left: E + Shift · low right: shield');
+  const [routeBonus, setRouteBonus] = useState('');
   useEffect(() => {
     saveSettings({sensitivity,reducedMotion,invertY,volume});
     gameAudio.setVolume(volume);
@@ -70,6 +80,13 @@ export default function App(): JSX.Element {
       scene.pause();
       if (document.pointerLockElement) document.exitPointerLock();
     };
+    const reset = () => { clearTimeout(timer); setResult(null); setMessage(''); setError(''); setStarted(false); setPaused(false); setRadar([]); };
+    const objectiveChanged = (event: any) => setObjective(event.detail.text);
+    const levelReady = (event: any) => {
+      if (event.detail.status === 'staged') return;
+      setWorldReady(true);
+      scene.querySelector('#arena-fallback')?.setAttribute('visible', !event.detail.authored);
+    };
     const failed = (event: any) => {
       // Hero GLBs are an optional art layer; their fallback must not present as
       // a level failure or interrupt an otherwise playable mission.
@@ -81,6 +98,11 @@ export default function App(): JSX.Element {
     scene.addEventListener('model-loaded', loaded);
     scene.addEventListener('mission-message', notify);
     scene.addEventListener('mission-ended', ended);
+    scene.addEventListener('mission-reset', reset);
+    scene.addEventListener('mission-objective', objectiveChanged);
+    scene.addEventListener('level-ready', levelReady);
+    const level = scene.components[fullMode ? 'world-stream' : 'level-runtime'];
+    if (level && (level.status === 'ready' || level.status === 'fallback')) levelReady({detail:{status:level.status, authored:level.status === 'ready'}});
     scene.addEventListener('model-error', failed, true);
     if (scene.hasLoaded) loaded();
     return () => {
@@ -89,6 +111,9 @@ export default function App(): JSX.Element {
       scene.removeEventListener('model-loaded', loaded);
       scene.removeEventListener('mission-message', notify);
       scene.removeEventListener('mission-ended', ended);
+      scene.removeEventListener('mission-reset', reset);
+      scene.removeEventListener('mission-objective', objectiveChanged);
+      scene.removeEventListener('level-ready', levelReady);
       scene.removeEventListener('model-error', failed, true);
     };
   }, []);
@@ -96,7 +121,7 @@ export default function App(): JSX.Element {
   useEffect(() => {
     const scene = sceneRef.current;
     const changed = () => {
-      const locked = document.pointerLockElement === document.body;
+      const locked = document.pointerLockElement === document.body || document.pointerLockElement === scene.canvas;
       const manager = scene.components['game-manager'];
       if (locked && !manager.gameOver) {
         if (!manager.gameStarted) manager.startGame();
@@ -162,6 +187,11 @@ export default function App(): JSX.Element {
       if (speedEl) speedEl.textContent = Math.round(speed).toString();
       if (altitudeEl) altitudeEl.textContent = Math.max(0, Math.round(player?.object3D?.position.y || 0)).toString();
       const manager = sceneRef.current?.components['game-manager'];
+      if (ridgeMode) {
+        const charges = (document.getElementById('jetbike') as any)?.components?.['weapon-component']?.chargedShots || 0;
+        const shield = player?.components?.['player-component']?.shield || 0;
+        setRouteBonus(charges ? `CHARGED SHOTS ${charges} · DOUBLE DAMAGE` : shield ? `SHIELD ${Math.ceil(shield)}` : 'TWIN PULSE CANNON');
+      }
       const angle = flight?.rotation?.y || 0;
       const pos = player?.object3D?.position;
       if (pos) setRadar((manager?.activeEnemies || []).map((enemy: any) => {
@@ -172,6 +202,7 @@ export default function App(): JSX.Element {
       }));
       const info = sceneRef.current?.renderer?.info;
       if (info) setTelemetry(`${info.render.calls} draws · ${info.render.triangles} triangles · ${info.memory.geometries} geometries`);
+      if (fullMode) setStreamInfo(sceneRef.current?.components?.['world-stream']?.telemetry || 'Loading whole-level overview…');
       document.documentElement.style.setProperty('--speed-intensity', Math.min(1, speed / 18).toFixed(2));
       frame = requestAnimationFrame(update);
     };
@@ -180,19 +211,22 @@ export default function App(): JSX.Element {
   }, []);
 
   const capture = () => {
-    if (!ready) return;
+    if (!ready || !worldReady) return;
+    if (sceneRef.current.components['game-manager'].gameOver) sceneRef.current.components['game-manager'].resetMission();
     gameAudio.resume();
     gameAudio.startAmbient();
     const player = document.getElementById('player');
     player?.setAttribute('fly-controls', `enabled: true; dragToLook: false; lookSensitivity: ${sensitivity}; invertY: ${invertY}`);
     try {
-      const request = document.body.requestPointerLock();
+      const request = (sceneRef.current.canvas || document.body).requestPointerLock();
       (request as any)?.catch(() => setError('Mouse capture was blocked. Click again to retry.'));
     } catch { setError('This browser could not capture the mouse. Try desktop Chrome or Firefox.'); }
   };
 
   const cursorFlight = () => {
+    if (!ready || !worldReady) return;
     const scene = sceneRef.current;
+    if (scene.components['game-manager'].gameOver) scene.components['game-manager'].resetMission();
     gameAudio.resume();
     gameAudio.startAmbient();
     document.getElementById('player')?.setAttribute('fly-controls', `enabled: true; dragToLook: true; lookSensitivity: ${sensitivity}; invertY: ${invertY}`);
@@ -202,9 +236,10 @@ export default function App(): JSX.Element {
   };
 
   const arena = useMemo(() => (
-    <a-scene data-playtest={new URLSearchParams(window.location.search).has('playtest') ? 'true' : undefined} ref={sceneRef} game-manager="enemyCount: 2; level: 1; spawnRadius: 16; maxActiveEnemies: 4; enemySpawnInterval: 1200" gltf-model="dracoDecoderPath: /vendor/draco/" vr-mode-ui="enabled: false" renderer="maxCanvasWidth: 1280; maxCanvasHeight: 720; antialias: false; colorManagement: true; toneMapping: ACESFilmic; exposure: 1.15; precision: medium" background="color: #130b14" fog="type: exponential; color: #a06951; density: 0.009">
+    <a-scene world-stream={fullMode ? '' : undefined} level-runtime={ridgeMode ? '' : undefined} ridge-run={ridgeMode ? '' : undefined} data-playtest={new URLSearchParams(window.location.search).has('playtest') ? 'true' : undefined} ref={sceneRef} game-manager="enemyCount: 2; level: 1; spawnRadius: 16; maxActiveEnemies: 4; enemySpawnInterval: 1200" gltf-model="dracoDecoderPath: vendor/draco/" vr-mode-ui="enabled: false" renderer="maxCanvasWidth: 1280; maxCanvasHeight: 720; antialias: false; colorManagement: true; toneMapping: ACESFilmic; exposure: 1.15; precision: medium" background="color: #130b14" fog={fullMode ? 'type: exponential; color: #36303c; density: 0.002' : 'type: exponential; color: #a06951; density: 0.009'}>
       <a-entity id="level" visible="false" />
       <a-entity star-field="starCount: 180; starSize: 0.15; width: 260; height: 80; depth: 220; color: #ffe2c2; speed: 0.01" position="0 95 -70" />
+      <a-entity id="arena-fallback">
       <a-entity mars-environment="" />
       {RUNWAY_LINES.map(x => <a-entity key={`runway-${x}`} geometry="primitive: box; width: 0.14; height: 0.08; depth: 96" position={`${x} 0.05 -19`} material="shader: flat; color: #dbb895; opacity: 0.18; transparent: true" />)}
       {[-26, 26].map(x => <a-entity key={`wall-${x}`} geometry="primitive: box; width: 0.35; height: 2.2; depth: 70" position={`${x} 1 -10`} material="shader: flat; color: #102a2e; opacity: 0.72; transparent: true" />)}
@@ -215,14 +250,20 @@ export default function App(): JSX.Element {
       {ARENA_PROPS.map(prop => <a-entity key={prop.id} id={prop.id} class="obstacle" position={prop.position} geometry={prop.geometry} material={prop.material} />)}
       <a-entity geometry="primitive: box; width: 52; height: 0.12; depth: 0.4" position="0 0.28 25" material="shader: flat; color: #ff8b62; opacity: 0.45; transparent: true" />
       <a-entity geometry="primitive: box; width: 52; height: 0.12; depth: 0.4" position="0 0.28 -49" material="shader: flat; color: #ff8b62; opacity: 0.45; transparent: true" />
-      <a-entity geometry="primitive: torus; radius: 7.5; radiusTubular: 0.12; segmentsRadial: 8; segmentsTubular: 48" position="0 7.6 -26" material="shader: flat; color: #7dffe9" />
-      <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" position="-15 4.6 -30" material="shader: flat; color: #ffb174" />
-      <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" position="15 4.6 -30" material="shader: flat; color: #ffb174" />
+      </a-entity>
+      {ridgeMode ? <>
+        {RIDGE_GATES.map(gate => <a-entity key={gate.id} data-ridge-gate={gate.id} position={`${gate.position.x} ${gate.position.y} ${gate.position.z}`} geometry={`primitive: torus; radius: ${gate.radius}; radiusTubular: 0.16; segmentsRadial: 8; segmentsTubular: 40`} material={`shader: flat; color: ${gate.color}`} />)}
+        <a-entity id="ridge-extraction" visible="false" position={`${EXTRACTION.x} ${EXTRACTION.y} ${EXTRACTION.z}`} geometry="primitive: torus; radius: 3; radiusTubular: 0.2; segmentsRadial: 8; segmentsTubular: 40" material="shader: flat; color: #ffe29a" />
+      </> : fullMode ? null : <>
+        <a-entity geometry="primitive: torus; radius: 7.5; radiusTubular: 0.12; segmentsRadial: 8; segmentsTubular: 48" position="0 7.6 -26" material="shader: flat; color: #7dffe9" />
+        <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" position="-15 4.6 -30" material="shader: flat; color: #ffb174" />
+        <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" position="15 4.6 -30" material="shader: flat; color: #ffb174" />
+      </>}
       <a-entity geometry="primitive: sphere; radius: 12; segmentsWidth: 16; segmentsHeight: 8" position="-95 45 -170" material="shader: flat; color: #ffcf94; fog: false" />
       <a-entity geometry="primitive: ring; radiusInner: 14; radiusOuter: 18; segmentsTheta: 48" position="-95 45 -169" material="shader: flat; color: #ffb56b; opacity: 0.16; transparent: true; side: double" />
       <a-entity id="player" position="0 3 12" player-component="" fly-controls="enabled: false; lookSensitivity: 0.5">
         <a-entity id="camera-rig" position="0 2 8"><a-camera id="camera" position="0 0 0" look-controls="enabled: false" wasd-controls="enabled: false" /></a-entity>
-        <a-entity id="jetbike" weapon-component="cooldown: 0.16; accuracy: 1; thrusterParticles: false" />
+        <a-entity id="jetbike" hero-model="src: models/avi-jetbike.glb; targetHeight: 2.2; heading: 180; animation: none" weapon-component="cooldown: 0.16; accuracy: 1; thrusterParticles: false" />
         <a-entity id="player-hitbox" geometry="primitive: box; width: 1.2; height: 1.8; depth: 1.2" material="visible: false" />
       </a-entity>
       <a-light type="hemisphere" color="#bfd1f0" ground-color="#5b3030" intensity="1.3" />
@@ -237,7 +278,9 @@ export default function App(): JSX.Element {
       <div className="speed-lines" aria-hidden="true">{HUD_SPEED_LINES.map(index => <i key={index} style={{ '--i': index, '--side': index % 2 ? 1 : -1, '--lane': index % 4 } as React.CSSProperties} />)}</div>
       <div id="threat-warning">INCOMING · STRAFE</div>
       <div id="crosshair"><span>+</span></div>
-      <div id="score-ui"><small>OPERATION / RED HORIZON</small><div>WAVE <span id="level-value">1</span> / 3</div><div>SCORE <span id="score-value">0</span></div><div>HOSTILES <span id="enemies-value">3</span></div><div id="combo-value">CHAIN ×1</div></div>
+      <div id="score-ui"><small>OPERATION / RED HORIZON</small><div>{fullMode ? 'FULL LEVEL · SURVEY' : ridgeMode ? 'RIDGE RUN' : <>WAVE <span id="level-value">1</span> / 3</>}</div><div>SCORE <span id="score-value">0</span></div><div>HOSTILES <span id="enemies-value">0</span></div><div id="combo-value">CHAIN ×1</div></div>
+      {fullMode && <div className="ridge-objective"><strong>Whole-level survey · no terrain collision or combat</strong><small>{streamInfo} · {telemetry}</small></div>}
+      {ridgeMode && <div className="ridge-objective"><strong>{objective}</strong><small>{routeBonus}</small></div>}
       <div className="flight-readout"><span id="speed-value">0</span> M/S <b> / </b><span id="altitude-value">0</span> M ALT</div>
       <div className="hull-label">HULL INTEGRITY</div><div id="health-display"><div id="health-bar" /></div>
       <div id="ammo-display">30 / ∞</div>
@@ -251,13 +294,15 @@ export default function App(): JSX.Element {
       <div className="eyebrow">MARS / FLIGHT DIVISION <span>PLAYABLE PROTOTYPE 01</span></div>
       <p className="coordinates">25.4° N &nbsp; 137.8° E &nbsp; / &nbsp; SIGNAL ACTIVE</p>
       <h1>{result ? (result.won ? 'SECTOR\nSECURED.' : 'SIGNAL\nLOST.') : paused && started ? 'HOLD\nPOSITION.' : 'RED\nHORIZON.'}</h1>
-      <p className="menu-description">{result ? `Score ${result.score} · Best ${result.best} · Wave ${result.level}/3` : 'Pilot a combat jetbike over the red frontier. Clear three waves. Chain eliminations within six seconds to multiply your score.'}</p>
-      <div className="mission-details"><div><small>MISSION</small><strong>Three-wave sortie</strong></div><div><small>LOADOUT</small><strong>Twin pulse cannon</strong></div><div><small>FLIGHT</small><strong>Mouse + keyboard</strong></div></div>
+      <p className="menu-description">{result ? `Score ${result.score} · Best ${result.best} · ${ridgeMode ? `${result.route || 'No'} route · ${result.seconds}s` : `Wave ${result.level}/3`}` : fullMode ? 'Explore the complete original level layout. Coarse terrain stays visible; nearby high-detail regions load on demand and unload when you leave. This experimental survey has no terrain collision, enemies or mission objectives. Use E/Q to inspect different elevations.' : ridgeMode ? 'A short route experiment. Boost through the high cyan gate for three double-damage shots, or take the low amber gate for 30 shield. Defeat the Warden, then hold inside the gold extraction ring.' : 'Pilot a combat jetbike over the red frontier. Clear three waves. Chain eliminations within six seconds to multiply your score.'}</p>
+      <div className="mission-details"><div><small>MISSION</small><strong>{fullMode ? 'Full-level survey' : ridgeMode ? 'Ridge Run' : 'Three-wave sortie'}</strong></div><div><small>LOADOUT</small><strong>Twin pulse cannon</strong></div><div><small>FLIGHT</small><strong>Mouse + keyboard</strong></div></div>
+      {!started && <a className="mode-link" href={ridgeMode ? '?arena' : '?ridge-run'}>{ridgeMode ? 'Switch to three-wave combat' : 'Fly Ridge Run'}</a>}
+      {!started && !fullMode && <a className="mode-link" href="?full-level">Explore full-level LOD survey</a>}
       <div className="settings"><label>Mouse sensitivity <input aria-label="Mouse sensitivity" type="range" min="0.1" max="1.5" step="0.1" value={sensitivity} onChange={e => setSensitivity(Number(e.target.value))} /></label><label><input type="checkbox" checked={reducedMotion} onChange={e => setReducedMotion(e.target.checked)} /> Reduce screen effects</label><label><input type="checkbox" checked={invertY} onChange={e => setInvertY(e.target.checked)} /> Invert vertical aim</label><label>Audio volume <input aria-label="Audio volume" type="range" min="0" max="1" step="0.05" value={volume} onChange={e => setVolume(Number(e.target.value))} /></label></div>
       {error && <p role="alert" className="error">{error}</p>}
-      <button id="start-button" disabled={!ready} onClick={result ? () => window.location.reload() : capture}>{result ? 'FLY AGAIN ↗' : !ready ? 'PREPARING FLIGHT…' : started ? 'RESUME FLIGHT ↗' : 'LAUNCH SORTIE ↗'}</button>
-      {!result && ready && <button className="cursor-button" onClick={cursorFlight}>Play with cursor aim (no mouse capture)</button>}
-      <p className="menu-controls">WASD move &nbsp; / &nbsp; E rise · Q descend &nbsp; / &nbsp; Shift boost<br />Mouse aim · Hold click fire &nbsp; / &nbsp; R reload &nbsp; / &nbsp; Esc pause</p>
+      <button id="start-button" disabled={!ready || !worldReady} onClick={capture}>{result ? 'FLY AGAIN ↗' : !ready || !worldReady ? 'PREPARING FLIGHT…' : started ? 'RESUME FLIGHT ↗' : 'LAUNCH SORTIE ↗'}</button>
+      {ready && worldReady && <button className="cursor-button" onClick={cursorFlight}>{result ? 'Fly again with drag aim' : 'Play with drag aim (no mouse capture)'}</button>}
+      <p className="menu-controls">WASD move &nbsp; / &nbsp; E rise · Q descend &nbsp; / &nbsp; Shift boost<br />Captured mouse: move to aim · Drag mode: hold right to aim or left to aim + fire<br />R reload &nbsp; / &nbsp; Esc pause</p>
     </main></div>}
     <PlaytestPanel sceneRef={sceneRef} telemetry={telemetry} launch={cursorFlight} />
     {arena}

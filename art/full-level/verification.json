@@ -1,0 +1,426 @@
+{
+  "blender": "5.2.1 LTS",
+  "sourceSha256": "44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db",
+  "sourcePreserved": true,
+  "sourceTriangles": 1169700,
+  "highTriangles": 527066,
+  "lowTriangles": 172065,
+  "images": [
+    {
+      "name": "Emissive_01",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "Emissive_02",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "Emissive_03",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "Emissive_04",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "Emissive_Mask",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_01_A",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_01_B",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_02_A",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_02_B",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_03_A",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_03_A.001",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_03_C",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_04_B",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_A_01_Normal",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_A_01_Normal_8k",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "outputSize": [
+        512,
+        512
+      ]
+    },
+    {
+      "name": "Viewer Node",
+      "sourceSize": [
+        256,
+        256
+      ],
+      "outputSize": [
+        256,
+        256
+      ]
+    }
+  ],
+  "reimports": [
+    {
+      "url": "models/level1-stream/q00-lod0.glb",
+      "meshes": 1,
+      "triangles": 42459,
+      "status": "reimport-passed"
+    },
+    {
+      "url": "models/level1-stream/q00-lod1.glb",
+      "meshes": 1,
+      "triangles": 6335,
+      "status": "reimport-passed"
+    },
+    {
+      "url": "models/level1-stream/q01-lod0.glb",
+      "meshes": 1,
+      "triangles": 87578,
+      "status": "reimport-passed"
+    },
+    {
+      "url": "models/level1-stream/q01-lod1.glb",
+      "meshes": 1,
+      "triangles": 13000,
+      "status": "reimport-passed"
+    },
+    {
+      "url": "models/level1-stream/q10-lod0.glb",
+      "meshes": 1,
+      "triangles": 197159,
+      "status": "reimport-passed"
+    },
+    {
+      "url": "models/level1-stream/q10-lod1.glb",
+      "meshes": 1,
+      "triangles": 121931,
+      "status": "reimport-passed"
+    },
+    {
+      "url": "models/level1-stream/q11-lod0.glb",
+      "meshes": 1,
+      "triangles": 199870,
+      "status": "reimport-passed"
+    },
+    {
+      "url": "models/level1-stream/q11-lod1.glb",
+      "meshes": 1,
+      "triangles": 30799,
+      "status": "reimport-passed"
+    }
+  ],
+  "manifest": {
+    "version": 1,
+    "units": "metres",
+    "mode": "experimental-whole-level-survey",
+    "bounds": {
+      "min": {
+        "x": -40.18010330200195,
+        "y": -36.99879455566406,
+        "z": -35.17940139770508
+      },
+      "max": {
+        "x": 40.540916442871094,
+        "y": 17.607742309570312,
+        "z": 36.37959289550781
+      }
+    },
+    "spawn": {
+      "x": 0,
+      "y": 24.607742309570312,
+      "z": 44.37959289550781
+    },
+    "recommendedSurveySpawn": {
+      "x": 0,
+      "y": 24.607742309570312,
+      "z": 44.37959289550781
+    },
+    "chunks": [
+      {
+        "id": "q00",
+        "bounds": {
+          "min": {
+            "x": -40.18010330200195,
+            "y": -26.202533721923828,
+            "z": -32.801239013671875
+          },
+          "max": {
+            "x": 3.830409049987793,
+            "y": 17.607742309570312,
+            "z": 6.387739181518555
+          }
+        },
+        "center": {
+          "x": -18.17485,
+          "y": -4.2974,
+          "z": -13.20675
+        },
+        "radius": 36.7152616361605,
+        "lods": [
+          {
+            "url": "models/level1-stream/q00-lod0.glb",
+            "triangles": 42459,
+            "bytes": 1383508
+          },
+          {
+            "url": "models/level1-stream/q00-lod1.glb",
+            "triangles": 6335,
+            "bytes": 947820
+          }
+        ],
+        "sourceTriangles": 42459
+      },
+      {
+        "id": "q01",
+        "bounds": {
+          "min": {
+            "x": -36.48307800292969,
+            "y": -36.99879455566406,
+            "z": -14.568614959716797
+          },
+          "max": {
+            "x": 11.856375694274902,
+            "y": 0.6885395050048828,
+            "z": 33.62607955932617
+          }
+        },
+        "center": {
+          "x": -12.31335,
+          "y": -18.15513,
+          "z": 9.52873
+        },
+        "radius": 38.98642827132884,
+        "lods": [
+          {
+            "url": "models/level1-stream/q01-lod0.glb",
+            "triangles": 87578,
+            "bytes": 1687196
+          },
+          {
+            "url": "models/level1-stream/q01-lod1.glb",
+            "triangles": 13000,
+            "bytes": 1013820
+          }
+        ],
+        "sourceTriangles": 87578
+      },
+      {
+        "id": "q10",
+        "bounds": {
+          "min": {
+            "x": -3.2007393836975098,
+            "y": -29.487388610839844,
+            "z": -35.17940139770508
+          },
+          "max": {
+            "x": 40.540916442871094,
+            "y": 6.01269006729126,
+            "z": 7.080583095550537
+          }
+        },
+        "center": {
+          "x": 18.67009,
+          "y": -11.73735,
+          "z": -14.04941
+        },
+        "radius": 35.2118388641009,
+        "lods": [
+          {
+            "url": "models/level1-stream/q10-lod0.glb",
+            "triangles": 197159,
+            "bytes": 4448756
+          },
+          {
+            "url": "models/level1-stream/q10-lod1.glb",
+            "triangles": 121931,
+            "bytes": 3813232
+          }
+        ],
+        "sourceTriangles": 831285
+      },
+      {
+        "id": "q11",
+        "bounds": {
+          "min": {
+            "x": -5.656804084777832,
+            "y": -32.00107955932617,
+            "z": -6.649476051330566
+          },
+          "max": {
+            "x": 39.604862213134766,
+            "y": 0.6899487972259521,
+            "z": 36.37959289550781
+          }
+        },
+        "center": {
+          "x": 16.97403,
+          "y": -15.65557,
+          "z": 14.86506
+        },
+        "radius": 35.24493761437813,
+        "lods": [
+          {
+            "url": "models/level1-stream/q11-lod0.glb",
+            "triangles": 199870,
+            "bytes": 3724340
+          },
+          {
+            "url": "models/level1-stream/q11-lod1.glb",
+            "triangles": 30799,
+            "bytes": 2744904
+          }
+        ],
+        "sourceTriangles": 208378
+      }
+    ],
+    "normalization": {
+      "uniformScale": 0.1,
+      "sourceBlenderBounds": {
+        "min": [
+          -534.4024047851562,
+          -541.92822265625,
+          -386.2936706542969
+        ],
+        "max": [
+          312.2490539550781,
+          219.5161895751953,
+          186.05215454101562
+        ]
+      },
+      "sourceBlenderHorizontalCenter": [
+        -111.07667541503906,
+        -161.20602416992188
+      ],
+      "runtimeAxes": "Y-up",
+      "globalCoordinates": true
+    },
+    "sourceSha256": "44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db",
+    "collision": "none; survey flight only",
+    "lodPolicy": "index 0 capped at 200k triangles per quadrant; index 1 decimated target 15% original; replace, never overlay",
+    "texturePolicy": "source valid materials retained; embedded images limited to 1024; GLBs duplicate image bytes"
+  }
+}

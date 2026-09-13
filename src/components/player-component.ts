@@ -264,7 +264,9 @@ export default function initializePlayerComponent(): void {
             try {
                 if (this.isDead) return;
                 const now = this.el.sceneEl.components['game-manager'].elapsed;
-                this.health -= amount;
+                const absorbed = Math.min(this.shield || 0, amount);
+                this.shield = (this.shield || 0) - absorbed;
+                this.health -= amount - absorbed;
                 gameAudio.pulse('damage');
                 this.createDamageEffect();
                 if (this.health <= 0) {
@@ -282,7 +284,8 @@ export default function initializePlayerComponent(): void {
                 const damageOverlay = document.getElementById('damage-overlay');
                 if (damageOverlay) {
                     damageOverlay.style.backgroundColor = 'rgba(0, 255, 255, 0.3)'; // Cyan for space theme
-                    setTimeout(() => {
+                    clearTimeout(this.damageTimer);
+                    this.damageTimer = setTimeout(() => {
                         damageOverlay.style.backgroundColor = 'rgba(0, 255, 255, 0)';
                     }, 100);
                 }
@@ -295,8 +298,6 @@ export default function initializePlayerComponent(): void {
                 if (this.isDead) return;
                 this.isDead = true;
                 console.log('Player died');
-                document.removeEventListener('keydown', this.onKeyDown);
-                document.removeEventListener('keyup', this.onKeyUp);
                 
                 // The result overlay owns defeat feedback. Do not allocate a particle cloud
                 // that can never finish once mission-ended pauses the scene.
@@ -310,6 +311,22 @@ export default function initializePlayerComponent(): void {
             } catch (error) {
                 console.error('Error handling player death:', error);
             }
+        },
+        resetMission: function(this: any): void {
+            clearTimeout(this.damageTimer);
+            this.health = this.maxHealth;
+            this.shield = 0;
+            this.isDead = false;
+            this.lastDamageTime = 0;
+            this.velocity.set(0, 0, 0);
+            this.isSprinting = false;
+            this.footstepTime = 0;
+            this.footstepInterval = 0.5;
+            Object.keys(this.keys).forEach(key => { this.keys[key] = false; });
+            this.el.querySelector('#jetbike')?.setAttribute('visible', true);
+            const overlay = document.getElementById('damage-overlay');
+            if (overlay) overlay.style.backgroundColor = 'transparent';
+            this.updateHealthUI();
         },
         tick: function(this: any, time: number, delta: number): void {
             try {
@@ -331,6 +348,7 @@ export default function initializePlayerComponent(): void {
         },
         remove: function(this: any): void {
             try {
+                clearTimeout(this.damageTimer);
                 document.removeEventListener('keydown', this.onKeyDown);
                 document.removeEventListener('keyup', this.onKeyUp);
                 if (document.pointerLockElement) {

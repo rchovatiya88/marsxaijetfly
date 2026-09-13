@@ -81,6 +81,21 @@ export default function initializeWeaponComponent(): void {
                 console.error('Error initializing hover bike component:', error);
             }
         },
+        resetMission: function(this: any): void {
+            this.pause();
+            clearTimeout(this.reloadTimer);
+            this.isReloading = false;
+            this.reloadRemaining = 0;
+            this.ammoInClip = this.data.clipSize;
+            this.lastShot = -10000;
+            this.shotClock = 0;
+            this.chargedShots = 0;
+            this.hoverTime = 0;
+            this.boltIndex = 0;
+            this.boltPool?.forEach((item: any) => { item.remaining = 0; item.mesh.visible = false; });
+            document.querySelectorAll('.shot-streak').forEach(el => el.remove());
+            this.updateAmmoDisplay();
+        },
         createHoverBikeModel: function(this: any): void {
             try {
                 // Remove any existing model
@@ -93,6 +108,7 @@ export default function initializeWeaponComponent(): void {
                 const bikeEntity = document.createElement('a-entity');
                 bikeEntity.id = 'hover-bike-model';
                 const group = new THREE.Group();
+                group.userData.heroFallback = true;
                 this.bikeResources = [];
                 const part = (geometry: THREE.BufferGeometry, color: string, x: number, y: number, z: number, emissive = false) => {
                     const material = new THREE.MeshStandardMaterial({ color: new THREE.Color(color).convertSRGBToLinear(), roughness: 0.45, metalness: 0.5,
@@ -178,6 +194,9 @@ export default function initializeWeaponComponent(): void {
         onMouseDown: function(this: any, event: MouseEvent): void {
             try {
                 if (!this.el.sceneEl.isPlaying) return;
+                const canvas = this.el.sceneEl.canvas;
+                const locked = document.pointerLockElement === document.body || (canvas && document.pointerLockElement === canvas);
+                if (!locked && event.target !== canvas) return;
                 if (event.button !== 0) return;
                 this.mouseDown = true;
                 if (this.data.automatic) {
@@ -267,6 +286,7 @@ export default function initializeWeaponComponent(): void {
         createMuzzleFlash: function(this: any): void {
             try {
                 const flash = document.createElement('a-entity');
+                flash.setAttribute('data-mission-effect', '');
                 const worldPosition = new THREE.Vector3();
                 this.el.object3D.getWorldPosition(worldPosition);
                 
@@ -339,6 +359,7 @@ export default function initializeWeaponComponent(): void {
         createHitEffect: function(this: any, position: THREE.Vector3): void {
             try {
                 const hitEffect = document.createElement('a-entity');
+                hitEffect.setAttribute('data-mission-effect', '');
                 hitEffect.setAttribute('position', position);
                 hitEffect.setAttribute('light', {
                     type: 'point',
@@ -376,6 +397,7 @@ export default function initializeWeaponComponent(): void {
         createImpactEffect: function(this: any, position: THREE.Vector3, normal: THREE.Vector3): void {
             try {
                 const impactEffect = document.createElement('a-entity');
+                impactEffect.setAttribute('data-mission-effect', '');
                 impactEffect.setAttribute('position', position);
                 const orientationQuaternion = new THREE.Quaternion().setFromUnitVectors(
                     new THREE.Vector3(0, 1, 0),
@@ -424,6 +446,9 @@ export default function initializeWeaponComponent(): void {
 
                 this.lastShot = now;
                 this.ammoInClip--;
+                const charged = this.chargedShots > 0;
+                const damage = this.data.damage * (charged ? 2 : 1);
+                if (charged) this.chargedShots--;
                 this.updateAmmoDisplay();
                 this.applyWeaponFeedback();
                 this.createHudBolt();
@@ -460,14 +485,14 @@ export default function initializeWeaponComponent(): void {
                 this.createWeaponBolts(muzzleBlock ? muzzle.clone().lerp(tracerEnd, muzzleBlock.t) : tracerEnd, direction, visibleHit && !muzzleBlock ? '#fff0a0' : '#78ffe1');
 
                 if (visibleHit && !muzzleBlock) {
-                    enemyHit.enemy.takeDamage(this.data.damage, enemyHit.point);
+                    enemyHit.enemy.takeDamage(damage, enemyHit.point);
                     gameAudio.pulse('hit');
                     this.showHitMarker();
                 } else if (environmentHit) {
                     this.createImpactEffect(environmentHit.point, environmentHit.normal);
                 }
 
-                this.el.emit('weapon-shot', { damage: this.data.damage });
+                this.el.emit('weapon-shot', { damage });
                 if (this.ammoInClip <= 0) this.reload();
             } catch (error) {
                 console.error('Error shooting weapon:', error);

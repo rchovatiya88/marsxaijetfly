@@ -71,3 +71,6 @@ button:disabled { opacity: .45; cursor: wait; }
 .playtest-panel pre { white-space:pre-wrap; }
 
 .cockpit-glass::before, .cockpit-glass::after { box-shadow:none; }
+.ridge-objective { position:absolute; top:130px; left:24px; right:24px; text-align:center; font-size:14px; color:#fff0cf; text-shadow:0 2px 6px #000; }
+.ridge-objective small { display:block; margin-top:8px; color:#78ffe1; }
+.mode-link { color:#78ffe1; margin-bottom:18px; font-size:13px; }

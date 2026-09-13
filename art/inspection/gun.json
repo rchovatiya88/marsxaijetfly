@@ -1,0 +1,50 @@
+{
+  "source": "public\\models\\gun.glb",
+  "bytes": 5117140,
+  "sha256": "0b03e55e9e4d77127bf3cce5aada42a5665908c319b7fe6ea9c3b311c2141fdc",
+  "blender": "5.2.1 LTS",
+  "objects": 1,
+  "meshes": 1,
+  "triangles": 1221,
+  "bounds": {
+    "min": [
+      -0.03780541941523552,
+      -0.4314099848270416,
+      -0.21619223058223724
+    ],
+    "max": [
+      0.046990446746349335,
+      0.5240306854248047,
+      0.11885066330432892
+    ]
+  },
+  "materials": [
+    "PolygonScifiWorlds_Mat_01_C"
+  ],
+  "animations": [],
+  "images": [
+    {
+      "name": "Emissive_01",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_01_C",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "PolygonScifiWorlds_Texture_A_01_Normal",
+      "size": [
+        4096,
+        4096
+      ]
+    }
+  ],
+  "render": "art/inspection/gun.png",
+  "status": "imported-and-rendered"
+}
