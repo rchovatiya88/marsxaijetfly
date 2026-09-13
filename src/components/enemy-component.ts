@@ -8,6 +8,7 @@
 import * as THREE from 'three';
 import * as YUKA from 'yuka';
 import AFRAME_EXPORT from './aframe-export';
+import { gameAudio } from '../game-audio';
 
 const AFRAME = AFRAME_EXPORT;
 
@@ -136,7 +137,7 @@ export default function initializeEnemyComponent(): void {
             },
             enemyShoot: function(this: any): boolean {
                 try {
-                    const now = performance.now();
+                    const now = this.el.sceneEl.components['game-manager'].elapsed;
                     const timeSinceLastShot = now - this.lastEnemyShot;
 
                     if (timeSinceLastShot < this.data.weaponCooldown * 1000) {
@@ -279,23 +280,63 @@ export default function initializeEnemyComponent(): void {
             },
             createEnemyModel: function(this: any): void {
                 try {
-                    // Create the enemy model using the GLTF model
                     const enemyEntity = document.createElement('a-entity');
-                    enemyEntity.setAttribute('gltf-model', '/models/enemy.glb');
-                    enemyEntity.setAttribute('position', '0 0 0');
-                    enemyEntity.setAttribute('rotation', '0 0 0');
-                    enemyEntity.setAttribute('scale', '.0001 .0001 .0001'); // Adjust scale as needed
                     enemyEntity.setAttribute('class', 'enemy-body');
+                    enemyEntity.setAttribute('position', `0 ${this.hitboxSize.height / 2} 0`);
+
+                    const colorMap: Record<string, string> = {
+                        red: '#ff4f45',
+                        blue: '#54b9ff',
+                        purple: '#b072ff',
+                        green: '#7dff9b'
+                    };
+                    const color = colorMap[this.data.enemyColor] || this.data.enemyColor || '#ff4f45';
+                    const group = new THREE.Group();
+                    const bodyMaterial = new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0.15 });
+                    const glowMaterial = new THREE.MeshStandardMaterial({ color: '#f7fff2', emissive: color, emissiveIntensity: 1.8 });
+                    const body = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.45, 0.75), bodyMaterial);
+                    const head = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.45, 0.62), bodyMaterial);
+                    head.position.y = 0.95;
+                    const core = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.14, 0.08), glowMaterial);
+                    core.position.set(0, 0.25, -0.39);
+                    const shoulder = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.22, 0.38), bodyMaterial);
+                    shoulder.position.y = 0.35;
+                    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.1, 0.08), glowMaterial);
+                    visor.position.set(0, 1.02, -0.35);
+                    const halo = new THREE.Mesh(
+                        new THREE.TorusGeometry(0.82, 0.035, 6, 28),
+                        new THREE.MeshBasicMaterial({
+                            color,
+                            transparent: true,
+                            opacity: 0.82,
+                            blending: THREE.AdditiveBlending,
+                            depthWrite: false
+                        })
+                    );
+                    halo.position.y = 1.2;
+                    halo.rotation.x = Math.PI / 2;
+                    group.add(body, head, core, shoulder, visor, halo);
+                    enemyEntity.setObject3D('mesh', group);
+                    this.enemyResources = [
+                        body.geometry,
+                        head.geometry,
+                        core.geometry,
+                        shoulder.geometry,
+                        visor.geometry,
+                        halo.geometry,
+                        bodyMaterial,
+                        glowMaterial,
+                        halo.material
+                    ];
                     this.el.appendChild(enemyEntity);
 
-                    // Create hitbox for collision detection
                     const hitboxHelper = document.createElement('a-box');
                     hitboxHelper.setAttribute('width', this.hitboxSize.width);
                     hitboxHelper.setAttribute('height', this.hitboxSize.height);
                     hitboxHelper.setAttribute('depth', this.hitboxSize.depth);
-                    hitboxHelper.setAttribute('position', `0 ${this.hitboxSize.height/2} 0`);
-                    hitboxHelper.setAttribute('opacity', '0.0');
-                    hitboxHelper.setAttribute('color', '#00FF00');
+                    hitboxHelper.setAttribute('position', `0 ${this.hitboxSize.height / 2} 0`);
+                    hitboxHelper.setAttribute('opacity', '0');
+                    hitboxHelper.setAttribute('material', 'visible: false');
                     hitboxHelper.setAttribute('class', 'hitbox-helper');
                     this.el.appendChild(hitboxHelper);
                 } catch (error) {
@@ -338,7 +379,7 @@ export default function initializeEnemyComponent(): void {
             },
             attackPlayer: function(this: any): void {
                 try {
-                    const now = performance.now();
+                    const now = this.el.sceneEl.components['game-manager'].elapsed;
                     if (now - this.lastAttack < this.data.attackRate * 1000) {
                         return;
                     }
@@ -405,17 +446,11 @@ export default function initializeEnemyComponent(): void {
                 try {
                     if (this.isDead) return;
 
-                    const oldHealth = this.health;
                     this.health = Math.max(0, this.health - amount);
                     this.lastDamageTime = performance.now();
 
-                    console.log(`ENEMY HIT! Damage: ${amount}, Health: ${oldHealth} -> ${this.health}, Max: ${this.maxHealth}`);
-
                     if (hitPosition) {
                         this.createHitEffect(hitPosition);
-                        this.showDamageNumber(amount, hitPosition);
-                        
-                        // Enemy hit visual effect only
                     }
 
                     this.updateHealthBar();
@@ -436,16 +471,9 @@ export default function initializeEnemyComponent(): void {
                     }
 
                     if (this.health <= 0) {
-                        console.log('ENEMY KILLED! Health reached zero.');
-                        
-                        // Enemy death visual effect only
-                        
                         this.die();
                         return;
                     } else {
-                        const healthPercent = Math.floor((this.health / this.maxHealth) * 100);
-                        console.log(`Enemy at ${healthPercent}% health (${this.health}/${this.maxHealth})`);
-
                         this.setState('chase');
                         if (this.playerEntity && this.playerEntity.object3D) {
                             const playerPos = this.playerEntity.object3D.position;
@@ -498,65 +526,33 @@ export default function initializeEnemyComponent(): void {
                 try {
                     const hitEffect = document.createElement('a-entity');
                     hitEffect.setAttribute('position', position);
-                    
-                    // Add a light at the hit location
-                    hitEffect.setAttribute('light', {
-                        type: 'point',
-                        color: '#f00',
-                        intensity: 2.0,
-                        distance: 1.5,
-                        decay: 10
-                    });
-                    
-                    // Add small spheres to represent the hit
                     const mainSphere = document.createElement('a-sphere');
-                    mainSphere.setAttribute('radius', 0.15);
-                    mainSphere.setAttribute('color', '#f00');
-                    mainSphere.setAttribute('material', 'emissive: #f00; emissiveIntensity: 1.0');
-                    mainSphere.setAttribute('opacity', 0.7);
+                    mainSphere.setAttribute('radius', 0.12);
+                    mainSphere.setAttribute('color', '#ffebe0');
+                    mainSphere.setAttribute('material', 'emissive: #ff4f45; emissiveIntensity: 1.2');
+                    mainSphere.setAttribute('opacity', 0.8);
+                    mainSphere.setAttribute('animation__scale', {
+                        property: 'scale',
+                        from: '1 1 1',
+                        to: '0 0 0',
+                        dur: 180,
+                        easing: 'easeOutQuad'
+                    });
                     hitEffect.appendChild(mainSphere);
-                    
-                    // Add a few smaller spheres with animation
-                    for (let i = 0; i < 3; i++) {
-                        const smallSphere = document.createElement('a-sphere');
-                        smallSphere.setAttribute('radius', 0.05);
-                        smallSphere.setAttribute('color', '#900');
-                        smallSphere.setAttribute('material', 'emissive: #900; emissiveIntensity: 0.8');
-                        smallSphere.setAttribute('opacity', 0.7);
-                        
-                        // Random offset direction
-                        const offsetX = (Math.random() - 0.5) * 0.3;
-                        const offsetY = (Math.random() - 0.5) * 0.3;
-                        const offsetZ = (Math.random() - 0.5) * 0.3;
-                        
-                        smallSphere.setAttribute('position', `${offsetX} ${offsetY} ${offsetZ}`);
-                        smallSphere.setAttribute('animation__scale', {
-                            property: 'scale',
-                            from: '1 1 1',
-                            to: '0 0 0',
-                            dur: 300,
-                            easing: 'easeOutQuad'
-                        });
-                        
-                        hitEffect.appendChild(smallSphere);
-                    }
-                    
                     document.querySelector('a-scene')!.appendChild(hitEffect);
 
                     setTimeout(() => {
                         if (hitEffect.parentNode) {
                             hitEffect.parentNode.removeChild(hitEffect);
                         }
-                    }, 300);
+                    }, 200);
                 } catch (error) {
                     console.error('Error creating hit effect:', error);
                 }
             },
             flashColor: function(this: any, flashColor: string, returnColor: string, duration: number): void {
                 try {
-                    // For the GLTF model, we could implement a material flash or other effect
-                    // But for now, we'll just implement a simple visibility toggle for visual feedback
-                    const enemyModel = this.el.querySelector('[gltf-model]');
+                    const enemyModel = this.el.querySelector('.enemy-body');
                     if (!enemyModel) return;
 
                     // Quick visibility toggle for visual feedback
@@ -574,12 +570,10 @@ export default function initializeEnemyComponent(): void {
                 try {
                     if (this.isDead) return;
                     this.isDead = true;
-                    console.log('Enemy killed!');
-
                     const healthBar = this.el.querySelector('#health-bar-container');
                     if (healthBar) healthBar.setAttribute('visible', false);
 
-                    const enemyModel = this.el.querySelector('[gltf-model]');
+                    const enemyModel = this.el.querySelector('.enemy-body');
                     const hitboxHelper = this.el.querySelector('.hitbox-helper');
 
                     if (enemyModel) enemyModel.setAttribute('visible', false);
@@ -592,20 +586,13 @@ export default function initializeEnemyComponent(): void {
                     if (gameManager && (gameManager as any).components['game-manager']) {
                         (gameManager as any).components['game-manager'].entityManager.remove(this.vehicle);
                         (gameManager as any).components['game-manager'].enemyKilled(this);
+                        (gameManager as any).components['game-manager'].unregisterEnemy(this);
                     }
+                    gameAudio.pulse('kill');
 
                     const position = this.el.object3D.position;
                     const deathEffect = document.createElement('a-entity');
                     deathEffect.setAttribute('position', position);
-                    
-                    // Add a light burst for the death effect
-                    deathEffect.setAttribute('light', {
-                        type: 'point',
-                        color: '#f00',
-                        intensity: 3.0,
-                        distance: 5.0,
-                        decay: 5
-                    });
                     
                     // Add an explosion-like effect with spheres
                     const core = document.createElement('a-sphere');
@@ -645,39 +632,6 @@ export default function initializeEnemyComponent(): void {
                     });
                     deathEffect.appendChild(ring);
                     
-                    // Add scattered debris
-                    for (let i = 0; i < 8; i++) {
-                        const debris = document.createElement('a-sphere');
-                        debris.setAttribute('radius', 0.05 + Math.random() * 0.1);
-                        debris.setAttribute('color', '#f00');
-                        debris.setAttribute('material', 'emissive: #f00; emissiveIntensity: 0.8');
-                        debris.setAttribute('opacity', 0.7);
-                        
-                        // Random direction
-                        const angle = Math.random() * Math.PI * 2;
-                        const distance = 0.2 + Math.random() * 0.5;
-                        const xPos = Math.cos(angle) * distance;
-                        const yPos = Math.sin(angle) * distance;
-                        const zPos = Math.random() * 0.4 - 0.2;
-                        
-                        debris.setAttribute('position', `${xPos} ${yPos} ${zPos}`);
-                        debris.setAttribute('animation__move', {
-                            property: 'position',
-                            to: `${xPos * 4} ${yPos * 4} ${zPos * 4}`,
-                            dur: 1000,
-                            easing: 'easeOutQuad'
-                        });
-                        debris.setAttribute('animation__fade', {
-                            property: 'opacity',
-                            from: 0.7,
-                            to: 0,
-                            dur: 800,
-                            easing: 'easeInQuad'
-                        });
-                        
-                        deathEffect.appendChild(debris);
-                    }
-                    
                     document.querySelector('a-scene')!.appendChild(deathEffect);
                     
                     // Remove the effect after animation completes
@@ -687,15 +641,7 @@ export default function initializeEnemyComponent(): void {
                         }
                     }, 1200);
 
-                    this.el.setAttribute('animation__fall', { property: 'rotation.z', to: 90, dur: 1000, easing: 'easeOutQuad' });
-                    setTimeout(() => {
-                        this.el.setAttribute('animation__fade', { property: 'scale', to: '0 0 0', dur: 1000, easing: 'easeInQuad' });
-                        setTimeout(() => {
-                            if (this.el.parentNode) {
-                                this.el.parentNode.removeChild(this.el);
-                            }
-                        }, 1000);
-                    }, 1500);
+                    if (this.el.parentNode) this.el.parentNode.removeChild(this.el);
                 } catch (error) {
                     console.error('Error handling enemy death:', error);
                 }
@@ -709,13 +655,6 @@ export default function initializeEnemyComponent(): void {
                     const healthBarContainer = this.el.querySelector('#health-bar-container');
                     if (healthBarContainer) {
                         healthBarContainer.setAttribute('look-at', '[camera]');
-                    }
-
-                    const timeSinceHit = performance.now() - this.lastDamageTime;
-                    if (timeSinceHit < 300 && !this.isDead) {
-                        const shakeMagnitude = 0.03;
-                        this.el.object3D.position.x += (Math.random() - 0.5) * shakeMagnitude;
-                        this.el.object3D.position.z += (Math.random() - 0.5) * shakeMagnitude;
                     }
                 } catch (error) {
                     console.error('Error in enemy tick:', error);
@@ -761,6 +700,7 @@ export default function initializeEnemyComponent(): void {
                         (gameManager as any).components['game-manager'].entityManager.remove(this.vehicle);
                         (gameManager as any).components['game-manager'].unregisterEnemy(this);
                     }
+                    if (this.enemyResources) this.enemyResources.forEach((resource: any) => resource.dispose?.());
                 } catch (error) {
                     console.error('Error removing enemy component:', error);
                 }

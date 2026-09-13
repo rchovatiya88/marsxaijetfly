@@ -9,6 +9,7 @@
 // Import THREE.js - A-Frame is imported globally in App.js
 import * as THREE from 'three';
 import AFRAME_EXPORT from './aframe-export';
+import { gameAudio } from '../game-audio';
 
 const AFRAME = AFRAME_EXPORT;
 
@@ -132,15 +133,7 @@ export default function initializePlayerComponent(): void {
                 document.addEventListener('keydown', this.onKeyDown);
                 document.addEventListener('keyup', this.onKeyUp);
                 
-                // Add key instructions to UI
-                const gameMessage = document.querySelector('#game-message');
-                if (gameMessage) {
-                    const controls = document.createElement('div');
-                    controls.innerHTML = 'WASD to move, E to ascend, Q to descend, Mouse to aim, Click to shoot, SHIFT to boost';
-                    controls.style.fontSize = '14px';
-                    controls.style.marginTop = '10px';
-                    gameMessage.appendChild(controls);
-                }
+
             } catch (error) {
                 console.error('Error setting up controls:', error);
             }
@@ -188,7 +181,7 @@ export default function initializePlayerComponent(): void {
         updateMovement: function(this: any, dt: number): void {
             try {
                 if (this.isDead) return;
-                if (!document.pointerLockElement) return;
+                if (!this.el.sceneEl.isPlaying) return;
                 
                 const { speed, jumpForce, gravity, sprintMultiplier, flyingEnabled, flyingSpeed, maxFlyingHeight, minFlyingHeight } = this.data as PlayerComponentSchema;
                 
@@ -215,7 +208,8 @@ export default function initializePlayerComponent(): void {
                 // Store new position and calculate velocity for UI elements
                 this.newPosition.copy(this.el.object3D.position);
                 const positionDelta = this.newPosition.clone().sub(this.oldPosition);
-                this.velocity.copy(positionDelta.divideScalar(dt || 0.016)); // Calculate velocity for UI displays
+                // Velocity is owned by fly-controls.
+                // this.velocity.copy(positionDelta.divideScalar(dt || 0.016)); // Calculate velocity for UI displays
                 
                 // Update camera position
                 this.updateCameraPosition(dt);
@@ -271,6 +265,7 @@ export default function initializePlayerComponent(): void {
                 if (this.isDead) return;
                 const now = performance.now();
                 this.health -= amount;
+                gameAudio.pulse('damage');
                 this.createDamageEffect();
                 if (this.health <= 0) {
                     this.health = 0;
@@ -333,7 +328,7 @@ export default function initializePlayerComponent(): void {
         tick: function(this: any, time: number, delta: number): void {
             try {
                 const dt = delta / 1000;
-                if (document.pointerLockElement) {
+                if (this.el.sceneEl.isPlaying) {
                     this.updateMovement(dt);
                     const now = performance.now();
                     if (this.health < this.maxHealth && now - this.lastDamageTime > 5000) {

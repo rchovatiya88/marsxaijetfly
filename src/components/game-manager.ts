@@ -52,7 +52,13 @@ export default function initializeGameManager(): void {
                 this.maxSpawnAttempts = 10;
                 this.entityManager = new YUKA.EntityManager();
                 this.spawnTimer = null as any;
-                this.el.addEventListener('player-died', this.onPlayerDied.bind(this));
+                this.onPlayerDied = this.onPlayerDied.bind(this);
+                this.el.addEventListener('player-died', this.onPlayerDied);
+                this.elapsed = 0;
+                this.lastKillTime = -10000;
+                this.combo = 0;
+                this.nextLevelIn = null;
+                this.spawnElapsed = 0;
                 
                 const levelValueEl = document.getElementById('level-value');
                 const scoreValueEl = document.getElementById('score-value');
@@ -70,9 +76,7 @@ export default function initializeGameManager(): void {
                 if (this.gameStarted) return;
                 this.gameStarted = true;
                 this.showMessage(`Get ready!`, 2000);
-                setTimeout(() => {
-                    this.startLevel();
-                }, 2000);
+                this.nextLevelIn = 2000;
             } catch (error) {
                 console.error('Error starting game:', error);
             }
@@ -99,25 +103,7 @@ export default function initializeGameManager(): void {
         },
         startSpawningEnemies: function(this: any): void {
             try {
-                if (this.spawnTimer) {
-                    clearInterval(this.spawnTimer);
-                }
-                const spawnRate = Math.max(500, this.data.enemySpawnInterval / this.level);
-                this.spawnTimer = setInterval(() => {
-                    if (this.gameOver) {
-                        clearInterval(this.spawnTimer);
-                        return;
-                    }
-                    if (this.activeEnemiesCount < this.data.maxActiveEnemies && this.enemiesRemaining > 0) {
-                        this.spawnEnemy();
-                        this.enemiesRemaining--;
-                        
-                        const enemiesValueEl = document.getElementById('enemies-value');
-                        if (enemiesValueEl) enemiesValueEl.textContent = String(this.enemiesRemaining);
-                    } else if (this.enemiesRemaining === 0 && this.activeEnemiesCount === 0 && this.levelInProgress) {
-                        this.completeLevel();
-                    }
-                }, spawnRate);
+                this.spawnElapsed = 0;
             } catch (error) {
                 console.error('Error starting enemy spawning:', error);
             }
@@ -137,7 +123,7 @@ export default function initializeGameManager(): void {
                     this.activeEnemies.splice(index, 1);
                     this.activeEnemiesCount--;
                 }
-                if (this.enemiesRemaining === 0 && this.activeEnemiesCount === 0 && this.levelInProgress) {
+                if (this.el.isPlaying && this.enemiesRemaining === 0 && this.activeEnemiesCount === 0 && this.levelInProgress) {
                     this.completeLevel();
                 }
             } catch (error) {
@@ -155,8 +141,8 @@ export default function initializeGameManager(): void {
                 for (let attempt = 0; attempt < this.maxSpawnAttempts; attempt++) {
                     const angle = Math.random() * Math.PI * 2;
                     const radius = this.data.spawnRadius * (0.5 + Math.random() * 0.5);
-                    const x = Math.cos(angle) * radius;
-                    const z = Math.sin(angle) * radius;
+                    const x = playerPos.x + Math.cos(angle) * radius;
+                    const z = playerPos.z + Math.sin(angle) * radius;
                     const distToPlayer = new THREE.Vector3(x - playerPos.x, 0, z - playerPos.z).length();
                     
                     if (distToPlayer >= minDistanceFromPlayer) {
@@ -164,9 +150,9 @@ export default function initializeGameManager(): void {
                         let validPosition = true;
                         
                         for (let i = 0; i < obstacles.length; i++) {
-                            const obstacle = obstacles[i];
+                            const obstacle = obstacles[i] as AFrameElement;
                             const obstaclePos = obstacle.getAttribute('position');
-                            const obstacleWidth = obstacle.getAttribute('width') || 1;
+                            const obstacleWidth = Number(obstacle.getAttribute('width')) || 1;
                             const distToObstacle = new THREE.Vector3(
                                 x - obstaclePos.x, 
                                 0, 
@@ -202,10 +188,9 @@ export default function initializeGameManager(): void {
                 const position = this.findValidSpawnPosition();
                 const enemy = document.createElement('a-entity');
                 enemy.setAttribute('position', `${position.x} 0 ${position.z}`);
-                enemy.setAttribute('simple-navmesh-constraint', 'navmesh: #navmesh; fall: 10; height: 1.6');
                 
                 // Randomly select enemy type (normal, fast, tank, sniper)
-                const enemyTypes = ['normal', 'fast', 'tank', 'sniper'];
+                const enemyTypes = this.level === 1 ? ['normal'] : this.level === 2 ? ['normal', 'fast'] : ['normal', 'fast', 'tank'];
                 const randomType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
                 
                 // Base multipliers affected by level
@@ -269,11 +254,11 @@ export default function initializeGameManager(): void {
                 }
                 
                 enemy.setAttribute('enemy-component', {
-                    health: health,
+                    health: health * 0.6,
                     speed: speed,
                     attackPower: attackPower,
                     attackRate: attackRate,
-                    weaponDamage: weaponDamage,
+                    weaponDamage: weaponDamage * 0.5,
                     weaponRange: weaponRange,
                     weaponAccuracy: weaponAccuracy,
                     enemyType: randomType,
@@ -296,7 +281,11 @@ export default function initializeGameManager(): void {
         },
         enemyKilled: function(this: any, enemy: any): void {
             try {
-                const basePoints = 10;
+                this.combo = this.elapsed - this.lastKillTime <= 6000 ? Math.min(5, this.combo + 1) : 1;
+                this.lastKillTime = this.elapsed;
+                const comboEl = document.getElementById('combo-value');
+                if (comboEl) comboEl.textContent = `CHAIN ×${this.combo}`;
+                const basePoints = 100 * this.combo;
                 const levelMultiplier = this.level;
                 const pointsGained = basePoints * levelMultiplier;
                 this.score += pointsGained;
@@ -361,76 +350,66 @@ export default function initializeGameManager(): void {
                 if (scoreValueEl) scoreValueEl.textContent = String(this.score);
                 
                 this.showMessage(`Level ${this.level} Complete!<br>+${levelBonus} bonus points`, 3000);
-                this.level++;
-                
-                setTimeout(() => {
-                    if (!this.gameOver) {
-                        this.startLevel();
-                    }
-                }, 5000);
+                if (this.level >= 3) {
+                    this.finishMission(true);
+                } else {
+                    this.level++;
+                    this.nextLevelIn = 3000;
+                }
             } catch (error) {
                 console.error('Error completing level:', error);
             }
         },
-        onPlayerDied: function(this: any): void {
+        finishMission: function(this: any, won: boolean): void {
+            if (this.gameOver) return;
+            this.gameOver = true;
+            this.levelInProgress = false;
+            this.nextLevelIn = null;
+            let best = this.score;
             try {
-                if (this.gameOver) return;
-                this.gameOver = true;
-                this.levelInProgress = false;
-                console.log('Game over!');
-                
-                if (this.spawnTimer) {
-                    clearInterval(this.spawnTimer);
-                }
-                
-                this.showMessage(`Game Over!<br>Final Score: ${this.score}<br><br>Click to restart`, 0);
-                
-                const restartListener = (event: Event) => {
-                    document.removeEventListener('click', restartListener);
-                    window.location.reload();
-                };
-                
-                setTimeout(() => {
-                    document.addEventListener('click', restartListener);
-                }, 2000);
-            } catch (error) {
-                console.error('Error handling player death:', error);
-            }
+                best = Math.max(this.score, Number(localStorage.getItem('mars-best-v1')) || 0);
+                localStorage.setItem('mars-best-v1', String(best));
+            } catch { /* Storage can be unavailable; the mission still ends. */ }
+            this.el.emit('mission-ended', { score: this.score, level: this.level, won, best });
+        },
+        onPlayerDied: function(this: any): void {
+            this.finishMission(false);
         },
         showMessage: function(this: any, text: string, duration: number): void {
-            try {
-                const gameMessage = document.getElementById('game-message');
-                if (gameMessage) {
-                    gameMessage.innerHTML = text;
-                    gameMessage.style.display = 'block';
-                    
-                    if (duration > 0) {
-                        setTimeout(() => {
-                            if (gameMessage) {
-                                gameMessage.style.display = 'none';
-                            }
-                        }, duration);
-                    }
-                }
-            } catch (error) {
-                console.error('Error showing message:', error);
-            }
+            this.el.emit('mission-message', { text: text.replace(/<br>/g, '\n'), duration });
         },
         tick: function(this: any, time: number, delta: number): void {
-            try {
-                const dt = delta / 1000;
-                this.entityManager.update(dt);
-                
-                if (this.levelInProgress) {
-                    if (this.enemiesRemaining === 0 && this.activeEnemiesCount === 0) {
-                        this.completeLevel();
-                    }
+            if (!this.gameStarted || this.gameOver || !this.el.isPlaying) return;
+            const elapsed = Math.min(delta, 100);
+            this.elapsed += elapsed;
+            this.entityManager.update(elapsed / 1000);
+            if (this.nextLevelIn !== null) {
+                this.nextLevelIn -= elapsed;
+                if (this.nextLevelIn <= 0) {
+                    this.nextLevelIn = null;
+                    this.startLevel();
                 }
-            } catch (error) {
-                console.error('Error in game manager tick:', error);
+            }
+            if (this.levelInProgress) {
+                this.spawnElapsed += elapsed;
+                const spawnRate = Math.max(700, this.data.enemySpawnInterval / this.level);
+                if (this.spawnElapsed >= spawnRate && this.activeEnemiesCount < this.data.maxActiveEnemies && this.enemiesRemaining > 0) {
+                    this.spawnElapsed = 0;
+                    this.spawnEnemy();
+                    this.enemiesRemaining--;
+                }
+                if (this.enemiesRemaining === 0 && this.activeEnemiesCount === 0) this.completeLevel();
+            }
+            const count = document.getElementById('enemies-value');
+            if (count) count.textContent = String(this.enemiesRemaining + this.activeEnemiesCount);
+            if (this.elapsed - this.lastKillTime > 6000) {
+                this.combo = 0;
+                const combo = document.getElementById('combo-value');
+                if (combo) combo.textContent = 'CHAIN ×1';
             }
         },
         remove: function(this: any): void {
+            this.el.removeEventListener('player-died', this.onPlayerDied);
             try {
                 if (this.spawnTimer) {
                     clearInterval(this.spawnTimer);

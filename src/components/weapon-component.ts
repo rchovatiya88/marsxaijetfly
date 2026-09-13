@@ -8,21 +8,9 @@
 // Import THREE.js - A-Frame is imported globally in App.js
 import * as THREE from 'three';
 import AFRAME_EXPORT from './aframe-export';
+import { gameAudio } from '../game-audio';
 
 const AFRAME = AFRAME_EXPORT;
-
-// Extending Window interface to add HITBOX_REGISTRY
-declare global {
-    interface Window {
-        HITBOX_REGISTRY?: any[];
-    }
-}
-
-// Interface for hitbox components
-interface HitboxComponent {
-    isEnemy?: boolean;
-    hitboxMesh?: any;
-}
 
 // Interface for the hover bike weapon component schema
 interface WeaponComponentSchema {
@@ -63,6 +51,12 @@ export default function initializeWeaponComponent(): void {
                 this.ammoInClip = this.data.clipSize;
                 this.reloadTimer = null;
                 this.raycaster = new THREE.Raycaster();
+                this.levelRaycaster = new THREE.Raycaster();
+                this.rayHitPoint = new THREE.Vector3();
+                this.rayTemp = new THREE.Vector3();
+                this.rayBox = new THREE.Box3();
+                this.tracerResources = [];
+                this.boltCleanupTimers = [];
                 this.hoverTime = 0; // For hover animation
                 this.thrusterParticles = []; // Store thruster particle entities
                 this.createHoverBikeModel();
@@ -92,21 +86,38 @@ export default function initializeWeaponComponent(): void {
                     this.el.removeObject3D('mesh');
                 }
 
-                // Create a new entity for the hover bike model
+                // The original jetbike GLB contains a corrupt embedded PNG.
+                // Use a small geometry-built bike so the playable slice is self-contained.
                 const bikeEntity = document.createElement('a-entity');
-                bikeEntity.setAttribute('gltf-model', '/models/jetbickavi.glb');
-                bikeEntity.setAttribute('position', '0 -0.5 -0.8'); // Position the bike in front of camera
-                bikeEntity.setAttribute('rotation', '0 180 0'); // Rotate to face forward
-                bikeEntity.setAttribute('scale', '0.4 0.4 0.4'); // Scale appropriately for first-person view
-                bikeEntity.setAttribute('id', 'hover-bike-model');
+                bikeEntity.id = 'hover-bike-model';
+                const group = new THREE.Group();
+                this.bikeResources = [];
+                const part = (geometry: THREE.BufferGeometry, color: string, x: number, y: number, z: number, emissive = false) => {
+                    const material = new THREE.MeshStandardMaterial({ color, roughness: 0.45, metalness: 0.5,
+                        emissive: emissive ? color : '#000000', emissiveIntensity: emissive ? 2 : 0 });
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.set(x, y, z);
+                    group.add(mesh);
+                    this.bikeResources.push(geometry, material);
+                    return mesh;
+                };
+                part(new THREE.BoxGeometry(0.7, 0.35, 2.4), '#ed7851', 0, 0, 0);
+                part(new THREE.BoxGeometry(0.48, 0.3, 0.8), '#162c38', 0, 0.3, -0.4);
+                for (const x of [-0.72, 0.72]) {
+                    part(new THREE.BoxGeometry(0.3, 0.3, 1.7), '#343642', x, -0.1, 0.3);
+                    part(new THREE.BoxGeometry(0.22, 0.18, 0.16), '#78ffe1', x, -0.1, 1.18, true);
+                    part(new THREE.BoxGeometry(0.1, 0.1, 1.4), '#a8b9bc', x, 0, -1.0);
+                }
+                part(new THREE.BoxGeometry(1.7, 0.09, 0.5), '#b75038', 0, -0.1, 0.3);
+                bikeEntity.setObject3D('mesh', group);
                 this.el.appendChild(bikeEntity);
                 this.bikeEntity = bikeEntity;
-                
+
                 // Set up hover animation instead of recoil
                 this.el.setAttribute('animation__hover', {
                     property: 'position.y',
                     from: `-0.5`,
-                    to: `-0.5 + ${this.data.hoverHeight}`,
+                    to: -0.5 + this.data.hoverHeight,
                     dir: 'alternate',
                     dur: 1000 / this.data.hoverSpeed,
                     loop: true,
@@ -133,13 +144,17 @@ export default function initializeWeaponComponent(): void {
                 this.onMouseUp = this.onMouseUp.bind(this);
                 document.addEventListener('mousedown', this.onMouseDown);
                 document.addEventListener('mouseup', this.onMouseUp);
+                this.onReloadKey = (event: KeyboardEvent) => {
+                    if (event.code === 'KeyR' && this.el.sceneEl.isPlaying) this.reload();
+                };
+                document.addEventListener('keydown', this.onReloadKey);
             } catch (error) {
                 console.error('Error setting up event listeners:', error);
             }
         },
         onMouseDown: function(this: any, event: MouseEvent): void {
             try {
-                if (!document.pointerLockElement) return;
+                if (!this.el.sceneEl.isPlaying) return;
                 if (event.button !== 0) return;
                 this.mouseDown = true;
                 if (this.data.automatic) {
@@ -209,19 +224,11 @@ export default function initializeWeaponComponent(): void {
                 if (this.ammoInClip === this.data.clipSize) return;
                 this.isReloading = true;
                 this.updateAmmoDisplay();
-                console.log('Reloading...');
+                gameAudio.pulse('reload');
                 
                 // Reload start
                 
-                this.reloadTimer = setTimeout(() => {
-                    this.ammoInClip = this.data.clipSize;
-                    this.isReloading = false;
-                    this.updateAmmoDisplay();
-                    
-                    // Reload complete
-                    
-                    console.log('Reload complete.');
-                }, this.data.reloadTime * 1000);
+                this.reloadRemaining = this.data.reloadTime * 1000;
             } catch (error) {
                 console.error('Error reloading weapon:', error);
             }
@@ -307,7 +314,7 @@ export default function initializeWeaponComponent(): void {
                 
                 const camera = cameraEl.object3D;
                 const direction = new THREE.Vector3(0, 0, -1);
-                direction.applyQuaternion(camera.quaternion);
+                direction.applyQuaternion(camera.getWorldQuaternion(new THREE.Quaternion()));
                 const position = new THREE.Vector3(worldPosition.x, worldPosition.y, worldPosition.z)
                     .add(direction.multiplyScalar(0.4));
                 flash.setAttribute('position', position);
@@ -452,270 +459,193 @@ export default function initializeWeaponComponent(): void {
         },
         shoot: function(this: any): void {
             try {
+                if (!this.el.sceneEl.isPlaying) return;
                 const now = performance.now();
                 if (this.isReloading || this.ammoInClip <= 0 || now - this.lastShot < this.data.cooldown * 1000) {
                     if (this.ammoInClip <= 0) this.reload();
                     return;
                 }
-                
+
                 this.lastShot = now;
                 this.ammoInClip--;
                 this.updateAmmoDisplay();
-                
-                // Play low ammo warning sound when ammo is getting low
-                if (this.ammoInClip <= 5 && this.ammoInClip > 0) {
-                    // Low ammo warning (visual only)
-                    this.showHitMarker();
-                }
-                
                 this.applyWeaponFeedback();
-                this.createMuzzleFlash();
-                
-                // Weapon firing effect
-                
-                // Get camera for direction and jetbike position for origin
+                this.createHudBolt();
+                gameAudio.pulse('shot');
+
                 const cameraEl = document.querySelector('#camera');
-                if (!cameraEl || !cameraEl.object3D) {
-                    console.warn('Camera element not found, skipping shoot action');
-                    return;
-                }
+                if (!cameraEl || !cameraEl.object3D) return;
+
                 const camera = cameraEl.object3D;
                 const weaponPosition = new THREE.Vector3();
-                this.el.object3D.getWorldPosition(weaponPosition);
-                
-                // Add slight randomization based on accuracy parameter
-                const accuracy = this.data.accuracy; // 1.0 = perfect accuracy, lower values = more spread
-                const spread = 1.0 - accuracy;
-                
-                // Create base direction from camera direction
+                camera.getWorldPosition(weaponPosition);
+
                 const direction = new THREE.Vector3(0, 0, -1);
-                direction.applyQuaternion(camera.quaternion);
-                
-                // Add randomized spread based on accuracy - use smaller values for more precision
+                direction.applyQuaternion(camera.getWorldQuaternion(new THREE.Quaternion()));
+
+                const spread = 1.0 - this.data.accuracy;
                 if (spread > 0) {
-                    direction.x += (Math.random() - 0.5) * spread * 0.05; // Reduced spread
-                    direction.y += (Math.random() - 0.5) * spread * 0.05; // Reduced spread
-                    direction.z += (Math.random() - 0.5) * spread * 0.005; // Minimal spread in forward direction
-                    direction.normalize(); // Ensure it's still a unit vector
+                    direction.x += (Math.random() - 0.5) * spread * 0.05;
+                    direction.y += (Math.random() - 0.5) * spread * 0.05;
+                    direction.z += (Math.random() - 0.5) * spread * 0.005;
+                    direction.normalize();
                 }
-                
-                // Set raycaster with weapon position and direction
+
                 this.raycaster.set(weaponPosition, direction);
-                this.raycaster.far = this.data.range; // Explicitly set maximum range
-                
-                console.log('Firing weapon - Direction:', direction);
-                
-                // Collect all hittable targets
-                const allTargets: THREE.Object3D[] = [];
-                
-                // Get enemies using multiple methods for redundancy
-                let enemies: Element[] = [];
-                
-                // Method 1: Direct selector
-                const enemyElements = document.querySelectorAll('[enemy-component]');
-                enemyElements.forEach((enemy: Element) => {
-                    if ((enemy as any).object3D) {
-                        allTargets.push((enemy as any).object3D);
-                        enemies.push(enemy);
-                    }
-                });
-                
-                // Method 2: Get entities with hitbox component marked as enemies
-                const hitboxElements = document.querySelectorAll('.hitbox-mesh[data-hitbox-type="enemy"]');
-                hitboxElements.forEach((hitbox: Element) => {
-                    if ((hitbox as any).object3D) {
-                        allTargets.push((hitbox as any).object3D);
-                    }
-                });
-                
-                // Method 3: Use registry if available
-                try {
-                    if (window.HITBOX_REGISTRY) {
-                        window.HITBOX_REGISTRY.forEach((hitboxComponent: any) => {
-                            if (hitboxComponent && hitboxComponent.isEnemy && hitboxComponent.hitboxMesh) {
-                                const hitboxObject = (hitboxComponent.hitboxMesh as any).object3D;
-                                if (hitboxObject) {
-                                    allTargets.push(hitboxObject);
-                                }
-                            }
-                        });
-                    }
-                } catch (err) {
-                    console.warn('Error accessing hitbox registry:', err);
+                this.raycaster.far = this.data.range;
+
+                const enemyHit = this.findEnemyHit(weaponPosition, direction);
+                const environmentHit = this.findEnvironmentHit(weaponPosition, direction);
+                const tracerEnd = enemyHit?.point || environmentHit?.point || weaponPosition.clone().addScaledVector(direction, Math.min(this.data.range, 42));
+                this.createWeaponBolts(tracerEnd, direction, enemyHit ? '#fff0a0' : '#78ffe1');
+
+                if (enemyHit && (!environmentHit || enemyHit.distance <= environmentHit.distance + 1.5)) {
+                    enemyHit.enemy.takeDamage(this.data.damage, enemyHit.point);
+                    gameAudio.pulse('hit');
+                    this.showHitMarker();
+                } else if (environmentHit) {
+                    this.createImpactEffect(environmentHit.point, environmentHit.normal);
                 }
-                
-                // Log enemy count for debugging
-                console.log(`Found ${enemies.length} potential enemy targets and ${allTargets.length} total targets`);
-                
-                const obstacles = document.querySelectorAll('.obstacle, [ground]');
-                obstacles.forEach((obstacle: Element) => {
-                    if ((obstacle as any).object3D) allTargets.push((obstacle as any).object3D);
-                });
-                
-                // Perform multiple raycasts with slight variations for more forgiving hit detection
-                // Center ray
-                const intersects = this.raycaster.intersectObjects(allTargets, true);
-                
-                // Extra rays with slight variations if the main ray missed
-                let allRayIntersects: THREE.Intersection[] = [];
-                if (intersects.length > 0) {
-                    allRayIntersects = intersects;
-                } else {
-                    // Try additional rays with small offsets if main ray missed
-                    const offsetAmount = 0.1;
-                    const offsets = [
-                        new THREE.Vector3(offsetAmount, 0, 0),
-                        new THREE.Vector3(-offsetAmount, 0, 0),
-                        new THREE.Vector3(0, offsetAmount, 0),
-                        new THREE.Vector3(0, -offsetAmount, 0)
-                    ];
-                    
-                    for (const offset of offsets) {
-                        const offsetDirection = direction.clone().add(offset).normalize();
-                        this.raycaster.set(weaponPosition, offsetDirection);
-                        const offsetIntersects = this.raycaster.intersectObjects(allTargets, true);
-                        if (offsetIntersects.length > 0) {
-                            allRayIntersects = offsetIntersects;
-                            console.log('Hit detected with offset ray');
-                            break;
-                        }
-                    }
-                }
-                
-                if (allRayIntersects.length > 0) {
-                    const closestHit = allRayIntersects[0];
-                    const hitPoint = closestHit.point;
-                    let hitEntity = null;
-                    let currentObj = closestHit.object;
-                    
-                    // Debug info for hit object
-                    console.log('Hit object:', currentObj);
-                    
-                    // Check if this is a hitbox mesh via userData
-                    if (currentObj.userData && currentObj.userData.ownerEntity) {
-                        console.log('Direct hitbox reference found! Owner:', currentObj.userData.ownerEntity.id || 'unnamed');
-                        hitEntity = currentObj.userData.ownerEntity;
-                    } 
-                    // Check if this is a hitbox via class or attributes
-                    else if ((currentObj as any).el && (
-                        (currentObj as any).el.classList.contains('hitbox-mesh') ||
-                        (currentObj as any).el.classList.contains('enemy-hitbox') ||
-                        (currentObj as any).el.getAttribute('data-hitbox-type') === 'enemy'
-                    )) {
-                        // Get owner ID from data attribute
-                        const ownerId = (currentObj as any).el.getAttribute('data-hitbox-owner');
-                        console.log('Hitbox detected by class/attribute. Owner ID:', ownerId);
-                        
-                        // Try to find the owner entity
-                        if (ownerId) {
-                            const ownerEntity = document.getElementById(ownerId);
-                            if (ownerEntity) {
-                                hitEntity = ownerEntity;
-                                console.log('Found owner entity by ID');
-                            }
-                        }
-                        
-                        // If we couldn't find the owner, use the direct parent
-                        if (!hitEntity && (currentObj as any).el.parentNode) {
-                            let parent = (currentObj as any).el.parentNode;
-                            while (parent && !parent.hasAttribute('enemy-component')) {
-                                parent = parent.parentNode;
-                                if (!parent) break;
-                            }
-                            
-                            if (parent && parent.hasAttribute('enemy-component')) {
-                                hitEntity = parent;
-                                console.log('Found owner entity by walking up DOM');
-                            }
-                        }
-                    }
-                    // Traditional walk up the parent chain to find the entity
-                    else while (currentObj && !hitEntity) {
-                        if ((currentObj as any).el) {
-                            hitEntity = (currentObj as any).el;
-                            console.log('Found entity via object3D.el reference');
-                            break;
-                        }
-                        if (!currentObj.parent) break;
-                        currentObj = currentObj.parent;
-                    }
-                    
-                    // Enhanced hit detection
-                    if (hitEntity && closestHit.distance <= this.data.range) {
-                        console.log('Hit entity:', (hitEntity as any).id || 'unknown', 'Distance:', closestHit.distance.toFixed(2));
-                        
-                        // Check for enemy component directly
-                        let enemyComponent = null;
-                        if ((hitEntity as any).hasAttribute('enemy-component')) {
-                            enemyComponent = (hitEntity as any).components['enemy-component'];
-                        }
-                        // Check if we hit a hitbox with a parent that has enemy-component
-                        else if (currentObj.userData && currentObj.userData.isEnemyHitbox) {
-                            console.log('Hit enemy via hitbox userData');
-                            const ownerEntity = currentObj.userData.ownerEntity;
-                            if (ownerEntity && ownerEntity.components && ownerEntity.components['enemy-component']) {
-                                enemyComponent = ownerEntity.components['enemy-component'];
-                            }
-                        }
-                        // Check parent nodes for enemy component
-                        else {
-                            let parent = hitEntity;
-                            let attempts = 0;
-                            while (parent && !enemyComponent && attempts < 3) {
-                                if ((parent as any).components && (parent as any).components['enemy-component']) {
-                                    enemyComponent = (parent as any).components['enemy-component'];
-                                    console.log('Found enemy component by traversing parents');
-                                }
-                                parent = (parent as any).parentNode;
-                                attempts++;
-                            }
-                        }
-                        
-                        // Apply damage if we found an enemy component
-                        if (enemyComponent) {
-                            console.log('HIT ENEMY - Applying damage:', this.data.damage);
-                            try {
-                                // Hit an enemy - pass hit position for effects
-                                enemyComponent.takeDamage(this.data.damage, hitPoint);
-                                this.createHitEffect(hitPoint);
-                                // Add hit sound
-                                this.playHitSound();
-                                // Add screen hit marker (crosshair flash)
-                                this.showHitMarker();
-                            } catch (error) {
-                                console.error('Error applying damage to enemy:', error);
-                            }
-                        } else {
-                            // Hit an obstacle or environment
-                            console.log('Hit environment at distance:', closestHit.distance.toFixed(2));
-                            this.createImpactEffect(hitPoint, closestHit.face!.normal);
-                        }
-                    } else {
-                        console.log('Hit outside of range or no entity');
-                    }
-                    
-                    this.createTracer(weaponPosition, hitPoint);
-                } else {
-                    console.log('No hit detected');
-                    // Create end points for tracers - offset for left and right guns
-                    const leftStart = new THREE.Vector3(weaponPosition.x - 0.6, weaponPosition.y + 0.2, weaponPosition.z + 0.5);
-                const rightStart = new THREE.Vector3(weaponPosition.x + 0.6, weaponPosition.y + 0.2, weaponPosition.z + 0.5);
-                const tracerLength = 50;
-                const endPoint = direction.clone().multiplyScalar(tracerLength).add(weaponPosition);
-                
-                // Create laser tracers
-                this.createTracer(leftStart, endPoint, '#0ff');
-                this.createTracer(rightStart, endPoint, '#0ff');
-                }
-                
+
                 this.el.emit('weapon-shot', { damage: this.data.damage });
                 if (this.ammoInClip <= 0) this.reload();
             } catch (error) {
                 console.error('Error shooting weapon:', error);
             }
         },
-        
-        playHitSound: function(this: any): void {
+        createWeaponBolts: function(this: any, end: THREE.Vector3, direction: THREE.Vector3, color = '#78ffe1'): void {
+            const muzzleOffsets = [
+                new THREE.Vector3(-0.72, -0.55, -1.6),
+                new THREE.Vector3(0.72, -0.55, -1.6)
+            ];
+            for (const offset of muzzleOffsets) {
+                const start = this.el.object3D.localToWorld(offset.clone());
+                const visualEnd = end.clone();
+                if (visualEnd.distanceTo(start) < 2) visualEnd.copy(start).addScaledVector(direction, 10);
+                this.createBolt(start, visualEnd, color);
+            }
+        },
+        createHudBolt: function(): void {
+            const getByClass = (document as Document & { getElementsByClassName?: (className: string) => HTMLCollectionOf<Element> }).getElementsByClassName;
+            const hud = typeof getByClass === 'function' ? getByClass.call(document, 'hud')[0] : null;
+            if (!hud) return;
+            for (const side of ['left', 'right']) {
+                const streak = document.createElement('div');
+                streak.className = `shot-streak shot-streak-${side}`;
+                hud.appendChild(streak);
+                setTimeout(() => streak.remove(), 150);
+            }
+        },
+        createBolt: function(this: any, start: THREE.Vector3, end: THREE.Vector3, color = '#78ffe1'): void {
+            const sceneEl = document.querySelector('a-scene');
+            if (!sceneEl?.object3D) return;
+            const midpoint = start.clone().lerp(end, 0.5);
+            const direction = end.clone().sub(start);
+            const length = Math.max(0.6, Math.min(36, direction.length()));
+            direction.normalize();
+            const geometry = new THREE.CylinderGeometry(0.11, 0.04, length, 10, 1, true);
+            const glowGeometry = new THREE.CylinderGeometry(0.32, 0.12, length, 12, 1, true);
+            const flareGeometry = new THREE.SphereGeometry(0.28, 12, 8);
+            const material = new THREE.MeshBasicMaterial({
+                color,
+                transparent: true,
+                opacity: 0.95,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                depthTest: false
+            });
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color,
+                transparent: true,
+                opacity: 0.22,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                depthTest: false
+            });
+            const bolt = new THREE.Mesh(geometry, material);
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            const flare = new THREE.Mesh(flareGeometry, material);
+            const group = new THREE.Group();
+            group.add(glow, bolt);
+            group.position.copy(midpoint);
+            group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+            flare.position.copy(start);
+            const light = new THREE.PointLight(new THREE.Color(color), 1.5, 9, 2);
+            light.position.copy(start);
+            sceneEl.object3D.add(group, flare, light);
+            this.tracerResources.push(geometry, glowGeometry, flareGeometry, material, glowMaterial);
+            const cleanup = setTimeout(() => {
+                sceneEl.object3D.remove(group, flare, light);
+                geometry.dispose();
+                glowGeometry.dispose();
+                flareGeometry.dispose();
+                material.dispose();
+                glowMaterial.dispose();
+                this.tracerResources = this.tracerResources.filter((resource: any) =>
+                    resource !== geometry && resource !== glowGeometry && resource !== flareGeometry && resource !== material && resource !== glowMaterial
+                );
+                this.boltCleanupTimers = this.boltCleanupTimers.filter((timer: any) => timer !== cleanup);
+            }, 320);
+            this.boltCleanupTimers.push(cleanup);
+        },
+        findEnemyHit: function(this: any, origin: THREE.Vector3, direction: THREE.Vector3): { enemy: any; point: THREE.Vector3; distance: number } | null {
+            const manager = this.el.sceneEl?.components?.['game-manager'];
+            const registeredEnemies = manager?.activeEnemies || [];
+            const fallbackEnemies = registeredEnemies.length ? [] : Array.from(document.querySelectorAll('[enemy-component]'))
+                .map((enemy: any) => enemy.components?.['enemy-component'])
+                .filter(Boolean);
+            const enemies = registeredEnemies.length ? registeredEnemies : fallbackEnemies;
+            let best: { enemy: any; point: THREE.Vector3; distance: number } | null = null;
+
+            for (const enemy of enemies) {
+                if (!enemy || enemy.isDead || !enemy.el?.object3D) continue;
+                const pos = enemy.el.object3D.position;
+                const width = Math.max(1.4, enemy.hitboxSize?.width || 1.2);
+                const height = Math.max(2.0, enemy.hitboxSize?.height || 1.8);
+                const depth = Math.max(1.4, enemy.hitboxSize?.depth || 1.2);
+                this.rayBox.min.set(pos.x - width * 0.5, pos.y, pos.z - depth * 0.5);
+                this.rayBox.max.set(pos.x + width * 0.5, pos.y + height, pos.z + depth * 0.5);
+                const directPoint = this.raycaster.ray.intersectBox(this.rayBox, this.rayHitPoint);
+
+                let distance: number | null = null;
+                let hitPoint: THREE.Vector3 | null = null;
+                if (directPoint) {
+                    distance = origin.distanceTo(directPoint);
+                    hitPoint = directPoint.clone();
+                } else {
+                    const center = this.rayTemp.set(pos.x, pos.y + height * 0.55, pos.z);
+                    const toCenter = center.clone().sub(origin);
+                    const alongRay = toCenter.dot(direction);
+                    if (alongRay <= 0 || alongRay > this.data.range) continue;
+                    const closestPoint = origin.clone().addScaledVector(direction, alongRay);
+                    const aimAssistRadius = Math.min(4.0, Math.max(width, depth) * 0.7 + alongRay * 0.055);
+                    if (closestPoint.distanceTo(center) > aimAssistRadius) continue;
+                    distance = alongRay;
+                    hitPoint = closestPoint;
+                }
+
+                if (distance <= this.data.range && (!best || distance < best.distance)) {
+                    best = { enemy, point: hitPoint, distance };
+                }
+            }
+
+            return best;
+        },
+        findEnvironmentHit: function(this: any, origin: THREE.Vector3, direction: THREE.Vector3): { point: THREE.Vector3; normal: THREE.Vector3; distance: number } | null {
+            const level = document.getElementById('level') as any;
+            if (!level?.object3D) return null;
+            this.levelRaycaster.set(origin, direction);
+            this.levelRaycaster.far = this.data.range;
+            const hits = this.levelRaycaster.intersectObject(level.object3D, true);
+            if (!hits.length) return null;
+            const hit = hits[0];
+            return {
+                point: hit.point,
+                normal: hit.face?.normal || new THREE.Vector3(0, 1, 0),
+                distance: hit.distance
+            };
+        },
+                playHitSound: function(this: any): void {
             try {
                 // Visual feedback instead of sound
                 this.showHitMarker();
@@ -730,13 +660,15 @@ export default function initializeWeaponComponent(): void {
                 const crosshair = document.getElementById('crosshair');
                 if (crosshair) {
                     const originalColor = crosshair.style.color || 'white';
-                    crosshair.style.color = 'red';
-                    crosshair.style.fontSize = '24px'; // Make it slightly larger
+                    crosshair.classList.add('hit');
+                    crosshair.style.color = '#fff0a0';
+                    crosshair.style.fontSize = '28px';
                     
                     // Reset after a short delay
                     setTimeout(() => {
+                        crosshair.classList.remove('hit');
                         crosshair.style.color = originalColor;
-                        crosshair.style.fontSize = '20px';
+                        crosshair.style.fontSize = '24px';
                     }, 100);
                 }
             } catch (error) {
@@ -744,6 +676,14 @@ export default function initializeWeaponComponent(): void {
             }
         },
         tick: function(this: any, time: number, delta: number): void {
+            if (this.isReloading) {
+                this.reloadRemaining -= Math.min(delta, 100);
+                if (this.reloadRemaining <= 0) {
+                    this.ammoInClip = this.data.clipSize;
+                    this.isReloading = false;
+                    this.updateAmmoDisplay();
+                }
+            }
             // Hover bike animations and updates
             const dt = delta / 1000; // Convert to seconds
             this.hoverTime += dt;
@@ -790,25 +730,30 @@ export default function initializeWeaponComponent(): void {
                 }
             }
             
-            // Check for 'R' key press to reload
-            if (this.ammoInClip < this.data.clipSize && !this.isReloading && document.pointerLockElement) {
-                if (document.activeElement === document.body && (document.querySelector('r:active') || document.querySelector('R:active'))) {
-                    this.reload();
-                }
-            }
+        },
+        pause: function(this: any): void {
+            this.mouseDown = false;
+            this.stopFiring();
         },
         remove: function(this: any): void {
             try {
                 document.removeEventListener('mousedown', this.onMouseDown);
                 document.removeEventListener('mouseup', this.onMouseUp);
+                document.removeEventListener('keydown', this.onReloadKey);
                 if (this.reloadTimer) {
                     clearTimeout(this.reloadTimer);
                 }
                 if (this.fireLoopId) {
                     clearInterval(this.fireLoopId);
                 }
+                if (this.boltCleanupTimers) {
+                    this.boltCleanupTimers.forEach((timer: any) => clearTimeout(timer));
+                    this.boltCleanupTimers = [];
+                }
                 
-                // Clean up any effects when component is removed
+                if (this.bikeResources) this.bikeResources.forEach((resource: any) => resource.dispose());
+                if (this.tracerResources) this.tracerResources.forEach((resource: any) => resource.dispose?.());
+                this.bikeEntity?.remove();
             } catch (error) {
                 console.error('Error removing weapon component:', error);
             }

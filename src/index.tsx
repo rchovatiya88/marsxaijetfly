@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 
 // Import three.js shims and AFrame initialization
-import './three-addons-shim.js';
+
 import './aframe-init';
 
 // Add error boundary to help debug white screen issues

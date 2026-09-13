@@ -221,7 +221,7 @@ export default function initializeSpriteParticlesComponent(): void {
         this.el.appendChild(particlesEntity);
       },
       
-      applyPresetToEntity: function(this: any, entity: Element, preset: any) {
+      applyPresetToEntity: function(this: any, entity: AFrameElement, preset: any) {
         // Convert preset object to sprite-particles attribute string
         const spriteParticlesAttrs: Record<string, any> = { ...preset };
         
@@ -258,7 +258,7 @@ export default function initializeSpriteParticlesComponent(): void {
         entity.setAttribute('sprite-particles', spriteParticlesAttrs);
       },
       
-      applyConfigToEntity: function(this: any, entity: Element, config: any) {
+      applyConfigToEntity: function(this: any, entity: AFrameElement, config: any) {
         // Convert config to sprite-particles attributes
         const attrs: Record<string, any> = {};
         

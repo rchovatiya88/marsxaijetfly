@@ -1,314 +1,229 @@
-
-import React, { useEffect, useState, useRef } from 'react';
-// Import custom fly controls
-import './components/custom-fly-controls';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
-// Import Three.js shims first
-import './three-addons-shim.js';
-// Note: A-Frame and aframe-extras are now loaded in index.html
 import './aframe-init';
+import { gameAudio } from './game-audio';
 
-// Extend Window interface for browser compatibility
 declare global {
-    interface Window {
-        AFRAME?: any;
-    }
-
-    namespace JSX {
-        interface IntrinsicElements {
-            'a-scene': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-            'a-entity': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-            'a-camera': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-            'a-sky': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-            'a-light': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-        }
-    }
+  namespace JSX { interface IntrinsicElements { 'a-scene': any; 'a-entity': any; 'a-camera': any; 'a-light': any; } }
 }
 
-function App(): JSX.Element {
-    const [gameStarted, setGameStarted] = useState<boolean>(false);
-    const [gamePaused, setGamePaused] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true);
-    const gameSceneRef = useRef<HTMLElement | null>(null);
+type Result = { score: number; level: number; won: boolean; best: number };
 
-    // Check if AFRAME is available and setup scene  
-    useEffect(() => {
-        const checkAFrame = () => {
-            if (window.AFRAME) {
-                console.log('AFRAME is ready, initializing game');
-                setLoading(false);
-                return true;
-            }
-            return false;
-        };
+const ARENA_PROPS = [
+  { id: 'gate-left', position: '-9 2 -16', geometry: 'primitive: box; width: 1.2; height: 4; depth: 1.2', material: 'color: #855241; roughness: 1' },
+  { id: 'gate-right', position: '9 2 -16', geometry: 'primitive: box; width: 1.2; height: 4; depth: 1.2', material: 'color: #855241; roughness: 1' },
+  { id: 'center-ring-top', position: '0 4 -16', geometry: 'primitive: box; width: 18; height: 0.8; depth: 1.2', material: 'color: #ad6043; roughness: 1' },
+  { id: 'cover-left', position: '-12 1 -2', geometry: 'primitive: box; width: 5; height: 2; depth: 2', material: 'color: #4c3430; roughness: 1' },
+  { id: 'cover-right', position: '12 1 -3', geometry: 'primitive: box; width: 5; height: 2; depth: 2', material: 'color: #4c3430; roughness: 1' },
+  { id: 'tower-a', position: '-18 5 -22', geometry: 'primitive: cylinder; radius: 1.4; height: 10; segmentsRadial: 8', material: 'color: #6a4139; roughness: 1' },
+  { id: 'tower-b', position: '18 4 -24', geometry: 'primitive: cylinder; radius: 1.2; height: 8; segmentsRadial: 8', material: 'color: #6a4139; roughness: 1' }
+];
 
-        // Check immediately
-        if (checkAFrame()) return;
+const RUNWAY_LINES = [-18, -9, 0, 9, 18];
+const CRATER_RINGS = [
+  { id: 'crater-a', position: '-24 0.03 8', radius: 7.5, color: '#2b1518' },
+  { id: 'crater-b', position: '23 0.035 -32', radius: 10.5, color: '#30191b' },
+  { id: 'crater-c', position: '5 0.04 -52', radius: 13, color: '#241316' }
+];
+const RIDGE_SPIKES = [
+  [-34, -18, 5.5], [-31, -33, 8], [-39, 4, 4.5], [33, -20, 6.5], [37, -38, 7.5],
+  [-22, -58, 9], [24, -58, 8.5], [-48, -46, 6], [48, -48, 6.5]
+];
+const BEACONS = [
+  { id: 'beacon-left', x: -22, z: -8, color: '#78ffe1' },
+  { id: 'beacon-right', x: 22, z: -8, color: '#fff0a0' },
+  { id: 'beacon-far-left', x: -22, z: -36, color: '#ff8b62' },
+  { id: 'beacon-far-right', x: 22, z: -36, color: '#78ffe1' }
+];
 
-        // Set up interval to check for AFRAME
-        const intervalId = setInterval(() => {
-            if (checkAFrame()) {
-                clearInterval(intervalId);
-            }
-        }, 100);
+export default function App(): JSX.Element {
+  const sceneRef = useRef<any>(null);
+  const [ready, setReady] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [result, setResult] = useState<Result | null>(null);
+  const [sensitivity, setSensitivity] = useState(0.5);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
-        return () => clearInterval(intervalId);
-    }, []);
+  const clearFlightInput = () => {
+    (document.getElementById('player') as any)?.components?.['fly-controls']?.clearInput?.();
+  };
 
-    useEffect(() => {
-        // Initialize game and handle pointer lock events
-        const handlePointerLockChange = (): void => {
-            if (document.pointerLockElement === document.body) {
-                console.log('Pointer locked in App.tsx');
-                setGamePaused(false);
-            } else {
-                console.log('Pointer unlocked in App.tsx');
-                if (gameStarted) {
-                    setGamePaused(true);
-                }
-            }
-        };
-
-        const handlePointerLockError = (event: Event): void => {
-            console.error('Pointer lock error:', event);
-            setGamePaused(true);
-        };
-
-        document.addEventListener('pointerlockchange', handlePointerLockChange);
-        document.addEventListener('pointerlockerror', handlePointerLockError);
-
-        // Set up altitude and speed display
-        const updateDisplays = () => {
-            if (gameStarted && !gamePaused) {
-                // Get player element and component
-                const playerEl = document.querySelector('#player');
-                if (playerEl && (playerEl as any).object3D && (playerEl as any).components) {
-                    const playerComponent = (playerEl as any).components['player-component'];
-
-                    // Update altitude display
-                    const altitude = Math.max(0, (playerEl as any).object3D.position.y - 1.6).toFixed(1);
-                    const altitudeDisplay = document.getElementById('altitude-value');
-                    const altitudeBar = document.getElementById('altitude-bar');
-                    if (altitudeDisplay) {
-                        altitudeDisplay.textContent = altitude;
-                    }
-                    if (altitudeBar) {
-                        // Calculate percentage of max height (100 units)
-                        const maxHeight = 100;
-                        const percentage = Math.min(100, (parseFloat(altitude) / maxHeight) * 100);
-                        altitudeBar.style.width = `${percentage}%`;
-                    }
-
-                    // Update speed display
-                    if (playerComponent) {
-                        const velocity = playerComponent.velocity;
-                        if (velocity) {
-                            const speed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z).toFixed(1);
-                            const speedDisplay = document.getElementById('speed-value');
-                            const speedBar = document.getElementById('speed-bar');
-                            if (speedDisplay) {
-                                speedDisplay.textContent = speed;
-                            }
-                            if (speedBar) {
-                                // Calculate percentage of max speed (50 units)
-                                const maxSpeed = 50;
-                                const percentage = Math.min(100, (parseFloat(speed) / maxSpeed) * 100);
-                                speedBar.style.width = `${percentage}%`;
-                            }
-
-                            // Update motion blur effect for high speed
-                            const motionBlur = document.getElementById('motion-blur');
-                            if (motionBlur) {
-                                // Add motion blur effect when sprinting
-                                if (playerComponent.isSprinting && parseFloat(speed) > 20) {
-                                    motionBlur.classList.add('active');
-                                } else {
-                                    motionBlur.classList.remove('active');
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            requestAnimationFrame(updateDisplays);
-        };
-
-        updateDisplays();
-
-        return () => {
-            document.removeEventListener('pointerlockchange', handlePointerLockChange);
-            document.removeEventListener('pointerlockerror', handlePointerLockError);
-        };
-    }, [gameStarted, gamePaused]);
-
-    const startGame = (): void => {
-        console.log('Starting game and requesting pointer lock');
-        // Use the extended Document interface from lib.dom.d.ts
-        (document.body as any).requestPointerLock = 
-            document.body.requestPointerLock || 
-            (document.body as any).mozRequestPointerLock ||
-            (document.body as any).webkitRequestPointerLock;
-
-        // First set up the game components
-        const playerEl = document.querySelector('#player');
-        if (playerEl) {
-            // Disable the WASD controls from the camera to prevent conflicts
-            const cameraEl = playerEl.querySelector('#camera');
-            if (cameraEl) {
-                cameraEl.setAttribute('wasd-controls', 'enabled: false');
-                cameraEl.setAttribute('look-controls', 'enabled: false'); // Disable default look controls
-                console.log('Default camera controls disabled');
-            }
-
-            // Remove any existing controls first
-            playerEl.removeAttribute('custom-fly-controls');
-            
-            // Enable custom fly controls with proper settings
-            playerEl.setAttribute('custom-fly-controls', 'lookSpeed: 0.5; maxPitchAngle: 1.57');
-
-            // Keep existing fly controls enabled for movement
-            playerEl.setAttribute('fly-controls', 'enabled: true');
-            console.log('Fly controls explicitly enabled and configured');
-        }
-
-        // Get game manager and start game
-        const gameManagerEl = document.querySelector('[game-manager]');
-        const gameManager = gameManagerEl ? (gameManagerEl as any).components['game-manager'] : null;
-
-        if (gameManager && gameManager.startGame) {
-            gameManager.startGame();
-            setGameStarted(true);
-            setGamePaused(false);
-        }
-
-        // Then request pointer lock
-        document.body.requestPointerLock();
+  useEffect(() => {
+    const scene = sceneRef.current;
+    let timer: ReturnType<typeof setTimeout>;
+    const loaded = (event?: Event) => {
+      if (event?.type === 'model-loaded') return;
+      scene.pause();
+      if (scene.hasLoaded) setReady(true);
     };
-
-    const resumeGame = (): void => {
-        console.log('Resuming game and re-enabling pointer lock');
-
-        // Re-enable controls
-        const playerEl = document.querySelector('#player');
-        if (playerEl) {
-            playerEl.setAttribute('fly-controls', 'enabled: true');
-            playerEl.setAttribute('custom-fly-controls', 'lookSpeed: 0.5; maxPitchAngle: 1.57');
-            console.log('Fly controls re-enabled on resume');
-        }
-
-        document.body.requestPointerLock();
-        setGamePaused(false);
+    const notify = (event: any) => {
+      clearTimeout(timer);
+      setMessage(event.detail.text);
+      if (event.detail.duration) timer = setTimeout(() => setMessage(''), event.detail.duration);
     };
+    const ended = (event: any) => {
+      setResult(event.detail);
+      scene.pause();
+      if (document.pointerLockElement) document.exitPointerLock();
+    };
+    const failed = () => setError('A level asset could not load. Reload to try again.');
+    scene.addEventListener('loaded', loaded);
+    scene.addEventListener('model-loaded', loaded);
+    scene.addEventListener('mission-message', notify);
+    scene.addEventListener('mission-ended', ended);
+    scene.addEventListener('model-error', failed, true);
+    if (scene.hasLoaded) loaded();
+    return () => {
+      clearTimeout(timer);
+      scene.removeEventListener('loaded', loaded);
+      scene.removeEventListener('model-loaded', loaded);
+      scene.removeEventListener('mission-message', notify);
+      scene.removeEventListener('mission-ended', ended);
+      scene.removeEventListener('model-error', failed, true);
+    };
+  }, []);
 
-    if (loading) {
-        return (
-            <div className="loading-screen">
-                <div className="loading-spinner"></div>
-                <h2>Loading Game...</h2>
-                <p>Please wait while the game resources are loading.</p>
-            </div>
-        );
-    }
+  useEffect(() => {
+    const scene = sceneRef.current;
+    const changed = () => {
+      const locked = document.pointerLockElement === document.body;
+      const manager = scene.components['game-manager'];
+      if (locked && !manager.gameOver) {
+        if (!manager.gameStarted) manager.startGame();
+        scene.play();
+        setStarted(true);
+        setPaused(false);
+        setError('');
+      } else {
+        clearFlightInput();
+        scene.pause();
+        setPaused(true);
+      }
+    };
+    const failed = () => { setError('Mouse capture was blocked. Click Launch or Resume to try again.'); clearFlightInput(); scene.pause(); };
+    const hidden = () => {
+      if (document.hidden) {
+        clearFlightInput();
+        scene.pause();
+        if (document.pointerLockElement) document.exitPointerLock();
+      }
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.code === 'Escape') {
+        clearFlightInput();
+        scene.pause();
+        setPaused(true);
+        if (document.pointerLockElement) document.exitPointerLock();
+      }
+    };
+    document.addEventListener('keydown', escape);
+    document.addEventListener('pointerlockchange', changed);
+    document.addEventListener('pointerlockerror', failed);
+    document.addEventListener('visibilitychange', hidden);
+    return () => {
+      document.removeEventListener('keydown', escape);
+      document.removeEventListener('pointerlockchange', changed);
+      document.removeEventListener('pointerlockerror', failed);
+      document.removeEventListener('visibilitychange', hidden);
+    };
+  }, []);
 
-    return (
-        <div className="App">
-            {/* Motion blur effect for high speed */}
-            <div id="motion-blur"></div>
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      const player: any = document.getElementById('player');
+      const flight = player?.components['fly-controls'];
+      const speed = flight?.velocity?.length() || 0;
+      const speedEl = document.getElementById('speed-value');
+      const altitudeEl = document.getElementById('altitude-value');
+      if (speedEl) speedEl.textContent = Math.round(speed).toString();
+      if (altitudeEl) altitudeEl.textContent = Math.max(0, Math.round(player?.object3D?.position.y || 0)).toString();
+      frame = requestAnimationFrame(update);
+    };
+    frame = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
-            <div id="crosshair">+</div>
-            <div id="health-display">
-                <div id="health-bar"></div>
-            </div>
-            <div id="ammo-display">30/∞</div>
-            <div id="score-ui">
-                <div>Level: <span id="level-value">1</span></div>
-                <div>Score: <span id="score-value">0</span></div>
-                <div>Enemies: <span id="enemies-value">5</span></div>
-            </div>
-            <div id="damage-overlay"></div>
+  const capture = () => {
+    if (!ready) return;
+    gameAudio.resume();
+    gameAudio.startAmbient();
+    const player = document.getElementById('player');
+    player?.setAttribute('fly-controls', `enabled: true; lookSensitivity: ${sensitivity}`);
+    try {
+      const request = document.body.requestPointerLock();
+      (request as any)?.catch(() => setError('Mouse capture was blocked. Click again to retry.'));
+    } catch { setError('This browser could not capture the mouse. Try desktop Chrome or Firefox.'); }
+  };
 
-            {/* Game Message Overlay */}
-            {!gameStarted && (
-                <div id="game-message">
-                    Welcome to FPS Claude!<br />
-                    WASD to move, Mouse to aim, Click to shoot<br /><br />
-                    <button id="start-button" onClick={startGame}>Start Game</button>
-                </div>
-            )}
+  const cursorFlight = () => {
+    const scene = sceneRef.current;
+    gameAudio.resume();
+    gameAudio.startAmbient();
+    document.getElementById('player')?.setAttribute('fly-controls', `enabled: true; dragToLook: true; lookSensitivity: ${sensitivity}`);
+    if (!scene.components['game-manager'].gameStarted) scene.components['game-manager'].startGame();
+    scene.play();
+    setStarted(true); setPaused(false); setError('');
+  };
 
-            {gameStarted && gamePaused && (
-                <div id="pause-menu">
-                    <h2>Game Paused</h2>
-                    <button onClick={resumeGame}>Resume Game</button>
-                </div>
-            )}
-
-            {/* A-Frame Scene */}
-            <a-scene 
-                ref={gameSceneRef}
-                game-manager="enemyCount: 5; level: 1; spawnRadius: 15"
-                vr-mode-ui="enabled: false"
-                renderer="antialias: true; gammaOutput: true">
-
-                {/* Environment & Level */}
-                <a-entity 
-                    id="level"
-                    gltf-model="/models/level1.glb"
-                    position="0 5.9 -20"
-                    scale="1 1 1"></a-entity>
-
-                <a-entity 
-                    id="navmesh"
-                    gltf-model="/models/level1_navmesh.glb"
-                    position="0 5.9 -20"
-                    scale="1 1 1"
-                    visible="false"></a-entity>
-
-                <a-entity
-                    id="player"
-                    position="0 1.6 0"
-                    player-component
-                    custom-fly-controls="lookSpeed: 0.5; maxPitchAngle: 1.57"
-                    visible="true">
-                    
-                    <a-entity
-                        id="player-collision"
-                        geometry="primitive: box; width: 0.5; height: 1.6; depth: 0.5"
-                        material="color: red; opacity: 0.5"
-                        position="0 0.8 0"
-                        visible="false"></a-entity>
-                    
-                    <a-entity
-                        id="player-hitbox"
-                        geometry="primitive: box; width: 0.5; height: 1.6; depth: 0.5"
-                        material="color: red; opacity: 0.5"
-                        position="0 0.8 0"
-                        visible="false"></a-entity>
-                    
-                    <a-camera
-                        id="camera"
-                        position="0 1.6 0"
-                        look-controls="reverseMouseDrag: false; touchEnabled: true; pointerLockEnabled: true; magicWindowTrackingEnabled: false"
-                        wasd-controls="enabled: false"></a-camera>
-                </a-entity>
-
-                {/* Sky */}
-                <a-sky color="black"></a-sky>
-
-                {/* Lights */}
-                <a-light 
-                    type="ambient"
-                    color="#BBB"
-                    intensity="3.5"></a-light>
-                    
-                <a-light 
-                    type="directional"
-                    color="#FFF"
-                    intensity="0.5"
-                    position="-1 1 1"></a-light>
-            </a-scene>
-        </div>
-    );
+  return <div className={`App ${reducedMotion ? 'reduced-motion' : ''}`}>
+    <div className="hud" style={{ visibility: started && !result ? 'visible' : 'hidden' }}>
+      <div id="crosshair">+</div>
+      <div id="score-ui"><small>OPERATION / RED HORIZON</small><div>WAVE <span id="level-value">1</span> / 3</div><div>SCORE <span id="score-value">0</span></div><div>HOSTILES <span id="enemies-value">3</span></div><div id="combo-value">CHAIN ×1</div></div>
+      <div className="flight-readout"><span id="speed-value">0</span> M/S <b> / </b><span id="altitude-value">0</span> M ALT</div>
+      <div className="hull-label">HULL INTEGRITY</div><div id="health-display"><div id="health-bar" /></div>
+      <div id="ammo-display">30 / ∞</div><div className="controls-hint">WASD fly · E / Q altitude · Shift boost · R reload · Esc pause</div>
+      {!paused && <div className="mission-toast" role="status">{message}</div>}
+    </div>
+    <div id="damage-overlay" />
+    {(!started || paused || result) && <div className="menu-shade"><main className="mission-menu">
+      <div className="eyebrow">MARS / FLIGHT DIVISION <span>PLAYABLE PROTOTYPE 01</span></div>
+      <p className="coordinates">25.4° N &nbsp; 137.8° E &nbsp; / &nbsp; SIGNAL ACTIVE</p>
+      <h1>{result ? (result.won ? 'SECTOR\nSECURED.' : 'SIGNAL\nLOST.') : paused && started ? 'HOLD\nPOSITION.' : 'RED\nHORIZON.'}</h1>
+      <p className="menu-description">{result ? `Score ${result.score} · Best ${result.best} · Wave ${result.level}/3` : 'Pilot a combat jetbike over the red frontier. Clear three waves. Chain eliminations within six seconds to multiply your score.'}</p>
+      <div className="mission-details"><div><small>MISSION</small><strong>Three-wave sortie</strong></div><div><small>LOADOUT</small><strong>Twin pulse cannon</strong></div><div><small>FLIGHT</small><strong>Mouse + keyboard</strong></div></div>
+      <div className="settings"><label>Mouse sensitivity <input aria-label="Mouse sensitivity" type="range" min="0.1" max="1.5" step="0.1" value={sensitivity} onChange={e => setSensitivity(Number(e.target.value))} /></label><label><input type="checkbox" checked={reducedMotion} onChange={e => setReducedMotion(e.target.checked)} /> Reduce screen effects</label></div>
+      {error && <p role="alert" className="error">{error}</p>}
+      <button id="start-button" disabled={!ready} onClick={result ? () => window.location.reload() : capture}>{result ? 'FLY AGAIN ↗' : !ready ? 'PREPARING FLIGHT…' : started ? 'RESUME FLIGHT ↗' : 'LAUNCH SORTIE ↗'}</button>
+      {!result && ready && <button className="cursor-button" onClick={cursorFlight}>Play with cursor aim (no mouse capture)</button>}
+      <p className="menu-controls">WASD move &nbsp; / &nbsp; E rise · Q descend &nbsp; / &nbsp; Shift boost<br />Mouse aim · Hold click fire &nbsp; / &nbsp; R reload &nbsp; / &nbsp; Esc pause</p>
+    </main></div>}
+    <a-scene ref={sceneRef} game-manager="enemyCount: 2; level: 1; spawnRadius: 16; maxActiveEnemies: 4; enemySpawnInterval: 1200" vr-mode-ui="enabled: false" renderer="antialias: false; colorManagement: true; precision: mediump" background="color: #130b14" fog="type: exponential; color: #46251e; density: 0.008">
+      <a-entity id="level" visible="false" />
+      <a-entity star-field="starCount: 180; starSize: 0.15; width: 260; height: 80; depth: 220; color: #ffe2c2; speed: 0.01" position="0 34 -70" />
+      <a-entity id="arena-ground" geometry="primitive: plane; width: 170; height: 170" rotation="-90 0 0" material="color: #6c392c; roughness: 1; metalness: 0" position="0 -0.1 0" />
+      <a-entity geometry="primitive: plane; width: 72; height: 112" rotation="-90 0 0" position="0 -0.08 -16" material="shader: flat; color: #2a151b; opacity: 0.28; transparent: true" />
+      {CRATER_RINGS.map(crater => <React.Fragment key={crater.id}>
+        <a-entity geometry={`primitive: ring; radiusInner: ${crater.radius * 0.76}; radiusOuter: ${crater.radius}; segmentsTheta: 40`} rotation="-90 0 0" position={crater.position} material={`shader: flat; color: ${crater.color}; opacity: 0.55; transparent: true`} />
+        <a-entity geometry={`primitive: ring; radiusInner: ${crater.radius}; radiusOuter: ${crater.radius + 0.35}; segmentsTheta: 40`} rotation="-90 0 0" position={crater.position} material="shader: flat; color: #ff9f69; opacity: 0.16; transparent: true" />
+      </React.Fragment>)}
+      {RIDGE_SPIKES.map(([x, z, h], index) => <a-entity key={`ridge-${index}`} geometry={`primitive: cone; radiusBottom: ${h * 0.55}; radiusTop: 0.4; height: ${h}; segmentsRadial: 6`} position={`${x} ${h / 2 - 0.1} ${z}`} material="color: #4b2726; roughness: 1" />)}
+      <a-entity geometry="primitive: ring; radiusInner: 18; radiusOuter: 19; segmentsTheta: 48" rotation="-90 0 0" position="0 0.02 -10" material="shader: flat; color: #ff8b62; opacity: 0.45; transparent: true" />
+      <a-entity geometry="primitive: ring; radiusInner: 32; radiusOuter: 32.6; segmentsTheta: 64" rotation="-90 0 0" position="0 0.04 -10" material="shader: flat; color: #70ffe4; opacity: 0.25; transparent: true" />
+      {RUNWAY_LINES.map(x => <a-entity key={`runway-${x}`} geometry="primitive: box; width: 0.18; height: 0.08; depth: 82" position={`${x} 0.05 -14`} material="shader: flat; color: #2fffd5; opacity: 0.38; transparent: true" />)}
+      {[-26, 26].map(x => <a-entity key={`wall-${x}`} geometry="primitive: box; width: 0.35; height: 2.2; depth: 70" position={`${x} 1 -10`} material="shader: flat; color: #102a2e; opacity: 0.72; transparent: true" />)}
+      {BEACONS.map(beacon => <a-entity key={beacon.id} position={`${beacon.x} 0 ${beacon.z}`}>
+        <a-entity geometry="primitive: cylinder; radius: 0.32; height: 5.5; segmentsRadial: 8" position="0 2.75 0" material="color: #151d22; roughness: 0.7" />
+        <a-entity geometry="primitive: sphere; radius: 0.62; segmentsWidth: 12; segmentsHeight: 8" position="0 5.7 0" material={`shader: flat; color: ${beacon.color}`} light={`type: point; color: ${beacon.color}; intensity: 0.9; distance: 18`} />
+      </a-entity>)}
+      {ARENA_PROPS.map(prop => <a-entity key={prop.id} id={prop.id} class="obstacle" position={prop.position} geometry={prop.geometry} material={prop.material} />)}
+      <a-entity geometry="primitive: box; width: 52; height: 0.12; depth: 0.4" position="0 0.28 25" material="shader: flat; color: #ff8b62; opacity: 0.45; transparent: true" />
+      <a-entity geometry="primitive: box; width: 52; height: 0.12; depth: 0.4" position="0 0.28 -49" material="shader: flat; color: #ff8b62; opacity: 0.45; transparent: true" />
+      <a-entity geometry="primitive: torus; radius: 7.5; radiusTubular: 0.12; segmentsRadial: 8; segmentsTubular: 48" rotation="0 90 0" position="0 4 -26" material="shader: flat; color: #7dffe9" />
+      <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" rotation="0 90 0" position="-15 3 -30" material="shader: flat; color: #ffb174" />
+      <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" rotation="0 90 0" position="15 3 -30" material="shader: flat; color: #ffb174" />
+      <a-entity geometry="primitive: sphere; radius: 12; segmentsWidth: 16; segmentsHeight: 8" position="-70 70 -150" material="shader: flat; color: #ffb56b" light="type: point; color: #ffb56b; intensity: 0.8; distance: 220" />
+      <a-entity id="player" position="0 3 12" player-component="" fly-controls="enabled: false; lookSensitivity: 0.5">
+        <a-entity id="camera-rig" position="0 2 8"><a-camera id="camera" position="0 0 0" look-controls="enabled: false" wasd-controls="enabled: false" /></a-entity>
+        <a-entity id="jetbike" weapon-component="cooldown: 0.16; accuracy: 1; thrusterParticles: false" />
+        <a-entity id="player-hitbox" geometry="primitive: box; width: 1.2; height: 1.8; depth: 1.2" material="visible: false" />
+      </a-entity>
+      <a-light type="hemisphere" color="#ffd6ac" ground-color="#452339" intensity="1.6" />
+      <a-light type="directional" color="#ffb785" intensity="1.8" position="-1 2 1" />
+      <a-light type="point" color="#78ffe1" intensity="0.8" distance="54" position="0 8 -20" />
+    </a-scene>
+  </div>;
 }
-
-export default App;

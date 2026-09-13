@@ -11,6 +11,7 @@ import initializeNavMeshConstraint from './components/simple-navmesh-constraint'
 import initializeSpritesheetAnimationComponent from './components/spritesheet-animation-component';
 import initializeSpriteParticlesComponent from './components/sprite-particles-component';
 import initializeFlyControls from './components/fly-controls';
+import initializeStarFieldComponent from './components/star-field-component';
 
 // Add global interfaces
 declare global {
@@ -34,6 +35,7 @@ export function initializeAFrame(): void {
   initializeHitboxComponent();
   initializeSpritesheetAnimationComponent(); // Initialize spritesheet animations
   initializeSpriteParticlesComponent(); // Initialize sprite particles
+  initializeStarFieldComponent();
   initializeFlyControls(); // Initialize fly controls before player
   initializePlayerComponent();
   initializeWeaponComponent();

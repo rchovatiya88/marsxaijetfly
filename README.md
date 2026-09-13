@@ -1,92 +1,53 @@
-# FPS Claude - A-Frame FPS Game in React
+# Red Horizon — Mars Jetbike
 
-A first-person shooter game built with React and A-Frame. This project demonstrates how to integrate A-Frame's WebVR/WebXR capabilities with React for a modern web-based game development approach.
+A playable React + A-Frame + Three.js combat-flight prototype. Clear three waves, chain eliminations for score multipliers, and improve your local best. The active build now uses a lightweight procedural arena so playability does not depend on the heavier imported Mars city GLBs. The product direction is a premium paid full game; this repository is currently the prototype and browser-demo foundation.
 
-## Features
+## Run
 
-- First-person shooter gameplay
-- Enemy AI with different enemy types
-- Weapon mechanics with shooting, reloading
-- Level progression system
-- Score tracking and health management
-- Physics-based movement and collisions
-- Particle effects for visual feedback
+Use Node 22.12 or newer.
 
-## Technology Stack
-
-- React.js for UI management
-- A-Frame for WebVR/WebXR and 3D rendering
-- Three.js for 3D graphics (used by A-Frame internally)
-- YUKA for AI and entity management
-
-## Installation
-
-1. Make sure you have Node.js and npm installed
-2. Clone this repository
-3. Install dependencies:
-
-```bash
-cd marsxai
-npm install
-```
-
-## Running the Game
-
-Start the development server:
-
-```bash
+```sh
+npm ci --legacy-peer-deps
 npm start
 ```
 
-The game will open in your browser at http://localhost:3000.
+Open http://localhost:5173. Click **Launch Sortie**; if mouse capture is blocked, choose **Play with cursor aim**.
 
-## Controls
+| Control | Action |
+|---|---|
+| WASD | Fly |
+| E / Q | Ascend / descend |
+| Mouse | Aim |
+| Left click / hold | Fire |
+| Shift | Boost |
+| R | Reload |
+| Escape | Pause |
 
-- **WASD**: Movement
-- **Mouse**: Look around
-- **Left Click**: Shoot
-- **Shift**: Sprint
-- **R**: Reload weapon
-- **ESC**: Pause game
+Sensitivity and reduced damage-overlay effects are available in the menu. Best score is local to the browser. The full human playtest checklist is in [docs/VALIDATION.md](docs/VALIDATION.md).
 
-## Game Mechanics
+## Build and verify
 
-### Enemies
+```sh
+npm test
+npm run typecheck
+npm run build
+npm run preview
+```
 
-The game features four types of enemies:
-- **Normal**: Balanced stats
-- **Fast**: Quick movement but lower health
-- **Tank**: High health but slow movement
-- **Sniper**: High damage and range but slow fire rate
+Production files are in `dist/`. Start/build copies pinned local A-Frame and Draco dependencies into `public/vendor`. Vite's root `index.html` is the active HTML entry. Old CRA/Webpack files and `public/index.html` are historical and are not used by the current build. Typecheck covers the active entry and imports; unused legacy demos are not certified.
 
-### Levels
+The Vite Three bridge reuses A-Frame's runtime. The separate Three package supplies existing types and build-time export names. Avoid adding runtime APIs solely because newer types contain them.
 
-Each level increases the number and difficulty of enemies. Complete a level by defeating all enemies to progress to the next level.
+## Development plan
 
-## Development
+- [Research and premium strategy](docs/RESEARCH.md)
+- [Step-by-step roadmap](docs/ROADMAP.md)
+- [Project architecture graph](docs/PROJECT_GRAPH.md)
+- [A-Frame versus Three.js revamp plan](docs/REVAMP_PLAN.md)
+- [Verification and known gaps](docs/VALIDATION.md)
+- [Next-agent memory](docs/PROJECT_MEMORY.md)
+- [Repository agent guidance](AGENTS.md)
 
-### Project Structure
+Two reusable development/product skills live in `.agents/skills/`. The original models are preserved. The active bike and default arena are procedural because playability and frame time are the current priority; an embedded texture in the original jetbike GLB is corrupt.
 
-- `/public`: Static assets and HTML template
-- `/src`: React source code
-  - `/components`: A-Frame component definitions
-    - `utils.js`: Utility functions and particle system
-    - `hitbox-component.js`: Collision detection for entities
-    - `player-component.js`: Player movement and physics
-    - `weapon-component.js`: Weapon mechanics and shooting
-    - `enemy-component.js`: Enemy AI and behavior
-    - `game-manager.js`: Game state and level management
-  - `App.js`: Main React component with A-Frame scene
-  - `index.js`: React entry point
-
-## Customization
-
-You can modify the game parameters by adjusting the component properties in `App.js`:
-
-- Change player stats in the `player-component` attributes
-- Adjust weapon properties in the `weapon-component` attributes
-- Modify game difficulty in the `game-manager` attributes
-
-## License
-
-This project is open source and available under the MIT License.
+The prototype still needs collision work, enemy fairness, audio, human balance tests, asset-rights verification, and paid-edition packaging. Nothing has been published or monetized.

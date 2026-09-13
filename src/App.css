@@ -1,324 +1,42 @@
-/* Loading screen */
-.loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #0c0e20;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-family: 'Orbitron', sans-serif;
-  text-align: center;
-  z-index: 9999;
-}
+.App, a-scene { width: 100vw; height: 100vh; overflow: hidden; position: absolute; inset: 0; }
+.hud { position: fixed; inset: 0; z-index: 10; pointer-events: none; font: 13px monospace; letter-spacing: .08em; }
+#crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font: 24px monospace; color: #bbfff2; text-shadow: 0 0 8px #1ffff0, 0 0 18px #1ffff080; transition: color .08s, font-size .08s, text-shadow .08s; }
+#crosshair.hit { text-shadow: 0 0 8px #fff2a8, 0 0 24px #ff9b4f; }
+.shot-streak { position: fixed; left: 50%; top: 50%; width: 38vw; max-width: 560px; height: 8px; z-index: 11; pointer-events: none; background: linear-gradient(90deg, transparent 0%, #78ffe1 54%, #fff 78%, transparent 100%); border-radius: 999px; filter: drop-shadow(0 0 8px #78ffe1) drop-shadow(0 0 18px #78ffe180); opacity: 0; animation: shot-streak 150ms ease-out forwards; transform-origin: 100% 50%; }
+.shot-streak-left { transform: translate(-91%, 25vh) rotate(-23deg); }
+.shot-streak-right { transform: translate(-9%, 25vh) rotate(-157deg); }
+@keyframes shot-streak { 0% { opacity: 0; clip-path: inset(0 100% 0 0); } 18% { opacity: 1; } 100% { opacity: 0; clip-path: inset(0 0 0 0); } }
+#score-ui { position: absolute; top: 30px; left: 32px; line-height: 1.9; padding: 16px 20px; background: #171419d9; border-left: 2px solid #ff895b; box-shadow: 0 0 28px #0008; }
+#score-ui small { color: #eaae86; font-size: 10px; }
+#score-ui span { color: white; }
+.flight-readout { position: absolute; top: 34px; right: 32px; }
+.flight-readout b { color: #dd8968; }
+.hull-label { position: absolute; bottom: 78px; left: 32px; font-size: 10px; }
+#health-display { position: absolute; bottom: 58px; left: 32px; width: 230px; height: 8px; background: #30282d; box-shadow: 0 0 16px #000a; }
+#health-bar { height: 100%; width: 100%; background: linear-gradient(90deg,#6dff79,#fff0a0); box-shadow: 0 0 14px #7dff9b; transition: width .15s; }
+#ammo-display { position: absolute; bottom: 54px; right: 32px; font-size: 24px; color: #fff0a0; text-shadow: 0 0 14px #ff9b4f; }
+.controls-hint { position: absolute; bottom: 20px; width: 100%; text-align: center; color: #d4b9a8; font-size: 10px; }
+.mission-toast { position: absolute; top: 25%; width: 100%; text-align: center; font-size: 20px; white-space: pre-line; text-shadow: 0 2px 8px #000; }
+#damage-overlay { position: fixed; inset: 0; z-index: 12; pointer-events: none; transition: background-color .1s; box-shadow: inset 0 0 90px transparent; }
+.menu-shade { position: fixed; inset: 0; z-index: 20; overflow: auto; background: linear-gradient(90deg,#150f19f5 0%,#1a111ade 43%,#25131950 100%); }
+.mission-menu { min-height: 100%; max-width: 850px; padding: 38px 6vw; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.eyebrow { color: #ffab81; font: 10px monospace; letter-spacing: .18em; width: 100%; display: flex; gap: 32px; justify-content: space-between; }
+.eyebrow span { color: #b49da0; }
+.coordinates { color: #a68c8b; font: 10px monospace; letter-spacing: .1em; margin-top: 40px; }
+h1 { white-space: pre-line; font-size: clamp(60px,9vw,126px); letter-spacing: -.075em; line-height: .84; margin: 20px 0 28px; font-weight: 900; }
+.menu-description { color: #cdb8b1; max-width: 440px; font-size: 15px; line-height: 1.7; }
+.mission-details { display: flex; gap: 32px; border-top: 1px solid #ffffff25; border-bottom: 1px solid #ffffff25; padding: 18px 0; margin: 14px 0 20px; width: 100%; }
+.mission-details small { display: block; color: #af8980; font: 9px monospace; letter-spacing: .15em; margin-bottom: 8px; }
+.mission-details strong { font-size: 12px; font-weight: 400; }
+.settings { font-size: 11px; display: flex; gap: 22px; align-items: center; color: #bdaaa7; }
+.settings label { display: flex; align-items: center; gap: 8px; }
+.settings input[type=range] { width: 80px; accent-color: #ff996d; }
+#start-button { background: #ff996d; color: #251619; border: 0; padding: 18px 28px; margin-top: 25px; font: bold 12px monospace; letter-spacing: .12em; cursor: pointer; min-width: 240px; text-align: left; }
+#start-button:hover { background: #ffc39d; }
+#start-button:disabled { opacity: .5; cursor: wait; }
+.menu-controls { color: #a98f89; font: 10px/1.9 monospace; }
+.error { color: #ffbcaa; font-size: 13px; }
+.reduced-motion #damage-overlay { display: none; }
+@media(max-width:600px) { .mission-menu { padding: 24px; } .eyebrow { flex-wrap: wrap; gap: 8px; } .mission-details { gap: 18px; } .settings { flex-wrap: wrap; } .coordinates { margin-top: 22px; } }
 
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #00ffff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 20px;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Sound Controls */
-#sound-controls {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-}
-
-#mute-button {
-  background-color: rgba(0, 0, 0, 0.6);
-  border: 2px solid #00ffff;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #00ffff;
-  transition: all 0.2s ease;
-  outline: none;
-  padding: 0;
-}
-
-#mute-button:hover {
-  background-color: rgba(0, 0, 0, 0.8);
-  transform: scale(1.05);
-}
-
-#mute-button:active {
-  transform: scale(0.95);
-}
-#altitude-display {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: rgba(0, 40, 80, 0.7);
-  color: #0ff;
-  padding: 10px;
-  border-radius: 5px;
-  font-family: 'Orbitron', monospace;
-  font-size: 14px;
-  user-select: none;
-  border: 1px solid #0ff;
-  box-shadow: 0 0 10px #0ff;
-  backdrop-filter: blur(3px);
-}
-
-#altitude-meter {
-  width: 120px;
-  height: 10px;
-  background-color: rgba(0, 40, 80, 0.7);
-  border-radius: 5px;
-  margin-top: 5px;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #0ff;
-}
-
-#altitude-bar {
-  height: 100%;
-  background: linear-gradient(to right, #00f, #0ff, #fff);
-  width: 0%;
-  transition: width 0.2s ease;
-  box-shadow: 0 0 5px #0ff;
-}
-
-.App {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-}
-
-#crosshair {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #0ff;
-  z-index: 1000;
-  pointer-events: none;
-  text-align: center;
-  user-select: none;
-  filter: drop-shadow(0 0 2px #0ff);
-}
-
-#health-display {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  width: 200px;
-  height: 10px;
-  background-color: rgba(0, 40, 80, 0.7);
-  border-radius: 5px;
-  overflow: hidden;
-  border: 1px solid #0ff;
-  box-shadow: 0 0 10px #0ff;
-}
-
-#health-bar {
-  height: 100%;
-  background: linear-gradient(to right, #0ff, #0af, #0ff);
-  width: 100%;
-  transition: width 0.3s ease;
-  box-shadow: 0 0 8px #0ff;
-}
-
-#ammo-display {
-  position: fixed;
-  bottom: 40px;
-  right: 20px;
-  background-color: rgba(0, 40, 80, 0.7);
-  color: #0ff;
-  padding: 10px;
-  border-radius: 5px;
-  font-family: 'Orbitron', monospace;
-  font-size: 14px;
-  user-select: none;
-  border: 1px solid #0ff;
-  box-shadow: 0 0 10px #0ff;
-  backdrop-filter: blur(3px);
-}
-
-#score-ui {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background-color: rgba(0, 40, 80, 0.7);
-  color: #0ff;
-  padding: 10px;
-  border-radius: 5px;
-  font-family: 'Orbitron', monospace;
-  font-size: 14px;
-  user-select: none;
-  border: 1px solid #0ff;
-  box-shadow: 0 0 10px #0ff;
-  backdrop-filter: blur(3px);
-}
-
-#damage-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 255, 255, 0);
-  pointer-events: none;
-  z-index: 999;
-  transition: background-color 0.1s ease;
-}
-
-#game-message {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(0, 40, 80, 0.8);
-  color: #0ff;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  font-family: 'Orbitron', monospace;
-  z-index: 2000;
-  max-width: 500px;
-  width: 80%;
-  border: 2px solid #0ff;
-  box-shadow: 0 0 20px #0ff, inset 0 0 10px #0ff;
-  backdrop-filter: blur(5px);
-}
-
-button {
-  cursor: pointer;
-  background-color: rgba(0, 150, 255, 0.5);
-  border: 1px solid #0ff;
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 10px 2px;
-  border-radius: 5px;
-  transition: all 0.3s;
-  font-family: 'Orbitron', monospace;
-  box-shadow: 0 0 10px #0ff;
-}
-
-button:hover {
-  background-color: rgba(0, 200, 255, 0.7);
-  box-shadow: 0 0 15px #0ff;
-  transform: scale(1.05);
-}
-
-/* Space flight effects */
-
-#speed-indicator {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: rgba(0, 40, 80, 0.7);
-  color: #0ff;
-  padding: 10px;
-  border-radius: 5px;
-  font-family: 'Orbitron', monospace;
-  font-size: 14px;
-  user-select: none;
-  border: 1px solid #0ff;
-  box-shadow: 0 0 10px #0ff;
-  backdrop-filter: blur(3px);
-}
-
-#speed-meter {
-  width: 120px;
-  height: 10px;
-  background-color: rgba(0, 40, 80, 0.7);
-  border-radius: 5px;
-  margin-top: 5px;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #0ff;
-}
-
-#speed-bar {
-  height: 100%;
-  background: linear-gradient(to right, #00f, #0ff, #fff);
-  width: 0%;
-  transition: width 0.2s ease;
-  box-shadow: 0 0 5px #0ff;
-}
-
-/* Motion blur effect when sprinting */
-@keyframes motionLines {
-  0% { opacity: 0; transform: scale(0.8); }
-  50% { opacity: 0.3; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.2); }
-}
-
-.motion-blur {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 5;
-  opacity: 0;
-  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,255,255,0.1) 100%);
-}
-
-.motion-blur.active {
-  animation: motionLines 0.5s infinite;
-}
-
-/* Star field background */
-@keyframes twinkle {
-  0% { opacity: 0.3; }
-  50% { opacity: 1; }
-  100% { opacity: 0.3; }
-}
-
-.star {
-  position: absolute;
-  background-color: white;
-  border-radius: 50%;
-  animation: twinkle 4s infinite alternate;
-}
-
-.star:nth-child(odd) {
-  animation-duration: 6s;
-}
-
-.star:nth-child(3n) {
-  animation-duration: 8s;
-  animation-delay: 1s;
-}
-
-.star:nth-child(5n) {
-  animation-duration: 10s;
-  animation-delay: 2s;
-}
-
-/* Make sure A-Frame scene takes up full space */
-a-scene {
-  height: 100vh;
-  width: 100vw;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
+.cursor-button { color: #dbc5b9; background: transparent; border: 0; padding: 12px 0 0; text-decoration: underline; font-size: 11px; cursor: pointer; }

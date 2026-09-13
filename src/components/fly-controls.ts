@@ -49,6 +49,11 @@ export default function initializeFlyControls(): void {
         this.velocity = new THREE.Vector3(0, 0, 0);
         this.rotation = new THREE.Euler(0, 0, 0, 'YXZ');
         this.rotationQuaternion = new THREE.Quaternion();
+        this.yawQuaternion = new THREE.Quaternion();
+        this.flatForward = new THREE.Vector3();
+        this.flatRight = new THREE.Vector3();
+        this.upVector = new THREE.Vector3(0, 1, 0);
+        this.flatMoveDelta = new THREE.Vector3();
         
         // Movement and rotation state
         this.moveVector = new THREE.Vector3();
@@ -112,11 +117,12 @@ export default function initializeFlyControls(): void {
       
       handlePointerLockChange: function() {
         this.mouseLocked = document.pointerLockElement === document.body;
+        if ((!this.mouseLocked && !this.data.dragToLook)) this.clearInput();
         console.log('Pointer lock changed:', this.mouseLocked ? 'locked' : 'unlocked');
       },
       
       handleKeyDown: function(event) {
-        if (!this.data.enabled) return;
+        if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook)) return;
         
         switch (event.code) {
           case 'KeyW': this.moveState.forward = 1; break;
@@ -166,12 +172,12 @@ export default function initializeFlyControls(): void {
       },
       
       handleMouseMove: function(event) {
-        if (!this.data.enabled || !this.mouseLocked || !this.mouseEnabled) return;
+        if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook) || !this.mouseEnabled) return;
         
         const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
         const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
         
-        console.log('Mouse move:', movementX, movementY);
+
         
         // Apply mouse movement directly to rotation
         const sensitivity = this.data.lookSensitivity;
@@ -187,12 +193,12 @@ export default function initializeFlyControls(): void {
       },
       
       handleMouseDown: function(event) {
-        if (!this.data.enabled) return;
+        if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook)) return;
         this.mouseEnabled = true;
       },
       
       handleMouseUp: function(event) {
-        if (!this.data.enabled) return;
+        if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook)) return;
       },
       
       updateMovementVector: function() {
@@ -212,7 +218,7 @@ export default function initializeFlyControls(): void {
       },
       
       tick: function(time, delta) {
-        if (!this.data.enabled) return;
+        if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook)) return;
         
         // Calculate time factor for smooth movement
         const dt = Math.min(delta / 1000, 0.1); // Cap at 0.1 to avoid large jumps
@@ -238,6 +244,7 @@ export default function initializeFlyControls(): void {
           this.playerObj.quaternion.copy(this.rotationQuaternion);
         }
         
+        this.velocity.set(0, 0, 0);
         // Apply movement if any direction keys are pressed
         if (this.moveVector.lengthSq() > 0) {
           // Create a normalized movement direction
@@ -246,19 +253,30 @@ export default function initializeFlyControls(): void {
           // Transform direction to player's local space
           const speed = this.data.movementSpeed * this.speedMultiplier * dt;
           
-          // Get forward, right and up vectors
-          const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.playerObj.quaternion);
-          const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.playerObj.quaternion);
-          const up = new THREE.Vector3(0, 1, 0);
+          // Use yaw-only movement so looking up does not make W climb.
+          this.yawQuaternion ||= new THREE.Quaternion();
+          this.upVector ||= new THREE.Vector3(0, 1, 0);
+          this.flatForward ||= new THREE.Vector3();
+          this.flatRight ||= new THREE.Vector3();
+          this.flatMoveDelta ||= new THREE.Vector3();
+          this.yawQuaternion.setFromAxisAngle(this.upVector, this.rotation.y);
+          const forward = this.flatForward.set(0, 0, -1).applyQuaternion(this.yawQuaternion).normalize();
+          const right = this.flatRight.set(1, 0, 0).applyQuaternion(this.yawQuaternion).normalize();
           
           // Calculate movement delta
-          const moveDelta = new THREE.Vector3()
+          const moveDelta = this.flatMoveDelta.set(0, 0, 0)
             .addScaledVector(forward, -moveDir.z * speed)
             .addScaledVector(right, moveDir.x * speed)
-            .addScaledVector(up, moveDir.y * speed);
+            .addScaledVector(this.upVector, moveDir.y * speed);
           
-          // Apply movement
+          // Apply movement inside the performance arena.
           this.playerObj.position.add(moveDelta);
+          this.playerObj.position.x = Math.max(-38, Math.min(38, this.playerObj.position.x));
+          this.playerObj.position.y = Math.max(1.8, Math.min(26, this.playerObj.position.y));
+          this.playerObj.position.z = Math.max(-48, Math.min(28, this.playerObj.position.z));
+          this.velocity.copy(moveDelta).divideScalar(dt || 0.016);
+          const player = this.el.components['player-component'];
+          if (player) { player.velocity.copy(this.velocity); player.isSprinting = this.speedMultiplier > 1; }
           
           // Emit movement event for other components
           this.el.emit('move', {
@@ -275,36 +293,20 @@ export default function initializeFlyControls(): void {
       updateCamera: function(dt) {
         if (!this.cameraRigEl) return;
         
-        // Get current position
-        const currentPos = this.cameraRigEl.getAttribute('position');
-        
-        // Calculate target position
-        // Base offset (distance behind player)
-        const targetOffset = new THREE.Vector3(0, 2, 8);
-        
-        // Convert to world space
-        const backward = new THREE.Vector3(0, 0, 1).applyQuaternion(this.playerObj.quaternion);
-        const upward = new THREE.Vector3(0, 1, 0);
-        
-        // Calculate target position
-        const targetPos = this.playerObj.position.clone()
-          .add(backward.multiplyScalar(targetOffset.z))
-          .add(upward.multiplyScalar(targetOffset.y));
-        
-        // Smooth camera movement
-        const smoothFactor = Math.min(dt * 5, 1); // 5 = speed of camera follow
-        
-        // Apply smoothed position
-        this.cameraRigEl.setAttribute('position', {
-          x: currentPos.x + (targetPos.x - currentPos.x) * smoothFactor,
-          y: currentPos.y + (targetPos.y - currentPos.y) * smoothFactor,
-          z: currentPos.z + (targetPos.z - currentPos.z) * smoothFactor
-        });
-        
-        // Make camera look at player
-        this.cameraEl.setAttribute('look-at', '#player');
+        // The camera rig is a child of the player: its position is local.
+        this.cameraRigEl.object3D.position.set(0, 2, 8);
       },
-      
+
+      clearInput: function() {
+        for (const key in this.moveState) this.moveState[key] = 0;
+        this.speedMultiplier = 1;
+        this.moveVector.set(0, 0, 0);
+        this.rotationVector.set(0, 0, 0);
+        this.velocity.set(0, 0, 0);
+      },
+
+      pause: function() { this.clearInput(); },
+
       remove: function() {
         console.log('Removing fly controls');
         

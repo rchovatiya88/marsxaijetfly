@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /* global THREE */
 
 // THREE is already globally available through A-Frame
