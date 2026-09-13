@@ -166,6 +166,7 @@ export default function initializeEnemyComponent(): void {
                         if (intersects.length > 0) {
                             this.lastEnemyShot = now;
                             this.createEnemyShootEffect(enemyPos, direction);
+                            this.flashThreatWarning();
 
                             if (this.playerEntity.components['player-component']) {
                                 this.playerEntity.components['player-component'].takeDamage(this.data.weaponDamage);
@@ -224,6 +225,13 @@ export default function initializeEnemyComponent(): void {
                 } catch (error) {
                     console.error('Error creating enemy shoot effect:', error);
                 }
+            },
+            flashThreatWarning: function(): void {
+                const warning = document.getElementById('threat-warning');
+                if (!warning) return;
+                warning.classList.remove('active');
+                void warning.offsetWidth;
+                warning.classList.add('active');
             },
             playEnemyShootSound: function(this: any): void {
                 // Sound function removed
@@ -292,17 +300,33 @@ export default function initializeEnemyComponent(): void {
                     };
                     const color = colorMap[this.data.enemyColor] || this.data.enemyColor || '#ff4f45';
                     const group = new THREE.Group();
-                    const bodyMaterial = new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0.15 });
+                    const bodyMaterial = new THREE.MeshStandardMaterial({ color, roughness: 0.52, metalness: 0.25 });
+                    const darkMaterial = new THREE.MeshStandardMaterial({ color: '#26171a', roughness: 0.75, metalness: 0.12 });
                     const glowMaterial = new THREE.MeshStandardMaterial({ color: '#f7fff2', emissive: color, emissiveIntensity: 1.8 });
+                    const dangerMaterial = new THREE.MeshBasicMaterial({
+                        color,
+                        transparent: true,
+                        opacity: 0.38,
+                        blending: THREE.AdditiveBlending,
+                        depthWrite: false
+                    });
                     const body = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.45, 0.75), bodyMaterial);
+                    const chestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.62, 0.08), darkMaterial);
+                    chestPlate.position.set(0, 0.08, -0.43);
                     const head = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.45, 0.62), bodyMaterial);
                     head.position.y = 0.95;
                     const core = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.14, 0.08), glowMaterial);
-                    core.position.set(0, 0.25, -0.39);
+                    core.position.set(0, 0.25, -0.48);
                     const shoulder = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.22, 0.38), bodyMaterial);
                     shoulder.position.y = 0.35;
+                    const leftFin = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.95, 4), darkMaterial);
+                    leftFin.position.set(-0.58, 0.88, 0.08);
+                    leftFin.rotation.z = -0.55;
+                    const rightFin = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.95, 4), darkMaterial);
+                    rightFin.position.set(0.58, 0.88, 0.08);
+                    rightFin.rotation.z = 0.55;
                     const visor = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.1, 0.08), glowMaterial);
-                    visor.position.set(0, 1.02, -0.35);
+                    visor.position.set(0, 1.02, -0.39);
                     const halo = new THREE.Mesh(
                         new THREE.TorusGeometry(0.82, 0.035, 6, 28),
                         new THREE.MeshBasicMaterial({
@@ -313,20 +337,36 @@ export default function initializeEnemyComponent(): void {
                             depthWrite: false
                         })
                     );
-                    halo.position.y = 1.2;
+                    halo.position.y = 1.24;
                     halo.rotation.x = Math.PI / 2;
-                    group.add(body, head, core, shoulder, visor, halo);
+                    const groundRing = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.035, 6, 40), dangerMaterial);
+                    groundRing.position.y = -0.62;
+                    groundRing.rotation.x = Math.PI / 2;
+                    const targetSpine = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.25, 0.08), dangerMaterial);
+                    targetSpine.position.set(0, 0.45, 0.48);
+                    group.add(groundRing, body, chestPlate, head, core, shoulder, leftFin, rightFin, visor, halo, targetSpine);
+                    this.enemyGroup = group;
+                    this.enemyHalo = halo;
+                    this.enemyGroundRing = groundRing;
+                    this.enemyCore = core;
                     enemyEntity.setObject3D('mesh', group);
                     this.enemyResources = [
                         body.geometry,
+                        chestPlate.geometry,
                         head.geometry,
                         core.geometry,
                         shoulder.geometry,
+                        leftFin.geometry,
+                        rightFin.geometry,
                         visor.geometry,
                         halo.geometry,
+                        groundRing.geometry,
+                        targetSpine.geometry,
                         bodyMaterial,
+                        darkMaterial,
                         glowMaterial,
-                        halo.material
+                        halo.material,
+                        dangerMaterial
                     ];
                     this.el.appendChild(enemyEntity);
 
@@ -451,6 +491,7 @@ export default function initializeEnemyComponent(): void {
 
                     if (hitPosition) {
                         this.createHitEffect(hitPosition);
+                        this.showDamageNumber(amount, hitPosition.clone().add(new THREE.Vector3(0, 0.5, 0)));
                     }
 
                     this.updateHealthBar();
@@ -499,7 +540,7 @@ export default function initializeEnemyComponent(): void {
                     damageText.setAttribute('animation__position', {
                         property: 'position.y',
                         to: position.y + 1,
-                        dur: 1000,
+                        dur: 720,
                         easing: 'easeOutQuad'
                     });
 
@@ -527,7 +568,7 @@ export default function initializeEnemyComponent(): void {
                     const hitEffect = document.createElement('a-entity');
                     hitEffect.setAttribute('position', position);
                     const mainSphere = document.createElement('a-sphere');
-                    mainSphere.setAttribute('radius', 0.12);
+                    mainSphere.setAttribute('radius', 0.22);
                     mainSphere.setAttribute('color', '#ffebe0');
                     mainSphere.setAttribute('material', 'emissive: #ff4f45; emissiveIntensity: 1.2');
                     mainSphere.setAttribute('opacity', 0.8);
@@ -541,11 +582,20 @@ export default function initializeEnemyComponent(): void {
                     hitEffect.appendChild(mainSphere);
                     document.querySelector('a-scene')!.appendChild(hitEffect);
 
+                    const sparkRing = document.createElement('a-ring');
+                    sparkRing.setAttribute('radius-inner', 0.18);
+                    sparkRing.setAttribute('radius-outer', 0.25);
+                    sparkRing.setAttribute('material', 'shader: flat; color: #fff0a0; opacity: 0.8; transparent: true; side: double');
+                    sparkRing.setAttribute('look-at', '[camera]');
+                    sparkRing.setAttribute('animation__scale', { property: 'scale', from: '0.4 0.4 0.4', to: '2.2 2.2 2.2', dur: 220, easing: 'easeOutQuad' });
+                    sparkRing.setAttribute('animation__fade', { property: 'opacity', from: 0.8, to: 0, dur: 220, easing: 'easeOutQuad' });
+                    hitEffect.appendChild(sparkRing);
+
                     setTimeout(() => {
                         if (hitEffect.parentNode) {
                             hitEffect.parentNode.removeChild(hitEffect);
                         }
-                    }, 200);
+                    }, 240);
                 } catch (error) {
                     console.error('Error creating hit effect:', error);
                 }
@@ -596,15 +646,15 @@ export default function initializeEnemyComponent(): void {
                     
                     // Add an explosion-like effect with spheres
                     const core = document.createElement('a-sphere');
-                    core.setAttribute('radius', 0.3);
-                    core.setAttribute('color', '#f00');
-                    core.setAttribute('material', 'emissive: #f00; emissiveIntensity: 1.0');
+                    core.setAttribute('radius', 0.75);
+                    core.setAttribute('color', '#fff0a0');
+                    core.setAttribute('material', 'shader: flat; color: #fff0a0; opacity: 0.95; transparent: true');
                     core.setAttribute('opacity', 0.9);
                     core.setAttribute('animation__scale', {
                         property: 'scale',
                         from: '1 1 1',
-                        to: '0 0 0',
-                        dur: 1000,
+                        to: '2.2 2.2 2.2',
+                        dur: 520,
                         easing: 'easeOutQuad'
                     });
                     deathEffect.appendChild(core);
@@ -613,14 +663,14 @@ export default function initializeEnemyComponent(): void {
                     const ring = document.createElement('a-ring');
                     ring.setAttribute('radius-inner', 0.3);
                     ring.setAttribute('radius-outer', 0.35);
-                    ring.setAttribute('color', '#f00');
-                    ring.setAttribute('material', 'emissive: #f00; emissiveIntensity: 1.0; side: double');
+                    ring.setAttribute('color', '#ff8b62');
+                    ring.setAttribute('material', 'shader: flat; color: #ff8b62; opacity: 0.8; transparent: true; side: double');
                     ring.setAttribute('opacity', 0.7);
                     ring.setAttribute('animation__scale', {
                         property: 'scale',
                         from: '1 1 1',
-                        to: '5 5 5',
-                        dur: 1000,
+                        to: '7 7 7',
+                        dur: 720,
                         easing: 'easeOutQuad'
                     });
                     ring.setAttribute('animation__fade', {
@@ -651,6 +701,15 @@ export default function initializeEnemyComponent(): void {
                     const dt = delta / 1000;
                     this.updateAI(dt);
                     this.updateHitbox();
+
+                    if (this.enemyHalo && this.enemyGroundRing) {
+                        const pulse = 1 + Math.sin(time * 0.006) * 0.08;
+                        this.enemyHalo.rotation.z += dt * (this.currentState === 'attack' ? 2.8 : 1.2);
+                        this.enemyHalo.scale.setScalar(this.currentState === 'attack' ? 1.18 * pulse : pulse);
+                        this.enemyGroundRing.scale.setScalar(this.currentState === 'attack' ? 1.35 + Math.sin(time * 0.01) * 0.12 : 1);
+                        const material = this.enemyGroundRing.material as THREE.MeshBasicMaterial;
+                        material.opacity = this.currentState === 'attack' ? 0.62 : this.currentState === 'chase' ? 0.42 : 0.24;
+                    }
 
                     const healthBarContainer = this.el.querySelector('#health-bar-container');
                     if (healthBarContainer) {
