@@ -4,3 +4,13 @@ dist/
 build/
 public/vendor/
 .DS_Store
+
+# Local art source and QA captures. Runtime uses exported GLBs in public/models.
+*.blend
+*.blend1
+art/**/*.png
+art/**/textures/
+art/**/*.log
+art/**/*samples*.json
+art/**/*study*.json
+evidence/

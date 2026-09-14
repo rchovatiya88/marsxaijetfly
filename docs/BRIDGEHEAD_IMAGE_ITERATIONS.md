@@ -1,6 +1,6 @@
 # Bridgehead image-driven iteration
 
-September 13, 2026. Actual WebGL images are in `evidence/runtime-inspection/`, paired with camera/player/asset metadata. They were saved using the explicit development QA image controls. Posed views reset, position and pause the sortie; they are image inspection evidence, not player or ordinary-input completion evidence. Frozen candidate 01 remains in `evidence/bridgehead-candidate-01`.
+September 13, 2026. Actual WebGL images were saved locally in the ignored `evidence/runtime-inspection/` folder, paired with camera/player/asset metadata. They were saved using the explicit development QA image controls. Posed views reset, position and pause the sortie; they are image inspection evidence, not player or ordinary-input completion evidence. Frozen candidate 01 remains a local ignored evidence artifact.
 
 ## Current textured Blender pass
 
