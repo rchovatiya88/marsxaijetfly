@@ -13,6 +13,15 @@ import * as THREE from 'three';
 import AFRAME_EXPORT from './aframe-export';
 
 const AFRAME = AFRAME_EXPORT;
+const DEFAULT_MAX_CURSOR_DELTA = 48;
+const DEFAULT_MAX_LOCKED_DELTA = 80;
+const CURSOR_JUMP_FACTOR = 4;
+
+export function boundedMouseDelta(value: number, maxDelta: number): number {
+  if (!Number.isFinite(value)) return 0;
+  const limit = Number.isFinite(maxDelta) && maxDelta > 0 ? maxDelta : DEFAULT_MAX_CURSOR_DELTA;
+  return Math.max(-limit, Math.min(limit, value));
+}
 
 // The sweep is centred on the rig, so include the complete near plane relative
 // to that pivot, including any camera child offset and inherited scale. The
@@ -41,6 +50,9 @@ export default function initializeFlyControls(): void {
         yawSpeed: { type: 'number', default: 1.8 },
         invertY: { type: 'boolean', default: false },
         dragToLook: { type: 'boolean', default: false },
+        mousePitchScale: { type: 'number', default: 0.55 },
+        maxCursorDelta: { type: 'number', default: DEFAULT_MAX_CURSOR_DELTA },
+        maxLockedDelta: { type: 'number', default: DEFAULT_MAX_LOCKED_DELTA },
         gamepad: { type: 'boolean', default: true },
         gamepadLookSpeed: { type: 'number', default: 2.4 },
         cameraHeight: { type: 'number', default: 2 },
@@ -215,13 +227,17 @@ export default function initializeFlyControls(): void {
       
       handleMouseMove: function(event) {
         if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook) || !this.mouseEnabled) return;
-        let movementX: number, movementY: number;
+        let movementX: number, movementY: number, maxDelta: number;
         if (this.mouseLocked) {
           movementX = event.movementX ?? event.mozMovementX ?? event.webkitMovementX ?? 0;
           movementY = event.movementY ?? event.mozMovementY ?? event.webkitMovementY ?? 0;
+          maxDelta = this.data.maxLockedDelta;
         } else {
           // Unlocked movementX varies by browser/display scaling. Use CSS-pixel
           // deltas only during a drag begun on the game canvas. Release to recenter.
+          // Very large deltas usually mean the cursor crossed an edge or the
+          // browser resumed after focus/layout work; re-anchor instead of
+          // slamming pitch into its clamp.
           if (event.target !== this.el.sceneEl.canvas || !this.cursorDragging || !(event.buttons & 3)) {
             this.cursorPosition = null;
             if (!(event.buttons & 3)) this.cursorDragging = false;
@@ -232,12 +248,21 @@ export default function initializeFlyControls(): void {
           if (!previous) return;
           movementX = event.clientX - previous.x;
           movementY = event.clientY - previous.y;
+          maxDelta = this.data.maxCursorDelta;
+          if (Math.abs(movementX) > maxDelta * CURSOR_JUMP_FACTOR || Math.abs(movementY) > maxDelta * CURSOR_JUMP_FACTOR) {
+            this.cursorPosition = null;
+            return;
+          }
         }
         if (!Number.isFinite(movementX) || !Number.isFinite(movementY)) return;
-        // Direct relative motion has no trailing smoothing drift after release.
+        movementX = boundedMouseDelta(movementX, maxDelta);
+        movementY = boundedMouseDelta(movementY, maxDelta);
+        // Direct relative motion has no trailing smoothing drift after release,
+        // with a calmer vertical gain so mouse Y cannot dominate the chase view.
         const sensitivity = this.data.lookSensitivity;
+        const pitchScale = Number.isFinite(this.data.mousePitchScale) ? Math.max(0.1, Math.min(1, this.data.mousePitchScale)) : 0.55;
         this.rotation.y -= movementX * sensitivity * 0.004;
-        this.rotation.x -= movementY * sensitivity * 0.004 * (this.data.invertY ? -1 : 1);
+        this.rotation.x -= movementY * sensitivity * 0.004 * pitchScale * (this.data.invertY ? -1 : 1);
         this.applyLookRotation();
       },
 

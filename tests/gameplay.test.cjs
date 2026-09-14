@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
+const close = (actual, expected, tolerance=1e-12) => assert.ok(Math.abs(actual-expected)<tolerance,`${actual} != ${expected}`);
 
 function loadModule(file, globals = {}) {
   const exports = {};
@@ -581,7 +582,7 @@ test('cursor mouse only aims on a canvas drag and uses client deltas independent
   assert.equal(flight.rotation.y,0);
   flight.handleMouseDown({target:canvas,button:0,clientX:300,clientY:200});
   flight.handleMouseMove({target:canvas,buttons:1,clientX:320,clientY:190,movementX:999,movementY:999});
-  assert.equal(flight.rotation.y,-.04);assert.equal(flight.rotation.x,.02);
+  assert.equal(flight.rotation.y,-.04);close(flight.rotation.x,.011);
   flight.handleMouseUp({buttons:0});
   flight.handleMouseMove({target:canvas,buttons:0,clientX:100,clientY:100});
   assert.equal(flight.rotation.y,-.04);
@@ -603,13 +604,27 @@ test('cursor reentry and pause do not create aim jumps or resume a stale drag', 
 test('locked mouse remains relative without dragging, honors invert-Y and cannot flip pitch', () => {
   const {flight}=mouseFlight();flight.mouseLocked=true;flight.data.invertY=true;
   flight.handleMouseMove({movementX:20,movementY:10});
-  assert.equal(flight.rotation.y,-.04);assert.equal(flight.rotation.x,.02);
+  assert.equal(flight.rotation.y,-.04);close(flight.rotation.x,.011);
   flight.handleMouseMove({movementX:NaN,movementY:Infinity});
   assert.equal(flight.rotation.y,-.04);
   flight.handleMouseMove({movementX:0,movementY:10000});
-  assert.ok(flight.rotation.x<Math.PI/2);assert.ok(flight.rotation.x>1);
+  assert.ok(flight.rotation.x<.11);assert.ok(flight.rotation.x>.09);
   const before=flight.rotation.y;flight.el.sceneEl.isPlaying=false;
   flight.handleMouseMove({movementX:200,movementY:0});assert.equal(flight.rotation.y,before);
+});
+
+test('cursor and pointer-lock mouse spikes cannot snap vertical aim to the clamp', () => {
+  const {flight,canvas}=mouseFlight();
+  flight.handleMouseDown({target:canvas,button:2,clientX:120,clientY:120});
+  flight.handleMouseMove({target:canvas,buttons:2,clientX:121,clientY:1300});
+  assert.equal(flight.rotation.x,0);
+  flight.handleMouseMove({target:canvas,buttons:2,clientX:121,clientY:124});
+  assert.equal(flight.rotation.x,0);
+  flight.handleMouseMove({target:canvas,buttons:2,clientX:121,clientY:130});
+  assert.ok(flight.rotation.x<0 && flight.rotation.x>-.008);
+  flight.mouseLocked=true;
+  flight.handleMouseMove({movementX:0,movementY:-10000});
+  assert.ok(flight.rotation.x<.09);
 });
 
 test('mouse pitch changes world aim without moving the chase boom or tilting the bike', () => {
@@ -626,7 +641,7 @@ test('mouse pitch changes world aim without moving the chase boom or tilting the
   assert.ok(camera.getWorldPosition(new THREE.Vector3()).distanceTo(before)<1e-8);
   assert.equal(flight.playerObj.rotation.x,0);assert.equal(flight.playerObj.rotation.z,0);
   const direction=new THREE.Vector3(0,0,-1).applyQuaternion(camera.getWorldQuaternion(new THREE.Quaternion()));
-  assert.ok(direction.x<-.9);assert.ok(direction.y>.38);assert.ok(Math.abs(direction.z)<1e-8);
+  assert.ok(direction.x<-.9);assert.ok(direction.y>.08);assert.ok(Math.abs(direction.z)<1e-8);
   const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.getWorldQuaternion(new THREE.Quaternion()));
   assert.ok(Math.abs(right.y)<1e-8);
   flight.rotation.z=1;flight.applyLookRotation();assert.equal(flight.rotation.z,0);

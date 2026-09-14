@@ -181,3 +181,7 @@ A repeat with the game tab closed measured 17.0 ms median / 33.6 ms p95 (300 idl
 `src/flight-input.ts` now samples browser gamepads and feeds standard move/look/boost state into `fly-controls`, preserving the existing mouse, camera, collision and A-Frame ownership contracts. Verification: `npm test` 97/97, `npm run typecheck` pass, `npm run build` pass with `dist/assets/index-CN17VFPw.js`. A production preview at `http://127.0.0.1:4176/?bridgehead&playtest` launched through cursor aim and reached the live Bridgehead HUD. No physical gamepad or natural pointer-lock route was certified; keep those on the manual acceptance sheet.
 
 BVH remains a measured spike only. Use `scripts/benchmark-triangle-collider.cjs` and the existing route/cover regression tests to compare a pinned `three-mesh-bvh` broadphase if collision query/build cost becomes a demonstrated foreground bottleneck.
+
+## Mouse stability repair — September 13, 2026
+
+User play feedback reported bad vertical mouse behavior. `fly-controls` now lowers mouse pitch gain, clamps pointer-lock deltas, rejects large cursor-mode jump deltas and clears the cursor anchor so the next normal event re-anchors instead of snapping pitch. Verification: `npm test` 98/98, `npm run typecheck` pass, `npm run build` pass with `dist/assets/index-CpCt9gB4.js`. Fresh production preview on `http://127.0.0.1:4177/?bridgehead&playtest` reached the live Bridgehead HUD through cursor aim. Retest with natural foreground mouse input remains required.

@@ -1,5 +1,15 @@
 # Validation record
 
+## Current mouse stability repair — September 13, 2026
+
+A human play report found vertical mouse movement was unstable: moving up/down could make the camera feel like it was spazzing out. The fix keeps `fly-controls` as the only camera/input owner and changes the mouse path rather than replacing A-Frame: vertical mouse gain is now intentionally lower than yaw, cursor-mode jump deltas are rejected and re-anchored, pointer-lock deltas are clamped, and invalid deltas still do nothing.
+
+- `npm test` passes **98/98**, including a new regression where a huge cursor Y jump and a huge pointer-lock Y delta cannot snap pitch to its clamp.
+- `npm run typecheck` passes and `npm run build` passes. Production bundle: `dist/assets/index-CpCt9gB4.js`.
+- Production preview smoke at `http://127.0.0.1:4177/?bridgehead&playtest` launched through cursor aim and reached the live Bridgehead HUD. Browser automation could read the DOM but not A-Frame component objects from its evaluate sandbox, so live injected mouse-spike telemetry remains covered by the Node component regression rather than page telemetry.
+
+Remaining gaps: natural human mouse feel must be retested in the foreground browser, especially pointer-lock mode and right-drag cursor mode, before claiming this is comfortable enough for acceptance.
+
 ## Current input adapter polish — September 13, 2026
 
 Red Horizon now has a small flight input adapter in `src/flight-input.ts` for standard browser gamepad sampling. It keeps `fly-controls` as the single movement/look owner: gamepad move/look/boost samples are merged into the existing yaw-only movement, pitch-only camera aim, camera collision and player velocity path. Mouse capture and cursor-drag behavior remain separate and unchanged.
