@@ -1,5 +1,16 @@
 # Validation record
 
+## Current input adapter polish — September 13, 2026
+
+Red Horizon now has a small flight input adapter in `src/flight-input.ts` for standard browser gamepad sampling. It keeps `fly-controls` as the single movement/look owner: gamepad move/look/boost samples are merged into the existing yaw-only movement, pitch-only camera aim, camera collision and player velocity path. Mouse capture and cursor-drag behavior remain separate and unchanged.
+
+- `npm test` passes **97/97**, including new adapter tests for deadzone handling, normalized 3D move vectors, boost/altitude mapping and `fly-controls` integration without mouse capture or drag mode.
+- `npm run typecheck` passes and `npm run build` passes. Production bundle: `dist/assets/index-CN17VFPw.js`.
+- Production preview smoke at `http://127.0.0.1:4176/?bridgehead&playtest` reached the live Bridgehead HUD through cursor-aim fallback after the change: route guidance, HUD, tactical map and renderer telemetry were visible. This verifies the browser-safe launch path still works; it is not physical gamepad hardware evidence.
+- The collision-library decision is unchanged: retain the resident triangle collider in production. If future foreground profiling shows collision query/build cost is a real blocker, evaluate a pinned `three-mesh-bvh` broadphase against `scripts/benchmark-triangle-collider.cjs`, existing route sweeps and reciprocal cover tests before admitting a dependency.
+
+Remaining gaps: physical gamepad feel, controller remapping UI, touch/mobile input, real pointer-lock full-route pass, natural human route completion and foreground performance remain manual acceptance items.
+
 ## Current textured Bridgehead visual slice — September 13, 2026
 
 This supersedes the untextured v2 route-art counts below. The authored Blender scene at `art/bridgehead/bridgehead-v2.blend` now rebuilds `public/models/bridgehead-route.glb` from custom editable meshes with bevel normals and embedded panel/grain texture images. The export receipt is `art/bridgehead/verification.json`: GLB SHA-256 `9ce7bc765f3b4ae4c111f1202772a6de05e4fb58b761e2a228813908e440387b`, **215,660 bytes**, **2,593 triangles**, **5 meshes**, **5 materials**, **5 embedded textures**, 217 editable mesh objects, 19 exact collision references and 16 mission markers. The original `public/models/level1.glb` source hash remains `44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db` and is linked as scale-three context.

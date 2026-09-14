@@ -8,6 +8,7 @@
 
 // Import THREE.js
 import { moveInWorld, moveBikeBody, rotateBikeBody, traceWorld } from '../arena-world';
+import { createBrowserFlightInputAdapter } from '../flight-input';
 import * as THREE from 'three';
 import AFRAME_EXPORT from './aframe-export';
 
@@ -40,6 +41,8 @@ export default function initializeFlyControls(): void {
         yawSpeed: { type: 'number', default: 1.8 },
         invertY: { type: 'boolean', default: false },
         dragToLook: { type: 'boolean', default: false },
+        gamepad: { type: 'boolean', default: true },
+        gamepadLookSpeed: { type: 'number', default: 2.4 },
         cameraHeight: { type: 'number', default: 2 },
         cameraDistance: { type: 'number', default: 8 },
         cameraShoulder: { type: 'number', default: 0 },
@@ -74,6 +77,9 @@ export default function initializeFlyControls(): void {
         this.flatRight = new THREE.Vector3();
         this.upVector = new THREE.Vector3(0, 1, 0);
         this.flatMoveDelta = new THREE.Vector3();
+        this.combinedMoveVector = new THREE.Vector3();
+        this.gamepadMoveVector = new THREE.Vector3();
+        this.flightInput = createBrowserFlightInputAdapter(typeof window !== 'undefined' ? window : globalThis);
         
         // Movement and rotation state
         this.moveVector = new THREE.Vector3();
@@ -288,10 +294,12 @@ export default function initializeFlyControls(): void {
       },
       
       tick: function(time, delta) {
-        if (!this.data.enabled || !this.el.sceneEl.isPlaying || (!this.mouseLocked && !this.data.dragToLook) || !Number.isFinite(delta) || delta <= 0) return;
+        if (!this.data.enabled || !this.el.sceneEl.isPlaying || !Number.isFinite(delta) || delta <= 0) return;
         
         // Calculate time factor for smooth movement
         const dt = Math.min(delta / 1000, 0.1); // Cap at 0.1 to avoid large jumps
+        const pad = this.data.gamepad ? this.flightInput?.sampleGamepad?.() : null;
+        if (!this.mouseLocked && !this.data.dragToLook && !pad?.active) return;
         
         // Apply keyboard rotation
         if (this.rotationVector.lengthSq() > 0) {
@@ -308,13 +316,24 @@ export default function initializeFlyControls(): void {
         this.applyLookRotation();
         
         this.velocity.set(0, 0, 0);
-        // Apply movement if any direction keys are pressed
-        if (this.moveVector.lengthSq() > 0) {
+        if (pad?.active) {
+          this.rotation.y -= pad.look.x * this.data.gamepadLookSpeed * dt;
+          this.rotation.x -= pad.look.y * this.data.gamepadLookSpeed * dt * (this.data.invertY ? -1 : 1);
+          this.applyLookRotation();
+        }
+        this.gamepadMoveVector ||= new THREE.Vector3();
+        this.combinedMoveVector ||= new THREE.Vector3();
+        this.gamepadMoveVector.set(pad?.move?.x || 0, pad?.move?.y || 0, pad?.move?.z || 0);
+        this.combinedMoveVector.copy(this.moveVector).add(this.gamepadMoveVector);
+        if (this.combinedMoveVector.lengthSq() > 1) this.combinedMoveVector.normalize();
+        const activeSpeedMultiplier = Math.max(Number.isFinite(this.speedMultiplier) ? this.speedMultiplier : 1, pad?.boost ? 2 : 1);
+        // Apply movement if any direction source is active
+        if (this.combinedMoveVector.lengthSq() > 0) {
           // Create a normalized movement direction
-          const moveDir = this.moveVector.clone().normalize();
+          const moveDir = this.combinedMoveVector;
           
           // Transform direction to player's local space
-          const speed = this.data.movementSpeed * this.speedMultiplier * dt;
+          const speed = this.data.movementSpeed * activeSpeedMultiplier * dt;
           
           // Use yaw-only movement so looking up does not make W climb.
           this.yawQuaternion ||= new THREE.Quaternion();
@@ -338,7 +357,7 @@ export default function initializeFlyControls(): void {
           else moveInWorld(this.playerObj.position, moveDelta);
           this.velocity.copy(this.playerObj.position).sub(before).divideScalar(dt || 0.016);
           const player = this.el.components['player-component'];
-          if (player) { player.velocity.copy(this.velocity); player.isSprinting = this.speedMultiplier > 1; }
+          if (player) { player.velocity.copy(this.velocity); player.isSprinting = activeSpeedMultiplier > 1; }
           
           // Emit movement event for other components
           this.el.emit('move', {
@@ -349,7 +368,7 @@ export default function initializeFlyControls(): void {
         }
         
         const player = this.el.components['player-component'];
-        if (player) { player.velocity.copy(this.velocity); player.isSprinting = this.speedMultiplier > 1 && this.velocity.lengthSq() > 0; }
+        if (player) { player.velocity.copy(this.velocity); player.isSprinting = activeSpeedMultiplier > 1 && this.velocity.lengthSq() > 0; }
         // Update camera to follow player
         this.updateCamera(dt);
       },

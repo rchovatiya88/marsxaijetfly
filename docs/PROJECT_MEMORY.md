@@ -175,3 +175,9 @@ Supplied attachment analysis is historical and contains mismatched numeric/schem
 Browser pacing caveat: a separate page with no game/WebGL measured 300 requestAnimationFrame samples at 49.3 ms median / 51.5 ms p95 in the same automation environment. This is slower than the combat samples, so automated scheduling/visibility/host effects confound those FPS values. Resource counts, collision checks and mission outcomes are still observed evidence; do not infer a hardware FPS ceiling, reliable speedup, or engine bottleneck from these timings. Repeat in a normal foreground browser with CPU/GPU tools.
 
 A repeat with the game tab closed measured 17.0 ms median / 33.6 ms p95 (300 idle frames). This reinforces the need to isolate tab/workload conditions; it does not prove all combat cost is automation. Installed A-Frame source also confirmed scene.pause() still renders. The app now suspends its animation loop on document hidden and restores rendering on visibility return, while gameplay remains explicitly paused until resumed.
+
+## Input adapter polish — September 13, 2026
+
+`src/flight-input.ts` now samples browser gamepads and feeds standard move/look/boost state into `fly-controls`, preserving the existing mouse, camera, collision and A-Frame ownership contracts. Verification: `npm test` 97/97, `npm run typecheck` pass, `npm run build` pass with `dist/assets/index-CN17VFPw.js`. A production preview at `http://127.0.0.1:4176/?bridgehead&playtest` launched through cursor aim and reached the live Bridgehead HUD. No physical gamepad or natural pointer-lock route was certified; keep those on the manual acceptance sheet.
+
+BVH remains a measured spike only. Use `scripts/benchmark-triangle-collider.cjs` and the existing route/cover regression tests to compare a pinned `three-mesh-bvh` broadphase if collision query/build cost becomes a demonstrated foreground bottleneck.

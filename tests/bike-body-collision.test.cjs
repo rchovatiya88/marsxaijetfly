@@ -93,7 +93,7 @@ test('all body samples remain above a sloped triangle surface while the remainin
 
 test('fly-controls uses body sweeps for boost and mouse/keyboard yaw and pause leaves pose unchanged', () => {
   const world=fixture([{id:'side',center:v(2.1,0,0),size:v(.1,50,100)}]), definitions={};
-  load('src/components/fly-controls.ts',{require(name){return name==='../arena-world'?world:name==='./aframe-export'?{default:{components:definitions,registerComponent(name,value){definitions[name]=value;}}}:require(name);}});
+  load('src/components/fly-controls.ts',{require(name){return name==='../arena-world'?world:name==='./aframe-export'?{default:{components:definitions,registerComponent(name,value){definitions[name]=value;}}}:name==='../flight-input'?load('src/flight-input.ts'):require(name);}});
   const player=new THREE.Object3D(),camera=new THREE.Object3D(),rig=new THREE.Object3D(); player.add(rig);rig.add(camera);
   const def=definitions['fly-controls'];
   const flight=Object.assign({},def,{data:Object.fromEntries(Object.entries(def.schema).map(([key,value])=>[key,value.default])),playerObj:player,cameraObj:camera,cameraRigEl:{object3D:rig},

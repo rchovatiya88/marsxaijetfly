@@ -25,6 +25,7 @@ function component(file, name) {
       if (id === '../mission/ridge-run') return loadModule('src/mission/ridge-run.ts');
       if (id === '../mission/bridgehead-run') return loadModule('src/mission/bridgehead-run.ts');
       if (id === '../mission/player-rig') return loadModule('src/mission/player-rig.ts');
+      if (id === '../flight-input') return loadModule('src/flight-input.ts');
       if (id === './aframe-export') return { default: aframe };
       if (id === '../game-audio') return { gameAudio: { resume() {}, startAmbient() {}, stopAmbient() {}, pulse() {} } };
       return require(id);
@@ -643,4 +644,39 @@ test('camera collision clearance remains fixed while pitching beside cover', () 
     assert.ok(rig.position.distanceTo(safe)<1e-8);
     assert.equal(flight.playerObj.rotation.x,0);
   }
+});
+
+
+test('flight input adapter maps standard gamepad axes with deadzone, boost and altitude', () => {
+  const {FlightInputAdapter}=loadModule('src/flight-input.ts');
+  const pad={connected:true,axes:[0.09,-1,0.5,-0.5],buttons:[{pressed:false},null,null,null,{pressed:true},{pressed:false},null,{value:.7},{pressed:false},{pressed:false},{pressed:false}]};
+  const adapter=new FlightInputAdapter({deadzone:.1,getGamepads:()=>[pad]});
+  const sample=adapter.sampleGamepad();
+  assert.equal(sample.active,true);
+  assert.equal(sample.move.x,0);
+  assert.ok(sample.move.z<-.7 && sample.move.z>-.72);
+  assert.ok(sample.move.y<-.7 && sample.move.y>-.72);
+  assert.ok(Math.hypot(sample.move.x,sample.move.y,sample.move.z)<=1.0000001);
+  assert.ok(sample.look.x>.44 && sample.look.x<.45);
+  assert.ok(sample.look.y<-.44 && sample.look.y>-.45);
+  assert.equal(sample.boost,true);
+  pad.axes=[0.02,0.02,0.02,0.02];pad.buttons=[];
+  assert.equal(adapter.sampleGamepad().active,false);
+});
+
+test('fly-controls accepts gamepad movement and look through the same camera and collision path', () => {
+  const {flight}=mouseFlight(),THREE=require('three');
+  const emitted=[];
+  flight.el.components={};flight.el.emit=(type,detail)=>emitted.push({type,detail});
+  flight.el.sceneEl.components={};
+  flight.data.gamepad=true;flight.data.gamepadLookSpeed=2;flight.data.movementSpeed=10;flight.data.dragToLook=false;
+  flight.playerObj.position.set(0,3,0);
+  flight.flightInput={sampleGamepad(){return {active:true,move:{x:0,y:0,z:-1},look:{x:1,y:-.5},boost:true};}};
+  flight.tick(0,100);
+  assert.ok(flight.rotation.y<-.19 && flight.rotation.y>-.21);
+  assert.ok(flight.rotation.x>.09 && flight.rotation.x<.11);
+  assert.ok(flight.playerObj.position.z < 0);
+  assert.ok(Math.hypot(flight.playerObj.position.x, flight.playerObj.position.z) > 1.9);
+  assert.equal(emitted.length,1);
+  assert.equal(flight.el.components['player-component'],undefined);
 });

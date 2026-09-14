@@ -9,7 +9,7 @@ function fixture(projection = new THREE.PerspectiveCamera(80, 16 / 9, .005, 1000
   const worldExports = {}, definitions = {}, exports = {};
   const transpile = file => ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
   vm.runInNewContext(transpile('src/arena-world.ts'), { exports: worldExports });
-  vm.runInNewContext(transpile('src/components/fly-controls.ts'), { exports, require: name => name === '../arena-world' ? worldExports : name === './aframe-export' ? { default: { components: definitions, registerComponent(name, definition) { definitions[name] = definition; } } } : require(name) });
+  vm.runInNewContext(transpile('src/components/fly-controls.ts'), { exports, require: name => name === '../arena-world' ? worldExports : name === './aframe-export' ? { default: { components: definitions, registerComponent(name, definition) { definitions[name] = definition; } } } : name === '../flight-input' ? (() => { const inputExports = {}; vm.runInNewContext(transpile('src/flight-input.ts'), { exports: inputExports, globalThis: {} }); return inputExports; })() : require(name) });
   const player = new THREE.Object3D(), rig = new THREE.Object3D(), cameraEntity = new THREE.Object3D();
   player.add(rig); rig.add(cameraEntity); cameraEntity.add(projection);
   const flight = Object.assign({}, definitions['fly-controls'], {

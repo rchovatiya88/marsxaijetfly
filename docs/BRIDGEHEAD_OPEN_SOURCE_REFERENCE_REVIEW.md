@@ -49,8 +49,8 @@ Use the loader matching the active runtime. Three r147 already has `setDRACOLoad
 
 ## What to carry forward
 
-1. Add the camera near-plane clearance regression when a reproduced clipping or framing problem warrants a change; keep one controller.
-2. Keep the present continuous collider and its actual-level tests. If profiling identifies it as costly, compare a pinned BVH broadphase under unchanged route and front/back cover tests.
+1. Keep one controller. The implemented flight input adapter borrows the aframe-extras-style idea of a separate input source while still feeding `fly-controls`, so keyboard, mouse and gamepad all share the existing camera/collision path.
+2. Keep the present continuous collider and its actual-level tests. If profiling identifies it as costly, compare a pinned `three-mesh-bvh` broadphase under unchanged route and front/back cover tests before adding the dependency.
 3. Apply exporter validation and transform round-trip checks to each new runtime GLB, while retaining the existing source-preservation and rights records.
 
 No source code or demo assets were copied. If code is later incorporated, preserve the applicable MIT or Apache license/copyright/notice requirements from the exact pinned source. Demo model and texture rights are separate from code licenses; the owner's supplied-model rights attestation is unchanged by this review.
