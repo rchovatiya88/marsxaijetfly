@@ -1,0 +1,114 @@
+{
+  "name": "Red Horizon premium concept image set",
+  "created": "2026-09-15",
+  "purpose": "Beautiful concept plates for game direction, generated from real Twin Bridge Run Blender references while preserving supplied-model constraints.",
+  "sourceTruth": {
+    "layout": "art/real-path/red-horizon-real-path-layout.json",
+    "modelReferences": [
+      "public/models/level1.glb",
+      "public/models/level1_navmesh.glb",
+      "public/models/avi-jetbike.glb",
+      "public/models/enemy.glb"
+    ],
+    "blenderContactSheet": "docs/images/red-horizon-real-model-path-contact.jpg"
+  },
+  "contactSheet": "docs/images/red-horizon-premium-concept-contact.jpg",
+  "contactSheetSha256": "6e8dc50f726bb0b6e55b0322ca91b76bcb5c59852598ce3108c62887c568076d",
+  "items": [
+    {
+      "id": "01_bridgehead_start",
+      "title": "Bridgehead start hero gameplay",
+      "web": "red-horizon-premium-concept-01-bridgehead-start.jpg",
+      "references": [
+        "docs/images/red-horizon-left-bridgehead-start.jpg",
+        "docs/images/red-horizon-real-model-overview.jpg"
+      ],
+      "use": "Mood and camera target for the first playable view: start on the real bridgehead, route visible ahead, cannon as landmark.",
+      "truthLevel": "Mood target; must be rebuilt from supplied level geometry before runtime use.",
+      "promptSummary": "Opening beat at the real left bridgehead, AVI jetbike grounded near the start, canyon route and cannon landmark visible, Martian golden-hour atmosphere.",
+      "png": "art/concepts/red-horizon-premium/red-horizon-premium-concept-01_bridgehead_start.png",
+      "pngSha256": "2b6dc6bf82fac4fc871e9eff9e7aef20d1f9c93ea43b0c79b8ea7d32ca2b07b6",
+      "webPath": "docs/images/red-horizon-premium-concept-01-bridgehead-start.jpg",
+      "webSha256": "218f1c4d1182e4127194ea353df38480dc2d5b637ae7aaaf89a46739aa934e0d",
+      "generationMode": "built-in image_gen with local Blender reference images",
+      "fullPrompt": "Use case: stylized-concept\nAsset type: Red Horizon premium game concept plate, 16:9 landscape keyframe\nPrimary request: Create a beautiful premium concept image for the opening beat of the game, based on the supplied Blender reference images. The player starts on the real left bridgehead surface and accelerates toward the route split.\nInput images: Image 1 is the bridgehead start truth plate; Image 2 is the full supplied-level route overview. Use them as the geometry and composition source.\nScene/backdrop: Mars canyon with the real supplied level layout: faceted cliffs, industrial bridgehead, distant upper/lower bridge routes, and the planetary cannon only as a background landmark.\nSubject: The supplied AVI jetbike/rider silhouette at the start, viewed from chase-camera height, grounded on the bridgehead surface.\nStyle/medium: premium AAA game key art paintover over a Blender blockout, cinematic but production-useful, no poster typography.\nComposition/framing: over-the-shoulder chase view, bridgehead foreground, route split visible ahead, canyon depth readable, Warden court hinted far in the distance.\nLighting/mood: Martian golden-hour atmosphere, red dust, warm rim light, cool cyan route glints, high contrast but readable gameplay path.\nMaterials/textures: brushed sci-fi metal, dusty worn panels, rocky basalt cliffs, subtle hover exhaust dust.\nConstraints: Preserve the actual supplied-model route idea. Do not make a new level, do not invent a new bike or humanoid, do not turn the cannon into the start, keep the vehicle grounded near the surface, no text, no logo, no watermark, no UI labels.",
+      "sourceGeneratedFile": "C:\\Users\\roncho\\.codex\\generated_images\\01a09c22-7ca3-7d30-8d6b-4ba459bd92f0\\call_9yUPfjJVUcsMY3t3XVRJGlYb.png"
+    },
+    {
+      "id": "02_route_choice",
+      "title": "Upper/lower bridge route choice",
+      "web": "red-horizon-premium-concept-02-route-choice.jpg",
+      "references": [
+        "docs/images/red-horizon-bridge-route-split.jpg",
+        "docs/images/red-horizon-high-upper-bridge.jpg",
+        "docs/images/red-horizon-low-lower-bridge.jpg"
+      ],
+      "use": "Visual target for making the route decision readable: high charge line, low shield line, both attached to real bridge surfaces.",
+      "truthLevel": "Mood target with useful route language; bridge widths and decorations are aspirational and need Blender/runtime validation.",
+      "promptSummary": "Route-choice beat at the split, upper bridge as cyan charged-shot route and lower bridge as amber shield route, both readable in one chase-camera composition.",
+      "png": "art/concepts/red-horizon-premium/red-horizon-premium-concept-02_route_choice.png",
+      "pngSha256": "1458ac52c92d34abdb4a674e8e8ddfa26f991b8a778a961d1f718f5c61def125",
+      "webPath": "docs/images/red-horizon-premium-concept-02-route-choice.jpg",
+      "webSha256": "5010f6636ea7869c16580b7e4b0d03cf8038b6deb2eeb1ba119b46344d26e09f",
+      "generationMode": "built-in image_gen with local Blender reference images",
+      "fullPrompt": "Use case: stylized-concept\nAsset type: Red Horizon premium gameplay concept plate, 16:9 landscape route-choice keyframe\nPrimary request: Create a beautiful production concept image for the route-choice beat in Twin Bridge Run, based on the supplied Blender references. The player must clearly understand two choices: high upper bridge = charged shots and exposed speed, low lower bridge = shield and safer side entry.\nInput images: Image 1 is the actual route split truth plate; Image 2 is the real upper bridge truth plate; Image 3 is the real lower bridge truth plate. Use their geometry and route relationships as source truth.\nScene/backdrop: Mars industrial canyon from the supplied model, with two real bridges spanning different elevations, faceted cliffs, outpost structures, dust haze, and visible path continuity toward the Warden court.\nSubject: AVI jetbike/rider near the split, grounded on the real model surface, with high and low routes readable through lighting and track dressing.\nStyle/medium: premium AAA game concept art paintover over Blender reference, dramatic but practical for developers, no poster text.\nComposition/framing: chase-camera gameplay view from slightly behind and above the jetbike; upper bridge lane visible ahead-left or ahead-high, lower bridge lane visible down and across the canyon; both routes must be readable in one glance.\nLighting/mood: red-orange Mars sunset, cyan highlights for high charge route, warm amber protective glow for low shield route, dust shafts in the canyon.\nMaterials/textures: dusty metal bridge decks, worn sci-fi railings, chipped concrete, basalt cliffs, subtle energy pickup markers sitting on the bridge surfaces.\nConstraints: Use the supplied model layout. Do not invent a new canyon, bike, Warden, or bridge route. Keep route markings attached to bridge/deck surfaces, no floating debug ribbons, no words, no logo, no watermark, no unreadable HUD.",
+      "sourceGeneratedFile": "C:\\Users\\roncho\\.codex\\generated_images\\01a09c22-7ca3-7d30-8d6b-4ba459bd92f0\\call_rWMjlLznqEhwBX0BHW3ok9v7.png"
+    },
+    {
+      "id": "03_warden_combat",
+      "title": "Warden court combat",
+      "web": "red-horizon-premium-concept-03-warden-combat.jpg",
+      "references": [
+        "docs/images/red-horizon-warden-court.jpg",
+        "docs/images/red-horizon-high-upper-bridge.jpg",
+        "docs/images/red-horizon-low-lower-bridge.jpg"
+      ],
+      "use": "Combat staging target: supplied Warden as an elite rival, attack ring/projectile lane, cover, and bridge approaches converging into the court.",
+      "truthLevel": "Closest to a gameplay target; Warden scale and court layout still need exact Blender camera and runtime collision validation.",
+      "promptSummary": "Warden fight in right industrial court, supplied spiked humanoid as elite rival, red telegraph ring, AVI jetbike entering from a bridge approach.",
+      "png": "art/concepts/red-horizon-premium/red-horizon-premium-concept-03_warden_combat.png",
+      "pngSha256": "4f78b559c21679fcf40196000762453e810a94ddb8137849962670a49ff911c5",
+      "webPath": "docs/images/red-horizon-premium-concept-03-warden-combat.jpg",
+      "webSha256": "66e3af5398ee2d186e9ce69eab71760b046efffa7657652b7781a1fe65076d4e",
+      "generationMode": "built-in image_gen with local Blender reference images",
+      "fullPrompt": "Use case: stylized-concept\nAsset type: Red Horizon premium gameplay concept plate, 16:9 landscape Warden combat keyframe\nPrimary request: Create a beautiful premium concept image for the Warden court fight, based on the supplied Blender references. The Warden must be the supplied spiked humanoid/rock rival model at elite-rival scale, not a giant kaiju or a new boss creature.\nInput images: Image 1 is the real Warden court truth plate; Images 2 and 3 show the upper and lower route approaches that converge here. Use them as layout and scale references.\nScene/backdrop: Right industrial court from the supplied Mars level, dense metal platforms, bridge entries, cover structures, red combat telegraphs, dust and canyon haze.\nSubject: AVI jetbike/rider entering the court after choosing a route; supplied Warden model standing on the court with a red attack-state ring and projectile lane, readable cover nearby.\nStyle/medium: AAA game keyframe concept art paintover over Blender reference, beautiful but useful for combat implementation.\nComposition/framing: third-person gameplay camera angled across the court; Warden clearly visible at readable human/elite rival scale; jetbike in foreground or midground; bridge routes converging into the fight.\nLighting/mood: sunset Mars rim light, red warning glow around Warden, cyan player energy, dust, sparks, strong silhouettes, readable gameplay space.\nMaterials/textures: worn sci-fi platform metal, dusty rails, rock cliffs, glowing projectile tell, shield/charge color accents attached to real surfaces.\nConstraints: Preserve supplied model silhouettes and relative scale. Do not invent a new monster, mech, or city. Do not make Warden building-sized. Keep the fight in the right industrial court, no text, no logo, no watermark, no floating debug path.",
+      "sourceGeneratedFile": "C:\\Users\\roncho\\.codex\\generated_images\\01a09c22-7ca3-7d30-8d6b-4ba459bd92f0\\call_xAutvS51raJGYy36VnrN2dp5.png"
+    },
+    {
+      "id": "04_extraction",
+      "title": "Extraction outpost victory beat",
+      "web": "red-horizon-premium-concept-04-extraction.jpg",
+      "references": [
+        "docs/images/red-horizon-extraction-outpost.jpg",
+        "docs/images/red-horizon-warden-court.jpg",
+        "docs/images/red-horizon-dev-route-contract.jpg"
+      ],
+      "use": "Finish target for the vertical slice: outpost pad as a clear hold objective, green beacon anchored to surface, combat aftermath behind.",
+      "truthLevel": "Mood target; larger pad and tower dressing are aspirational and should be rebuilt on the supplied outpost pad.",
+      "promptSummary": "AVI jetbike approaching the real far-right extraction pad, green objective beacon, Warden court behind, sunset dust and triumphant finish.",
+      "png": "art/concepts/red-horizon-premium/red-horizon-premium-concept-04_extraction.png",
+      "pngSha256": "ebe68127b4ae595b7641a92e037dedc7b8bc0bce721a0fc7c823ae5114042044",
+      "webPath": "docs/images/red-horizon-premium-concept-04-extraction.jpg",
+      "webSha256": "1a7298419eb4102a05157a2fd7d73d933fa7e906ea834f4eb98fa4d4e4e97790",
+      "generationMode": "built-in image_gen with local Blender reference images",
+      "fullPrompt": "Use case: stylized-concept\nAsset type: Red Horizon premium gameplay concept plate, 16:9 landscape extraction keyframe\nPrimary request: Create a beautiful premium concept image for the extraction beat after the Warden fight, based on the supplied Blender reference images. The finish should feel like a playable objective, not only a scenic vista.\nInput images: Image 1 is the extraction truth plate; Image 2 is the Warden court truth plate; Image 3 is the top-down route contract. Use their route relationship and outpost pad placement as source truth.\nScene/backdrop: Far-right extraction outpost from the supplied Mars level, with canyon cliffs, industrial antennae, small outpost pad, dust storm glow, and the Warden court behind the player route.\nSubject: AVI jetbike/rider approaching or hovering over the extraction pad after combat, with a subtle green beacon/landing objective anchored to the pad surface.\nStyle/medium: premium AAA game concept art paintover over Blender reference, cinematic yet clear as gameplay art.\nComposition/framing: chase-camera or three-quarter view; extraction pad readable in midground, route from court visible behind, sense of speed and arrival; player should understand where to hold position.\nLighting/mood: late Martian sunset, glowing green extraction beacon, warm dust, distant red combat aftermath, triumphant but tense.\nMaterials/textures: dusty concrete/metal landing pad, chipped sci-fi structures, basalt canyon, hover exhaust, small beacon lights attached to geometry.\nConstraints: Preserve the supplied outpost and route idea. Do not invent a giant spaceport, new vehicle, new character, or unrelated city. Keep the objective on the real outpost pad, no text, no logo, no watermark, no floating debug labels.",
+      "sourceGeneratedFile": "C:\\Users\\roncho\\.codex\\generated_images\\01a09c22-7ca3-7d30-8d6b-4ba459bd92f0\\call_6XBsRgfSohJ67YH3ejOqOlkc.png"
+    }
+  ],
+  "criticalConstraints": [
+    "These are concept paintovers and mood targets, not exact runtime geometry.",
+    "Do not replace the supplied level, AVI jetbike, or Warden model with generated content.",
+    "Use the Twin Bridge layout JSON for exact route/collision/camera coordinates.",
+    "Rebuild any beautiful bridge width, pad dressing, VFX, and material upgrades in Blender/runtime against the real model before claiming game-ready art."
+  ],
+  "truthMapSheet": "docs/images/red-horizon-premium-concept-truth-map.jpg",
+  "truthMapSheetSha256": "82716a09021fcd33eb07aff2cc6a0e7e54eadb84ecce16fc1954b2bcd332e65f",
+  "studioReview": {
+    "score": 86,
+    "threshold": 80,
+    "verdict": "Passes as a premium concept-art target and production guide; does not pass as runtime geometry, collision, or release evidence.",
+    "reviewDocument": "docs/RED_HORIZON_PREMIUM_CONCEPT_IMAGE_REVIEW.md",
+    "sourceTruthRule": "Build exact route, collision, camera, and scale from art/real-path/red-horizon-real-path-layout.json and supplied model files."
+  },
+  "negativePromptPolicy": "No separate ImageGen negative-prompt field was used; source-preservation, no-text, no-logo, no-watermark, no-replacement-model constraints are recorded in each fullPrompt."
+}

@@ -1,5 +1,18 @@
 # Validation record
 
+## Premium concept image set — September 15, 2026
+
+A four-plate premium concept set was generated from the real Twin Bridge Blender reference images using the built-in ImageGen workflow. The images are saved as remote-viewable JPGs in `docs/images/`, with project PNG copies under ignored `art/concepts/red-horizon-premium/` and prompt/provenance metadata in `art/concepts/red-horizon-premium/manifest.json`.
+
+- `docs/images/red-horizon-premium-concept-contact.jpg` shows the four premium mood targets together: bridgehead start, route choice, Warden combat and extraction.
+- `docs/images/red-horizon-premium-concept-truth-map.jpg` pairs each premium concept with its Blender truth plate and records the build rule: exact route/collision/camera coordinates still come from `art/real-path/red-horizon-real-path-layout.json`.
+- `docs/RED_HORIZON_PREMIUM_CONCEPT_IMAGE_REVIEW.md` records the multi-discipline studio review score: 86/100, passing as a premium concept target while preserving the runtime-art and collision boundary.
+- The concepts improve the premium art target through richer Martian atmosphere, material wear, route color language, Warden telegraph readability and extraction payoff.
+- The generated images are not runtime geometry evidence. Bridge widths, towers, pad dressing, fog, VFX and material detail are aspirational until rebuilt in Blender/runtime against the supplied `level1.glb`, `avi-jetbike.glb` and `enemy.glb` source set.
+- `python scripts/verify-red-horizon-premium-concepts.py` passes and verifies the tracked JPG hashes, source-reference links, model references, full prompts and truth-level caveats.
+
+Remaining gaps: implement the useful concept details as real Blender/runtime assets, run browser captures from the same beats, validate collision/camera with natural input, and keep publication rights evidence separate from visual mood approval.
+
 ## Real-model path image pass — September 15, 2026
 
 The old Bridgehead visual target and the later cannon-launch composition were rejected as the next design direction. The current pass uses the supplied level, navmesh, AVI jetbike and Warden files as the visual source of truth. The selected mission is now **Twin Bridge Run**: start on a measured left bridgehead surface, choose the real upper bridge or real lower bridge, fight the Warden in the right industrial court and extract at the far-right outpost pad.

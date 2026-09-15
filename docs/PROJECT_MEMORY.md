@@ -1,5 +1,13 @@
 # Project memory
 
+## Latest premium concept art target — September 15, 2026
+
+The latest visual target is the four-plate premium concept set in [RED_HORIZON_PREMIUM_CONCEPT_IMAGES.md](RED_HORIZON_PREMIUM_CONCEPT_IMAGES.md). Review `docs/images/red-horizon-premium-concept-contact.jpg` for the mood board, `docs/images/red-horizon-premium-concept-truth-map.jpg` for the important truth-to-concept comparison and [RED_HORIZON_PREMIUM_CONCEPT_IMAGE_REVIEW.md](RED_HORIZON_PREMIUM_CONCEPT_IMAGE_REVIEW.md) for the studio review score and implementation tasks.
+
+Use these images as lighting/material/VFX/camera targets only. They were generated from the real Twin Bridge Blender references, but they also add aspirational art details. Do not replace the supplied level, AVI jetbike or Warden. Exact route geometry still comes from `art/real-path/red-horizon-real-path-layout.json`.
+
+Next visual implementation should rebuild the useful ideas on the supplied model: bridgehead start pad readability, upper/lower bridge route dressing, Warden red telegraph ring/projectile lane/cover, and green extraction beacon on the measured outpost pad.
+
 ## Latest real-model path direction — September 15, 2026
 
 The user rejected both the old Bridgehead visual direction and the later attempt to solve the scene by making a new/replacement model. Do not create a substitute level for this slice without a new instruction. The current design target is **Twin Bridge Run**, built from the supplied real level model: start on a measured left bridgehead surface, choose the real upper bridge or real lower bridge, fight the supplied Warden model in the right industrial court and extract at the far-right outpost pad.
