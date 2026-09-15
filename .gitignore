@@ -4,6 +4,8 @@ dist/
 build/
 public/vendor/
 .DS_Store
+__pycache__/
+*.pyc
 
 # Local art source and QA captures. Runtime uses exported GLBs in public/models.
 *.blend

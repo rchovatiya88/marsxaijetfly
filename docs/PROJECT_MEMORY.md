@@ -1,5 +1,13 @@
 # Project memory
 
+## Latest real-model path direction — September 15, 2026
+
+The user rejected the old Bridgehead visual direction as the target path. Do not continue polishing Bridgehead as the next premium route without a new instruction. The current design target is **Cannon Gate Run**, a path built from the supplied real level model: launch at `SM_Bld_Planetary_Cannon_01`, choose a high upper-bridge/deck line or a low pipe/utility line, fight the Warden in the right industrial court and extract at the far-right outpost pad.
+
+Start with [RED_HORIZON_REAL_MODEL_PATH_PLAN.md](RED_HORIZON_REAL_MODEL_PATH_PLAN.md) and `art/real-path/red-horizon-real-path-layout.json`. The feature inspection is `art/real-path/real-level-feature-report.json`; it was generated from `public/models/level1.glb` in Blender and uses the same normalized full-level coordinates as `scripts/build-full-level.py`. The rendered local design set is under ignored `art/real-path/*.png`, with the contact sheet at `art/real-path/red-horizon-real-model-path-contact.png` and the editable local Blender copy at `art/real-path/red-horizon-real-model-path.blend`.
+
+Validation for this pass is recorded in [VALIDATION.md](VALIDATION.md). The images are design targets only. Runtime still needs marker export, simplified collision, route reward wiring, camera/browser captures, natural player evidence and foreground performance before the path can replace the current playable mission.
+
 ## Current textured Bridgehead visual slice — September 13, 2026
 
 Read [VALIDATION.md](VALIDATION.md) and [BRIDGEHEAD_PLAY_BY_PLAY.md](BRIDGEHEAD_PLAY_BY_PLAY.md) first. Bridgehead is still the default Red Horizon slice, but the latest asset pass is now a textured Blender build rather than the earlier untextured route overlay. `scripts/build-bridgehead-v2.py` rebuilds `art/bridgehead/bridgehead-v2.blend`, `public/models/bridgehead-route.glb`, `art/bridgehead/verification.json`, the `art/bridgehead/textures/` PNGs and the ten Blender review stills. Current route GLB: SHA-256 `9ce7bc765f3b4ae4c111f1202772a6de05e4fb58b761e2a228813908e440387b`, 215,660 bytes, 2,593 triangles, 5 meshes, 5 materials, 5 embedded textures. The source level remains linked at scale 3 and the original source GLB hash is preserved.

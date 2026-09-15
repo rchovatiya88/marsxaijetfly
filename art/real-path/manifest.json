@@ -1,0 +1,276 @@
+{
+  "name": "Red Horizon real-model path image set",
+  "purpose": "Use supplied level/character/enemy models to define the next playable route.",
+  "source": {
+    "levelBlend": "art/full-level/full-level.blend",
+    "levelBlendSha256": "0d1eb630800765fba4fe157805f10eded7ba3f7e462f5e9b4f290bb15a07047c",
+    "layout": "art/real-path/red-horizon-real-path-layout.json",
+    "layoutSha256": "7172fed0acf8da32364a6c552e0fe8d1d4d7e3aa6f9abe2bea9060607b3346cf",
+    "levelModel": "public/models/level1.glb",
+    "levelModelSha256": "44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db",
+    "navmesh": "public/models/level1_navmesh.glb",
+    "player": "public/models/avi-jetbike.glb",
+    "warden": "public/models/enemy.glb"
+  },
+  "output": {
+    "blend": "art/real-path/red-horizon-real-model-path.blend",
+    "rawDirectory": "art/real-path/raw",
+    "annotatedDirectory": "art/real-path",
+    "contactSheet": "art/real-path/red-horizon-real-model-path-contact.png",
+    "contactSheetSha256": "32338d742d74c6e7c7c9f023f53a2a0411b77160bd07b6ad0c48b20e6af99fd7"
+  },
+  "shots": [
+    {
+      "id": "00_real_model_overview",
+      "title": "Real model route: tower to chasm to industrial court",
+      "beat": "The supplied level\u2019s strongest path starts at the left cannon, crosses the chasm, fights in the right court, and extracts at the right outpost.",
+      "playerAction": "Understand the full route before flying.",
+      "developerTarget": "Replace the old Bridgehead target with this real-model route contract.",
+      "raw": "art/real-path/raw/00_real_model_overview.png",
+      "annotated": "art/real-path/00_real_model_overview.png",
+      "annotatedSha256": "7d5119a895a8cd46ae31aace20bfda6ea29b72b79bd2448bad9f29b171d6a438"
+    },
+    {
+      "id": "01_cannon_launch",
+      "title": "Launch from the real planetary cannon platform",
+      "beat": "Start on the left tower silhouette so the first second already feels like Red Horizon.",
+      "playerAction": "Hold forward and fly off the cannon platform toward the fork.",
+      "developerTarget": "Set spawn, objective, and camera around the real cannon platform anchor.",
+      "raw": "art/real-path/raw/01_cannon_launch.png",
+      "annotated": "art/real-path/01_cannon_launch.png",
+      "annotatedSha256": "b7c4099a13565602615b6210bf9f437b12d46e4a5edd64096cccfd34ba203596"
+    },
+    {
+      "id": "02_chasm_fork",
+      "title": "Fork over the chasm",
+      "beat": "The route decision should happen while the player sees the abyss and both lines.",
+      "playerAction": "Choose high charge across the upper bridge or low shield down to the pipe run.",
+      "developerTarget": "Make reward locking and fork UI happen here, before the player commits.",
+      "raw": "art/real-path/raw/02_chasm_fork.png",
+      "annotated": "art/real-path/02_chasm_fork.png",
+      "annotatedSha256": "15bcc884cb518ebbe2541aa71235c3d90788713f1a7654217026968768ebe03e"
+    },
+    {
+      "id": "03_high_upper_bridge",
+      "title": "High route uses the real upper bridge/deck line",
+      "beat": "The high line stays readable because it rides the upper crossing and city-edge surfaces already in the level.",
+      "playerAction": "Descend onto the upper bridge/deck, boost through the high gate, then dodge in open space.",
+      "developerTarget": "Use these anchors for high-route markers, charge reward, camera capture, and collision proxy.",
+      "raw": "art/real-path/raw/03_high_upper_bridge.png",
+      "annotated": "art/real-path/03_high_upper_bridge.png",
+      "annotatedSha256": "5643a33692b3a12952e04106702bef03cc99569a689bdec541ef7761ae49079c"
+    },
+    {
+      "id": "04_low_pipe_crossing",
+      "title": "Low route follows the real pipe / utility crossing",
+      "beat": "The low path is not another flat bridge; it is a lower utility lane that sells risk and protection.",
+      "playerAction": "Drop, center over the pipe run, earn shield, then climb to side cover.",
+      "developerTarget": "Build a visible hover lane and matching simplified collision because the raw pipe is narrow.",
+      "raw": "art/real-path/raw/04_low_pipe_crossing.png",
+      "annotated": "art/real-path/04_low_pipe_crossing.png",
+      "annotatedSha256": "70cdd9f2e28079bf55ae1fa75490c31ed4a334a8d0a28940e19513b7c60d8a3b"
+    },
+    {
+      "id": "05_warden_industrial_court",
+      "title": "Warden staged in the real industrial court",
+      "beat": "Both routes end in the right industrial cluster, which should become the main combat arena.",
+      "playerAction": "High dodges in the open; low peeks from the side-cover approach.",
+      "developerTarget": "Line up Warden phase visuals, projectile occlusion, cover, and reward damage here.",
+      "raw": "art/real-path/raw/05_warden_industrial_court.png",
+      "annotated": "art/real-path/05_warden_industrial_court.png",
+      "annotatedSha256": "1e78867d897078798a7b56111721a291a50b242f33e9862bbd2d1d0ef67107b8"
+    },
+    {
+      "id": "06_extraction_outpost",
+      "title": "Extraction at the far-right outpost pad",
+      "beat": "The finish is a separate right-side target instead of another marker floating in the court.",
+      "playerAction": "Leave the court, clear the buildings, and hold the extraction pad.",
+      "developerTarget": "Implement exit activation, hold timer, result stats, and replay copy around this outpost.",
+      "raw": "art/real-path/raw/06_extraction_outpost.png",
+      "annotated": "art/real-path/06_extraction_outpost.png",
+      "annotatedSha256": "03d811153c75aeda92a883eafde131597b82ff2657ee3c9d18e7d0424772eb4e"
+    },
+    {
+      "id": "07_dev_route_contract",
+      "title": "Development contract from the real model",
+      "beat": "Every runtime task should use the same coordinates and mesh anchors as the images.",
+      "playerAction": "Use the overview to check whether gameplay still matches the real level.",
+      "developerTarget": "Gameplay, camera, collision, UI, Blender, and QA should all reference this path file.",
+      "raw": "art/real-path/raw/07_dev_route_contract.png",
+      "annotated": "art/real-path/07_dev_route_contract.png",
+      "annotatedSha256": "a5c1649537e9f326763d7d6dbc25ccdda2605c70f92098437152a70f8d801051"
+    }
+  ],
+  "renderReceipts": [
+    {
+      "id": "00_real_model_overview",
+      "raw": "art/real-path/raw/00_real_model_overview.png",
+      "camera": {
+        "eye": [
+          68,
+          86,
+          58
+        ],
+        "target": [
+          5,
+          -0.5,
+          -8
+        ],
+        "orthoScale": 74
+      }
+    },
+    {
+      "id": "01_cannon_launch",
+      "raw": "art/real-path/raw/01_cannon_launch.png",
+      "camera": {
+        "player": {
+          "x": -24.5,
+          "y": 3.7,
+          "z": -10.7
+        },
+        "target": {
+          "x": -17.6,
+          "y": 3.4,
+          "z": -10.9
+        },
+        "camera": [
+          -31.467,
+          5.9,
+          -9.448
+        ]
+      }
+    },
+    {
+      "id": "02_chasm_fork",
+      "raw": "art/real-path/raw/02_chasm_fork.png",
+      "camera": {
+        "player": {
+          "x": -17.6,
+          "y": 3.4,
+          "z": -10.9
+        },
+        "target": {
+          "x": -1.8,
+          "y": 1.8,
+          "z": -15.4,
+          "beat": "descend toward real upper crossing"
+        },
+        "camera": [
+          -25.583,
+          5.6,
+          -7.534
+        ]
+      }
+    },
+    {
+      "id": "03_high_upper_bridge",
+      "raw": "art/real-path/raw/03_high_upper_bridge.png",
+      "camera": {
+        "player": {
+          "x": 10.9,
+          "y": 0.5,
+          "z": -17.8,
+          "beat": "boost along the industrial deck edge"
+        },
+        "target": {
+          "x": 18.4,
+          "y": 0.0,
+          "z": -16.2
+        },
+        "camera": [
+          1.683,
+          2.7,
+          -18.693
+        ]
+      }
+    },
+    {
+      "id": "04_low_pipe_crossing",
+      "raw": "art/real-path/raw/04_low_pipe_crossing.png",
+      "camera": {
+        "player": {
+          "x": -8.8,
+          "y": -3.1,
+          "z": 10.2,
+          "beat": "cross first pipe segment"
+        },
+        "target": {
+          "x": 5.2,
+          "y": -3.1,
+          "z": 10.2,
+          "beat": "exit pipe run"
+        },
+        "camera": [
+          -16.4,
+          -0.9,
+          11.25
+        ]
+      }
+    },
+    {
+      "id": "05_warden_industrial_court",
+      "raw": "art/real-path/raw/05_warden_industrial_court.png",
+      "camera": {
+        "eye": [
+          11.2,
+          4.6,
+          -22.8
+        ],
+        "target": [
+          18.4,
+          0.7,
+          -16.2
+        ],
+        "verticalFov": 58
+      }
+    },
+    {
+      "id": "06_extraction_outpost",
+      "raw": "art/real-path/raw/06_extraction_outpost.png",
+      "camera": {
+        "player": {
+          "x": 22.3,
+          "y": -0.2,
+          "z": -9.2,
+          "beat": "clear industrial buildings"
+        },
+        "target": {
+          "x": 29.8,
+          "y": -1.2,
+          "z": -3.4,
+          "radius": 2.8,
+          "holdSeconds": 1.5
+        },
+        "camera": [
+          16.12,
+          2.0,
+          -12.652
+        ]
+      }
+    },
+    {
+      "id": "07_dev_route_contract",
+      "raw": "art/real-path/raw/07_dev_route_contract.png",
+      "camera": {
+        "eye": [
+          18,
+          105,
+          8
+        ],
+        "target": [
+          7,
+          -1,
+          -7
+        ],
+        "orthoScale": 62
+      }
+    }
+  ],
+  "limitations": [
+    "This is a design path from real model anchors, not yet a runtime collision or acceptance pass.",
+    "The lower pipe route is visually real but narrow; gameplay should use a visible hover lane and matching simplified collision proxy rather than raw mesh collision.",
+    "The full level remains visual context; the first playable route still needs simplified resident collision and authored mission markers.",
+    "Offline Blender images are design evidence; browser playtest evidence is still required.",
+    "The old Bridgehead v2 path was not used as the design target for this pass."
+  ]
+}
