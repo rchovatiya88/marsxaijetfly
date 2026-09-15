@@ -110,6 +110,117 @@ def make_curve_path(
     return obj
 
 
+def game_from_blender(v: Vector) -> dict[str, float]:
+    return {"x": v.x, "y": v.z, "z": -v.y}
+
+
+def ray_ground(scene: bpy.types.Scene, deps: bpy.types.Depsgraph, g: dict[str, float]) -> dict[str, object] | None:
+    origin = Vector((g["x"], -g["z"], 40.0))
+    direction = Vector((0, 0, -1))
+    hit, loc, normal, face_index, obj, matrix = scene.ray_cast(deps, origin, direction, distance=110)
+    if not hit:
+        return None
+    game = game_from_blender(loc)
+    return {
+        "x": g["x"],
+        "y": game["y"],
+        "z": g["z"],
+        "surfaceObject": obj.name if obj else None,
+        "deltaY": g["y"] - game["y"],
+    }
+
+
+def add_surface_route_decals(
+    collection: bpy.types.Collection,
+    scene: bpy.types.Scene,
+    deps: bpy.types.Depsgraph,
+    route_name: str,
+    points: list[dict[str, float]],
+    mat: bpy.types.Material,
+    max_hover: float = 1.65,
+) -> list[dict[str, object]]:
+    receipts: list[dict[str, object]] = []
+    current: list[dict[str, float]] = []
+    current_index = 0
+
+    def flush(end_index: int) -> None:
+        nonlocal current, current_index
+        if len(current) >= 2:
+            make_curve_path(
+                collection,
+                f"{route_name}_SURFACE_DECAL_{current_index}_{end_index}",
+                current,
+                mat,
+                lift=0.08,
+                bevel=0.016,
+            )
+        current = []
+        current_index = end_index
+
+    for index, point in enumerate(points):
+        ground = ray_ground(scene, deps, point)
+        if ground is None:
+            flush(index)
+            receipts.append({"index": index, "beat": point.get("beat"), "mode": "no-ground"})
+            continue
+        delta = float(ground["deltaY"])
+        receipt = {
+            "index": index,
+            "beat": point.get("beat"),
+            "surfaceObject": ground["surfaceObject"],
+            "groundY": round(float(ground["y"]), 3),
+            "routeY": round(float(point["y"]), 3),
+            "deltaY": round(delta, 3),
+        }
+        if -0.35 <= delta <= max_hover:
+            projected = {"x": point["x"], "y": float(ground["y"]), "z": point["z"]}
+            current.append(projected)
+            receipt["mode"] = "surface-decal"
+        else:
+            flush(index)
+            receipt["mode"] = "air-gate-needed"
+        receipts.append(receipt)
+    flush(len(points))
+    return receipts
+
+
+def add_air_gate(
+    collection: bpy.types.Collection,
+    name: str,
+    center: dict[str, float],
+    next_point: dict[str, float],
+    mat: bpy.types.Material,
+    radius: float = 1.15,
+) -> bpy.types.Object:
+    forward = Vector((next_point["x"] - center["x"], 0, next_point["z"] - center["z"]))
+    if forward.length < 0.001:
+        forward = Vector((1, 0, 0))
+    forward.normalize()
+    up = Vector((0, 0, 1))
+    right = up.cross(forward)
+    if right.length < 0.001:
+        right = Vector((1, 0, 0))
+    right.normalize()
+    curve = bpy.data.curves.new(name, "CURVE")
+    curve.dimensions = "3D"
+    curve.resolution_u = 16
+    curve.bevel_depth = 0.025
+    curve.bevel_resolution = 3
+    ring = curve.splines.new("POLY")
+    count = 72
+    ring.points.add(count)
+    c = V(center)
+    for index in range(count + 1):
+        angle = (index % count) / count * math.tau
+        pos = c + right * math.cos(angle) * radius + up * math.sin(angle) * radius
+        ring.points[index].co = (*pos, 1.0)
+    obj = bpy.data.objects.new(name, curve)
+    obj.data.materials.append(mat)
+    obj["purpose"] = "Vertical hover/air gate, used where the route intentionally leaves a surface."
+    collection.objects.link(obj)
+    return obj
+
+
 def add_text(
     collection: bpy.types.Collection,
     name: str,
@@ -144,7 +255,7 @@ def add_ring(
     curve = bpy.data.curves.new(name, "CURVE")
     curve.dimensions = "3D"
     curve.resolution_u = 16
-    curve.bevel_depth = 0.022
+    curve.bevel_depth = 0.016
     curve.bevel_resolution = 3
     poly = curve.splines.new("POLY")
     count = 64
@@ -298,6 +409,7 @@ def set_free_camera(
 
 bpy.ops.wm.open_mainfile(filepath=str(FULL_BLEND))
 scene = bpy.context.scene
+deps = bpy.context.evaluated_depsgraph_get()
 overlay = clean_collection("RED_HORIZON_REAL_PATH_OVERLAY")
 actors = clean_collection("RED_HORIZON_REAL_PATH_ACTORS")
 
@@ -307,9 +419,19 @@ white = make_mat("RH readable white", (0.96, 0.93, 0.82), 1.3)
 red = make_mat("RH Warden red", (1.0, 0.09, 0.03), 1.9)
 green = make_mat("RH extraction green", (0.3, 1.0, 0.42), 1.7)
 
-make_curve_path(overlay, "HIGH_ROUTE_REAL_UPPER_BRIDGE", D["highRoute"], cyan)
-make_curve_path(overlay, "LOW_ROUTE_REAL_PIPE_CROSSING", D["lowRoute"], amber)
-make_curve_path(overlay, "EXTRACTION_ROUTE_REAL_OUTPOST", D["extractionPath"], green)
+grounding_receipts = {
+    "highRoute": add_surface_route_decals(overlay, scene, deps, "HIGH_ROUTE_REAL_UPPER_BRIDGE", D["highRoute"], cyan),
+    "lowRoute": add_surface_route_decals(overlay, scene, deps, "LOW_ROUTE_REAL_PIPE_CROSSING", D["lowRoute"], amber),
+    "extractionPath": add_surface_route_decals(
+        overlay, scene, deps, "EXTRACTION_ROUTE_REAL_OUTPOST", D["extractionPath"], green, max_hover=1.8
+    ),
+}
+for gate_name, center, next_point, mat in [
+    ("HIGH_AIR_GATE_TOWER_EXIT", D["highRoute"][2], D["highRoute"][3], cyan),
+    ("HIGH_AIR_GATE_UPPER_LANDING", D["highRoute"][3], D["highRoute"][4], cyan),
+    ("LOW_DROP_GATE", D["lowRoute"][1], D["lowRoute"][2], amber),
+]:
+    add_air_gate(overlay, gate_name, center, next_point, mat)
 for point in D["highRoute"][1:-1]:
     add_ring(overlay, "HIGH_BEAT_" + point["beat"].replace(" ", "_")[:30], point, cyan, 0.55)
 for point in D["lowRoute"][1:-1]:
@@ -337,7 +459,7 @@ warden = add_actor(
     "WARDEN_REAL_PATH_SCALE",
     D["warden"],
     D["lowPeek"],
-    2.15,
+    D.get("wardenActor", {}).get("targetHeight", 2.05),
     posed=True,
 )
 
@@ -516,6 +638,7 @@ manifest = {
         for shot in shots
     ],
     "renderReceipts": receipts,
+    "groundingReceipts": grounding_receipts,
     "limitations": D["limitations"] + [
         "Offline Blender images are design evidence; browser playtest evidence is still required.",
         "The old Bridgehead v2 path was not used as the design target for this pass."

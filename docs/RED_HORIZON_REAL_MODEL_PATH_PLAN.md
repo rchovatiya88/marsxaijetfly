@@ -83,4 +83,6 @@ The path still supports the premium Red Horizon loop: route choice changes comba
 
 ## Current limit
 
-This plan is local design and asset-direction work. The user has said model license and ownership records exist, but those records are not saved in this repository, so publication rights remain user-held evidence rather than independently inspected repo evidence.
+This plan is local design and asset-direction work. The follow-up visual-director critique is [RED_HORIZON_VISUAL_DIRECTOR_REVIEW.md](RED_HORIZON_VISUAL_DIRECTOR_REVIEW.md). Treat that critique as the current art bar: route art must be surface decals and vertical air gates grounded in the real level, and the Warden should read as a court-staged elite rival rather than a giant loose creature.
+
+The user has said model license and ownership records exist, but those records are not saved in this repository, so publication rights remain user-held evidence rather than independently inspected repo evidence.

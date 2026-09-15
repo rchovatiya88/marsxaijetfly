@@ -21,6 +21,11 @@
     "targetLength": 0,
     "note": "Use the existing AVI plus standalone jetbike model. Do not scale the bike to solve framing."
   },
+  "wardenActor": {
+    "targetHeight": 2.05,
+    "role": "elite rival scale, slightly taller than the rider but not building-sized",
+    "note": "If the Warden becomes a true boss later, give it a vehicle/turret silhouette instead of only scaling this humanoid up."
+  },
   "movement": {
     "speed": 8,
     "boost": 16,
@@ -86,26 +91,26 @@
   ],
   "start": {
     "x": -24.5,
-    "y": 3.7,
+    "y": 4.2,
     "z": -10.7
   },
   "fork": {
     "x": -17.6,
-    "y": 3.4,
+    "y": 2.8,
     "z": -10.9
   },
   "highRoute": [
-    { "x": -24.5, "y": 3.7, "z": -10.7, "beat": "launch from cannon platform" },
-    { "x": -17.6, "y": 3.4, "z": -10.9, "beat": "commit to chasm fork" },
-    { "x": -9.5, "y": 3.0, "z": -13.0, "beat": "hold altitude over the chasm edge" },
-    { "x": -1.8, "y": 1.8, "z": -15.4, "beat": "descend toward real upper crossing" },
-    { "x": 3.0, "y": 0.6, "z": -16.9, "beat": "touch the upper bridge/slope line" },
-    { "x": 10.9, "y": 0.5, "z": -17.8, "beat": "boost along the industrial deck edge" },
-    { "x": 16.2, "y": 0.6, "z": -18.0, "beat": "arrive exposed with charged shots" },
-    { "x": 18.2, "y": 0.6, "z": -16.2, "beat": "enter Warden court" }
+    { "x": -24.5, "y": 4.2, "z": -10.7, "beat": "surface launch from cannon platform" },
+    { "x": -17.6, "y": 2.8, "z": -10.9, "beat": "surface fork at chasm lip" },
+    { "x": -9.5, "y": 1.35, "z": -13.0, "beat": "air gate after leaving the tower" },
+    { "x": -1.8, "y": 1.8, "z": -15.4, "beat": "air gate before upper crossing" },
+    { "x": 3.0, "y": 1.25, "z": -16.9, "beat": "settle onto the real upper bridge/slope" },
+    { "x": 10.9, "y": 0.05, "z": -17.8, "beat": "surface boost along the industrial deck edge" },
+    { "x": 16.2, "y": 0.55, "z": -18.0, "beat": "surface arrival with charged shots" },
+    { "x": 18.2, "y": 0.62, "z": -16.2, "beat": "enter Warden court" }
   ],
   "lowRoute": [
-    { "x": -24.5, "y": 3.7, "z": -10.7, "beat": "launch from cannon platform" },
+    { "x": -24.5, "y": 4.2, "z": -10.7, "beat": "surface launch from cannon platform" },
     { "x": -20.4, "y": 2.4, "z": -5.0, "beat": "drop toward lower rock path" },
     { "x": -16.8, "y": -0.7, "z": 1.2, "beat": "enter lower utility approach" },
     { "x": -13.6, "y": -2.2, "z": 9.3, "beat": "line up with visible pipe crossing" },
@@ -117,11 +122,11 @@
     { "x": 12.7, "y": -0.2, "z": -6.1, "beat": "arrive at side cover approach" },
     { "x": 15.7, "y": 0.4, "z": -11.6, "beat": "take cover before Warden line" },
     { "x": 17.2, "y": 0.6, "z": -13.9, "beat": "peek into Warden court" },
-    { "x": 18.2, "y": 0.6, "z": -16.2, "beat": "enter Warden court protected" }
+    { "x": 18.2, "y": 0.62, "z": -16.2, "beat": "enter Warden court protected" }
   ],
   "warden": {
     "x": 18.4,
-    "y": 0.0,
+    "y": 0.22,
     "z": -16.2
   },
   "lowCover": {
@@ -140,9 +145,9 @@
     "z": -20.0
   },
   "extractionPath": [
-    { "x": 18.2, "y": 0.6, "z": -16.2, "beat": "leave Warden court after defeat" },
+    { "x": 18.2, "y": 0.62, "z": -16.2, "beat": "leave Warden court after defeat" },
     { "x": 22.3, "y": -0.2, "z": -9.2, "beat": "clear industrial buildings" },
-    { "x": 26.8, "y": -0.8, "z": -5.8, "beat": "aim at right outpost" },
+    { "x": 26.8, "y": 0.35, "z": -5.8, "beat": "aim at right outpost" },
     { "x": 29.8, "y": -1.2, "z": -3.4, "beat": "hold extraction pad" }
   ],
   "extraction": {
@@ -169,7 +174,8 @@
   },
   "limitations": [
     "This is a design path from real model anchors, not yet a runtime collision or acceptance pass.",
-    "The lower pipe route is visually real but narrow; gameplay should use a visible hover lane and matching simplified collision proxy rather than raw mesh collision.",
+    "The lower pipe route is visually real but narrow; gameplay should use surface decals, hover gates and matching simplified collision proxy rather than raw mesh collision.",
+    "Route overlays should be ground-projected decals on traversable surfaces and vertical gates during deliberate air gaps; avoid continuous floating debug splines in close-up gameplay views.",
     "The full level remains visual context; the first playable route still needs simplified resident collision and authored mission markers."
   ]
 }

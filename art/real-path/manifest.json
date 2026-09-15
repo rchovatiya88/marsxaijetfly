@@ -5,7 +5,7 @@
     "levelBlend": "art/full-level/full-level.blend",
     "levelBlendSha256": "0d1eb630800765fba4fe157805f10eded7ba3f7e462f5e9b4f290bb15a07047c",
     "layout": "art/real-path/red-horizon-real-path-layout.json",
-    "layoutSha256": "7172fed0acf8da32364a6c552e0fe8d1d4d7e3aa6f9abe2bea9060607b3346cf",
+    "layoutSha256": "1306baa58c76b0120b73be7d805498e890638a2f80234ce508c1c989c9e5f146",
     "levelModel": "public/models/level1.glb",
     "levelModelSha256": "44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db",
     "navmesh": "public/models/level1_navmesh.glb",
@@ -17,7 +17,7 @@
     "rawDirectory": "art/real-path/raw",
     "annotatedDirectory": "art/real-path",
     "contactSheet": "art/real-path/red-horizon-real-model-path-contact.png",
-    "contactSheetSha256": "32338d742d74c6e7c7c9f023f53a2a0411b77160bd07b6ad0c48b20e6af99fd7"
+    "contactSheetSha256": "5eebbbcae9e0a326af099152c08247ae2086f735ed2afafbbd0f62ec75818b80"
   },
   "shots": [
     {
@@ -28,7 +28,7 @@
       "developerTarget": "Replace the old Bridgehead target with this real-model route contract.",
       "raw": "art/real-path/raw/00_real_model_overview.png",
       "annotated": "art/real-path/00_real_model_overview.png",
-      "annotatedSha256": "7d5119a895a8cd46ae31aace20bfda6ea29b72b79bd2448bad9f29b171d6a438"
+      "annotatedSha256": "02173cdb0f2982d30f0f70ca3abd38b3a970a9cbef13b3928893bc0ded985764"
     },
     {
       "id": "01_cannon_launch",
@@ -38,7 +38,7 @@
       "developerTarget": "Set spawn, objective, and camera around the real cannon platform anchor.",
       "raw": "art/real-path/raw/01_cannon_launch.png",
       "annotated": "art/real-path/01_cannon_launch.png",
-      "annotatedSha256": "b7c4099a13565602615b6210bf9f437b12d46e4a5edd64096cccfd34ba203596"
+      "annotatedSha256": "29e10b1355d29ff83adf3ebdefba4c81d0127fb1dbf08fe1f995668ae9478ded"
     },
     {
       "id": "02_chasm_fork",
@@ -48,7 +48,7 @@
       "developerTarget": "Make reward locking and fork UI happen here, before the player commits.",
       "raw": "art/real-path/raw/02_chasm_fork.png",
       "annotated": "art/real-path/02_chasm_fork.png",
-      "annotatedSha256": "15bcc884cb518ebbe2541aa71235c3d90788713f1a7654217026968768ebe03e"
+      "annotatedSha256": "ad7aae14625fb457ac9a69696bb0e02b1fa5188c797b5305fc6843112b622983"
     },
     {
       "id": "03_high_upper_bridge",
@@ -58,7 +58,7 @@
       "developerTarget": "Use these anchors for high-route markers, charge reward, camera capture, and collision proxy.",
       "raw": "art/real-path/raw/03_high_upper_bridge.png",
       "annotated": "art/real-path/03_high_upper_bridge.png",
-      "annotatedSha256": "5643a33692b3a12952e04106702bef03cc99569a689bdec541ef7761ae49079c"
+      "annotatedSha256": "fc6880107cceb7087b8149212cbdd226fe8c06b4a44ea269d9bf5aa562e89b51"
     },
     {
       "id": "04_low_pipe_crossing",
@@ -68,7 +68,7 @@
       "developerTarget": "Build a visible hover lane and matching simplified collision because the raw pipe is narrow.",
       "raw": "art/real-path/raw/04_low_pipe_crossing.png",
       "annotated": "art/real-path/04_low_pipe_crossing.png",
-      "annotatedSha256": "70cdd9f2e28079bf55ae1fa75490c31ed4a334a8d0a28940e19513b7c60d8a3b"
+      "annotatedSha256": "f926b8f66c2a0b2abea8911523a8660b1ede9b1699c1dd4c83ff289c4499d758"
     },
     {
       "id": "05_warden_industrial_court",
@@ -78,7 +78,7 @@
       "developerTarget": "Line up Warden phase visuals, projectile occlusion, cover, and reward damage here.",
       "raw": "art/real-path/raw/05_warden_industrial_court.png",
       "annotated": "art/real-path/05_warden_industrial_court.png",
-      "annotatedSha256": "1e78867d897078798a7b56111721a291a50b242f33e9862bbd2d1d0ef67107b8"
+      "annotatedSha256": "5b4836383ef4232f23a48d9279349553857956c96558fc422ad624fd9ad78dec"
     },
     {
       "id": "06_extraction_outpost",
@@ -88,7 +88,7 @@
       "developerTarget": "Implement exit activation, hold timer, result stats, and replay copy around this outpost.",
       "raw": "art/real-path/raw/06_extraction_outpost.png",
       "annotated": "art/real-path/06_extraction_outpost.png",
-      "annotatedSha256": "03d811153c75aeda92a883eafde131597b82ff2657ee3c9d18e7d0424772eb4e"
+      "annotatedSha256": "1b7450bb67af42f78c65472a7ec6b4024d1abb3d19685b60b776bf1ddbfd9d25"
     },
     {
       "id": "07_dev_route_contract",
@@ -98,7 +98,7 @@
       "developerTarget": "Gameplay, camera, collision, UI, Blender, and QA should all reference this path file.",
       "raw": "art/real-path/raw/07_dev_route_contract.png",
       "annotated": "art/real-path/07_dev_route_contract.png",
-      "annotatedSha256": "a5c1649537e9f326763d7d6dbc25ccdda2605c70f92098437152a70f8d801051"
+      "annotatedSha256": "895de7d6d8072ce19055969bd5e33c664d46a1e3463b3229ec7043806aa5c8b7"
     }
   ],
   "renderReceipts": [
@@ -125,17 +125,17 @@
       "camera": {
         "player": {
           "x": -24.5,
-          "y": 3.7,
+          "y": 4.2,
           "z": -10.7
         },
         "target": {
           "x": -17.6,
-          "y": 3.4,
+          "y": 2.8,
           "z": -10.9
         },
         "camera": [
           -31.467,
-          5.9,
+          6.4,
           -9.448
         ]
       }
@@ -146,18 +146,18 @@
       "camera": {
         "player": {
           "x": -17.6,
-          "y": 3.4,
+          "y": 2.8,
           "z": -10.9
         },
         "target": {
           "x": -1.8,
           "y": 1.8,
           "z": -15.4,
-          "beat": "descend toward real upper crossing"
+          "beat": "air gate before upper crossing"
         },
         "camera": [
           -25.583,
-          5.6,
+          5.0,
           -7.534
         ]
       }
@@ -168,18 +168,18 @@
       "camera": {
         "player": {
           "x": 10.9,
-          "y": 0.5,
+          "y": 0.05,
           "z": -17.8,
-          "beat": "boost along the industrial deck edge"
+          "beat": "surface boost along the industrial deck edge"
         },
         "target": {
           "x": 18.4,
-          "y": 0.0,
+          "y": 0.22,
           "z": -16.2
         },
         "camera": [
           1.683,
-          2.7,
+          2.25,
           -18.693
         ]
       }
@@ -266,9 +266,243 @@
       }
     }
   ],
+  "groundingReceipts": {
+    "highRoute": [
+      {
+        "index": 0,
+        "beat": "surface launch from cannon platform",
+        "surfaceObject": "chunk_q00",
+        "groundY": 3.885,
+        "routeY": 4.2,
+        "deltaY": 0.315,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 1,
+        "beat": "surface fork at chasm lip",
+        "surfaceObject": "chunk_q00",
+        "groundY": 2.117,
+        "routeY": 2.8,
+        "deltaY": 0.683,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 2,
+        "beat": "air gate after leaving the tower",
+        "surfaceObject": "chunk_q00",
+        "groundY": 0.596,
+        "routeY": 1.35,
+        "deltaY": 0.754,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 3,
+        "beat": "air gate before upper crossing",
+        "surfaceObject": "chunk_q00",
+        "groundY": -14.005,
+        "routeY": 1.8,
+        "deltaY": 15.805,
+        "mode": "air-gate-needed"
+      },
+      {
+        "index": 4,
+        "beat": "settle onto the real upper bridge/slope",
+        "surfaceObject": "chunk_q10",
+        "groundY": 0.774,
+        "routeY": 1.25,
+        "deltaY": 0.476,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 5,
+        "beat": "surface boost along the industrial deck edge",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.66,
+        "routeY": 0.05,
+        "deltaY": 0.71,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 6,
+        "beat": "surface arrival with charged shots",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.125,
+        "routeY": 0.55,
+        "deltaY": 0.675,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 7,
+        "beat": "enter Warden court",
+        "surfaceObject": "chunk_q10",
+        "groundY": 0.16,
+        "routeY": 0.62,
+        "deltaY": 0.46,
+        "mode": "surface-decal"
+      }
+    ],
+    "lowRoute": [
+      {
+        "index": 0,
+        "beat": "surface launch from cannon platform",
+        "surfaceObject": "chunk_q00",
+        "groundY": 3.885,
+        "routeY": 4.2,
+        "deltaY": 0.315,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 1,
+        "beat": "drop toward lower rock path",
+        "surfaceObject": "chunk_q00",
+        "groundY": 14.946,
+        "routeY": 2.4,
+        "deltaY": -12.546,
+        "mode": "air-gate-needed"
+      },
+      {
+        "index": 2,
+        "beat": "enter lower utility approach",
+        "surfaceObject": "chunk_q01",
+        "groundY": -1.823,
+        "routeY": -0.7,
+        "deltaY": 1.123,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 3,
+        "beat": "line up with visible pipe crossing",
+        "surfaceObject": "chunk_q01",
+        "groundY": -3.134,
+        "routeY": -2.2,
+        "deltaY": 0.934,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 4,
+        "beat": "cross first pipe segment",
+        "surfaceObject": "chunk_q01",
+        "groundY": -3.378,
+        "routeY": -3.1,
+        "deltaY": 0.278,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 5,
+        "beat": "hold low shield route",
+        "surfaceObject": "chunk_q01",
+        "groundY": -3.378,
+        "routeY": -3.1,
+        "deltaY": 0.278,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 6,
+        "beat": "stay centered over the real pipe run",
+        "surfaceObject": "chunk_q11",
+        "groundY": -3.377,
+        "routeY": -3.1,
+        "deltaY": 0.277,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 7,
+        "beat": "exit pipe run",
+        "surfaceObject": "chunk_q11",
+        "groundY": -3.378,
+        "routeY": -3.1,
+        "deltaY": 0.278,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 8,
+        "beat": "start climb to the industrial side",
+        "surfaceObject": "chunk_q11",
+        "groundY": -2.816,
+        "routeY": -2.2,
+        "deltaY": 0.616,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 9,
+        "beat": "arrive at side cover approach",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.726,
+        "routeY": -0.2,
+        "deltaY": 0.526,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 10,
+        "beat": "take cover before Warden line",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.613,
+        "routeY": 0.4,
+        "deltaY": 1.013,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 11,
+        "beat": "peek into Warden court",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.282,
+        "routeY": 0.6,
+        "deltaY": 0.882,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 12,
+        "beat": "enter Warden court protected",
+        "surfaceObject": "chunk_q10",
+        "groundY": 0.16,
+        "routeY": 0.62,
+        "deltaY": 0.46,
+        "mode": "surface-decal"
+      }
+    ],
+    "extractionPath": [
+      {
+        "index": 0,
+        "beat": "leave Warden court after defeat",
+        "surfaceObject": "chunk_q10",
+        "groundY": 0.16,
+        "routeY": 0.62,
+        "deltaY": 0.46,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 1,
+        "beat": "clear industrial buildings",
+        "surfaceObject": "chunk_q10",
+        "groundY": -1.812,
+        "routeY": -0.2,
+        "deltaY": 1.612,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 2,
+        "beat": "aim at right outpost",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.253,
+        "routeY": 0.35,
+        "deltaY": 0.603,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 3,
+        "beat": "hold extraction pad",
+        "surfaceObject": "chunk_q10",
+        "groundY": -1.924,
+        "routeY": -1.2,
+        "deltaY": 0.724,
+        "mode": "surface-decal"
+      }
+    ]
+  },
   "limitations": [
     "This is a design path from real model anchors, not yet a runtime collision or acceptance pass.",
-    "The lower pipe route is visually real but narrow; gameplay should use a visible hover lane and matching simplified collision proxy rather than raw mesh collision.",
+    "The lower pipe route is visually real but narrow; gameplay should use surface decals, hover gates and matching simplified collision proxy rather than raw mesh collision.",
+    "Route overlays should be ground-projected decals on traversable surfaces and vertical gates during deliberate air gaps; avoid continuous floating debug splines in close-up gameplay views.",
     "The full level remains visual context; the first playable route still needs simplified resident collision and authored mission markers.",
     "Offline Blender images are design evidence; browser playtest evidence is still required.",
     "The old Bridgehead v2 path was not used as the design target for this pass."

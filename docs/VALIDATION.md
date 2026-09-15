@@ -8,9 +8,13 @@ The old Bridgehead visual target was rejected as the next design direction. A ne
 - `art/real-path/red-horizon-real-path-layout.json` records the new Cannon Gate Run path contract, including mesh anchors, high/low route points, Warden position, cover/peek points, extraction path, camera contract and current limitations.
 - `scripts/build-red-horizon-real-model-path.py` opened `art/full-level/full-level.blend`, added non-runtime route overlays, imported the actual `avi-jetbike.glb` and `enemy.glb` for scale, rendered eight raw images and saved a separate local design scene at `art/real-path/red-horizon-real-model-path.blend`.
 - `scripts/annotate-red-horizon-real-model-path.py` produced eight annotated design images and a contact sheet at `art/real-path/red-horizon-real-model-path-contact.png`. The contact sheet, overview, launch, low pipe, extraction and Warden frames were visually inspected. A first iteration made the high-route overlay too thick and hid the Warden behind the bike; the second iteration reduced overlay thickness, enlarged the contact sheet and changed the Warden frame to a side combat camera.
+- A visual-director review then found the second pass still too much like prototype overlay art. `docs/RED_HORIZON_VISUAL_DIRECTOR_REVIEW.md` records the critique: the route must become surface decals and vertical air gates, not a continuous floating spline; the Warden should read as an elite rival staged in the court, not a random giant creature.
+- A v2 grounding pass raycast route points against `art/full-level/full-level.blend`. Most route points are now surface-decals roughly 0.28–1.12 m above real geometry; the high chasm transition remains a deliberate air-gate segment with a 15.805 m surface gap, and the low drop is explicitly flagged as needing a gate because the vertical ray hits overhead level geometry. The Warden foot point was lifted from below the court surface to a 0.22 m authored position.
 - Python syntax checks passed for both new scripts with `python -m py_compile`.
 
-Remaining gaps: this is design evidence, not a runtime acceptance pass. The real-model path still needs exported mission markers, resident simplified collision, runtime route rewards, browser captures from the same eight beats, natural mouse/route playtests, foreground performance and rights records saved in the repo before any publication claim.
+Remote-viewable JPGs are tracked under `docs/images/` for chat review. Heavy `.blend` and PNG render outputs remain local ignored art evidence.
+
+Remaining gaps: this is design evidence, not a runtime acceptance pass or final art. The real-model path still needs finished route assets, exported mission markers, resident simplified collision, runtime route rewards, browser captures from the same eight beats, natural mouse/route playtests, foreground performance and rights records saved in the repo before any publication claim.
 
 ## Current mouse stability repair — September 13, 2026
 
