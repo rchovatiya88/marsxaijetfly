@@ -1,0 +1,423 @@
+{
+  "name": "Red Horizon premium Blender visual target",
+  "created": "2026-09-15",
+  "purpose": "Rebuild the premium concept image direction in the real supplied level model space using non-destructive Blender scene dressing.",
+  "engine": "BLENDER_EEVEE",
+  "source": {
+    "fullLevelBlend": "art/full-level/full-level.blend",
+    "fullLevelBlendSha256": "0d1eb630800765fba4fe157805f10eded7ba3f7e462f5e9b4f290bb15a07047c",
+    "layout": "art/real-path/red-horizon-real-path-layout.json",
+    "layoutSha256": "8add53d948d04aca790ff5ebb706e3ce06dd0ca847e3c80e39b849c3ccd2761b",
+    "levelModel": "public/models/level1.glb",
+    "levelModelSha256": "44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db",
+    "player": "public/models/avi-jetbike.glb",
+    "playerSha256": "5c3941953eb7ff6aa45f0faaebe24ed529f085d95e6ecbf752941f4981b6a244",
+    "warden": "public/models/enemy.glb",
+    "wardenSha256": "16415bf5a5b8dfa0440c7689451eb68f5a4b724ab74bb862a1cec7ceb54cdb69"
+  },
+  "output": {
+    "blend": "art/concepts/red-horizon-premium-blender/red-horizon-premium-blender-target.blend",
+    "rawDirectory": "art/concepts/red-horizon-premium-blender/raw",
+    "webImages": [
+      {
+        "id": "01_bridgehead_start",
+        "web": "docs/images/red-horizon-premium-blender-01-bridgehead-start.jpg",
+        "webSha256": "a583ec0306d7f880b6d2dd9162568a6d300a25cd24dfd6e85b7e5e66564a018e"
+      },
+      {
+        "id": "02_route_choice",
+        "web": "docs/images/red-horizon-premium-blender-02-route-choice.jpg",
+        "webSha256": "4f65d73b582053c9f2531bd75df0dba350f967c0b91a16d427f2c953229244a1"
+      },
+      {
+        "id": "03_warden_combat",
+        "web": "docs/images/red-horizon-premium-blender-03-warden-combat.jpg",
+        "webSha256": "80ac0dc5fded19daee260b0622b55d28e7bf9f5e3b2f5da607998292d31e7cae"
+      },
+      {
+        "id": "04_extraction",
+        "web": "docs/images/red-horizon-premium-blender-04-extraction.jpg",
+        "webSha256": "c4b4d37d1d1b7d71224e73a1a0d8d47834391aca27ae8d062865b8d6f5ecf7d1"
+      }
+    ],
+    "contactSheet": "docs/images/red-horizon-premium-blender-contact.jpg",
+    "contactSheetSha256": "47c3d16dd816876252ba90c5d2921a89ca96dba7b55ded0646c8b88458828e81",
+    "conceptMatchSheet": "docs/images/red-horizon-premium-blender-concept-match.jpg",
+    "conceptMatchSheetSha256": "7d265c55eba0a01592d07a2a9144edf52d7225fb3119789c1bb00a1a61e9b636"
+  },
+  "materialReceipts": {
+    "warmIndustrialMetal": [
+      "chunk_q00:2:PolygonScifiWorlds_Mat_01_A",
+      "chunk_q01:1:PolygonScifiWorlds_Mat_01_A",
+      "chunk_q10:1:PolygonScifiWorlds_Mat_01_A",
+      "chunk_q10:5:PolygonScifiWorlds_Mat_01_C",
+      "chunk_q10:10:PolygonScifiWorlds_Mat_01_B",
+      "chunk_q11:1:PolygonScifiWorlds_Mat_01_A",
+      "chunk_q11:3:PolygonScifiWorlds_Mat_01_B"
+    ],
+    "darkMetal": [
+      "chunk_q10:8:PolygonScifiWorlds_Mat_02_A",
+      "chunk_q11:2:PolygonScifiWorlds_Mat_02_B",
+      "chunk_q11:4:PolygonScifiWorlds_Mat_02_A"
+    ],
+    "dustyStructure": [
+      "chunk_q00:0:PolygonScifiWorlds_Mat_03_A",
+      "chunk_q01:0:PolygonScifiWorlds_Mat_03_A",
+      "chunk_q10:0:PolygonScifiWorlds_Mat_03_A",
+      "chunk_q10:6:PolygonScifiWorlds_Mat_03_B",
+      "chunk_q10:7:PolygonScifiWorlds_Mat_03_C",
+      "chunk_q11:0:PolygonScifiWorlds_Mat_03_A",
+      "chunk_q11:6:PolygonScifiWorlds_Mat_03_C"
+    ],
+    "marsGround": [
+      "chunk_q00:3:Ground_material",
+      "chunk_q01:3:Ground_material",
+      "chunk_q10:9:Ground_material",
+      "chunk_q11:8:Ground_material"
+    ],
+    "redRock": [
+      "chunk_q00:1:PolygonSciFiWorlds_Env_Triplanar_Corp",
+      "chunk_q01:2:PolygonSciFiWorlds_Env_Triplanar_Corp",
+      "chunk_q10:3:PolygonSciFiWorlds_Env_Triplanar_Corp",
+      "chunk_q10:11:PolygonScifiWorlds_Mat_01_A_Triplanar",
+      "chunk_q11:7:PolygonSciFiWorlds_Env_Triplanar_Corp",
+      "chunk_q11:9:PolygonScifiWorlds_Mat_01_A_Triplanar"
+    ],
+    "glass": [
+      "chunk_q10:2:Glass_01",
+      "chunk_q11:5:Glass_01"
+    ],
+    "accentRed": [
+      "chunk_q10:4:PolygonScifiWorlds_Mat_04_B"
+    ]
+  },
+  "groundingReceipts": {
+    "highRoute": [
+      {
+        "index": 0,
+        "beat": "spawn on the real left bridgehead surface",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q01",
+        "groundY": -1.645,
+        "visualY": -1.59,
+        "deltaY": 0.055
+      },
+      {
+        "index": 1,
+        "beat": "read both bridge routes from the split",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q00",
+        "groundY": -0.762,
+        "visualY": -0.707,
+        "deltaY": 0.055
+      },
+      {
+        "index": 2,
+        "beat": "line up to the upper bridge approach",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q00",
+        "groundY": -0.869,
+        "visualY": -0.814,
+        "deltaY": 0.055
+      },
+      {
+        "index": 3,
+        "beat": "enter the real upper bridge west end",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q00",
+        "groundY": -0.959,
+        "visualY": -0.904,
+        "deltaY": 0.055
+      },
+      {
+        "index": 4,
+        "beat": "hold center across the upper bridge modules",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q00",
+        "groundY": -0.966,
+        "visualY": -0.911,
+        "deltaY": 0.055
+      },
+      {
+        "index": 5,
+        "beat": "exit the real upper bridge east end",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.967,
+        "visualY": -0.912,
+        "deltaY": 0.055
+      },
+      {
+        "index": 6,
+        "beat": "boost across the upper industrial deck",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.613,
+        "visualY": -0.558,
+        "deltaY": 0.055
+      },
+      {
+        "index": 7,
+        "beat": "take the exposed charge lane into the court",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.589,
+        "visualY": -0.534,
+        "deltaY": 0.055
+      },
+      {
+        "index": 8,
+        "beat": "enter Warden court with charged shots",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": 0.16,
+        "visualY": 0.215,
+        "deltaY": 0.055
+      }
+    ],
+    "lowRoute": [
+      {
+        "index": 0,
+        "beat": "spawn on the real left bridgehead surface",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q01",
+        "groundY": -1.645,
+        "visualY": -1.59,
+        "deltaY": 0.055
+      },
+      {
+        "index": 1,
+        "beat": "drop onto the lower bridge approach",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q01",
+        "groundY": -3.134,
+        "visualY": -3.079,
+        "deltaY": 0.055
+      },
+      {
+        "index": 2,
+        "beat": "enter the real lower bridge west end",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q01",
+        "groundY": -3.383,
+        "visualY": -3.328,
+        "deltaY": 0.055
+      },
+      {
+        "index": 3,
+        "beat": "hold center across the lower bridge span",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q01",
+        "groundY": -3.388,
+        "visualY": -3.333,
+        "deltaY": 0.055
+      },
+      {
+        "index": 4,
+        "beat": "exit the real lower bridge east end",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q11",
+        "groundY": -3.412,
+        "visualY": -3.357,
+        "deltaY": 0.055
+      },
+      {
+        "index": 5,
+        "beat": "climb from the lower bridge toward side cover",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q11",
+        "groundY": -2.578,
+        "visualY": -2.523,
+        "deltaY": 0.055
+      },
+      {
+        "index": 6,
+        "beat": "follow the side route through industrial cover",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.726,
+        "visualY": -0.671,
+        "deltaY": 0.055
+      },
+      {
+        "index": 7,
+        "beat": "gain shield at the cover edge",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.613,
+        "visualY": -0.558,
+        "deltaY": 0.055
+      },
+      {
+        "index": 8,
+        "beat": "enter Warden court protected",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": 0.16,
+        "visualY": 0.215,
+        "deltaY": 0.055
+      }
+    ],
+    "extractionPath": [
+      {
+        "index": 0,
+        "beat": "leave Warden court after defeat",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": 0.16,
+        "visualY": 0.225,
+        "deltaY": 0.065
+      },
+      {
+        "index": 1,
+        "beat": "clear the industrial buildings",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": -1.812,
+        "visualY": -1.747,
+        "deltaY": 0.065
+      },
+      {
+        "index": 2,
+        "beat": "aim at the right outpost",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.253,
+        "visualY": -0.188,
+        "deltaY": 0.065
+      },
+      {
+        "index": 3,
+        "beat": "hold the extraction pad",
+        "mode": "surface-attached",
+        "surfaceObject": "chunk_q10",
+        "groundY": -1.924,
+        "visualY": -1.859,
+        "deltaY": 0.065
+      }
+    ]
+  },
+  "addedSceneCollections": [
+    "RED_HORIZON_PREMIUM_BLENDER_TARGET",
+    "RED_HORIZON_PREMIUM_ACTORS",
+    "RED_HORIZON_PREMIUM_LIGHTING"
+  ],
+  "shots": [
+    {
+      "id": "01_bridgehead_start",
+      "title": "Bridgehead start rebuilt in real model space",
+      "conceptReference": "docs/images/red-horizon-premium-concept-01-bridgehead-start.jpg",
+      "truthReference": "docs/images/red-horizon-left-bridgehead-start.jpg",
+      "buildIntent": "First playable camera with real bridgehead surface, cannon landmark, route visible ahead.",
+      "raw": "art/concepts/red-horizon-premium-blender/raw/01_bridgehead_start.png",
+      "web": "docs/images/red-horizon-premium-blender-01-bridgehead-start.jpg",
+      "webSha256": "a583ec0306d7f880b6d2dd9162568a6d300a25cd24dfd6e85b7e5e66564a018e"
+    },
+    {
+      "id": "02_route_choice",
+      "title": "Upper and lower bridge choice rebuilt on supplied level",
+      "conceptReference": "docs/images/red-horizon-premium-concept-02-route-choice.jpg",
+      "truthReference": "docs/images/red-horizon-bridge-route-split.jpg",
+      "buildIntent": "Show high cyan charge and low amber shield language attached to measured route surfaces.",
+      "raw": "art/concepts/red-horizon-premium-blender/raw/02_route_choice.png",
+      "web": "docs/images/red-horizon-premium-blender-02-route-choice.jpg",
+      "webSha256": "4f65d73b582053c9f2531bd75df0dba350f967c0b91a16d427f2c953229244a1"
+    },
+    {
+      "id": "03_warden_combat",
+      "title": "Warden combat court rebuilt with real enemy scale",
+      "conceptReference": "docs/images/red-horizon-premium-concept-03-warden-combat.jpg",
+      "truthReference": "docs/images/red-horizon-warden-court.jpg",
+      "buildIntent": "Stage supplied Warden as elite rival with red telegraph and projectile lane in real court.",
+      "raw": "art/concepts/red-horizon-premium-blender/raw/03_warden_combat.png",
+      "web": "docs/images/red-horizon-premium-blender-03-warden-combat.jpg",
+      "webSha256": "80ac0dc5fded19daee260b0622b55d28e7bf9f5e3b2f5da607998292d31e7cae"
+    },
+    {
+      "id": "04_extraction",
+      "title": "Extraction outpost rebuilt as surface-held objective",
+      "conceptReference": "docs/images/red-horizon-premium-concept-04-extraction.jpg",
+      "truthReference": "docs/images/red-horizon-extraction-outpost.jpg",
+      "buildIntent": "Keep extraction beacon and hold ring on the measured outpost pad.",
+      "raw": "art/concepts/red-horizon-premium-blender/raw/04_extraction.png",
+      "web": "docs/images/red-horizon-premium-blender-04-extraction.jpg",
+      "webSha256": "c4b4d37d1d1b7d71224e73a1a0d8d47834391aca27ae8d062865b8d6f5ecf7d1"
+    }
+  ],
+  "renderReceipts": [
+    {
+      "id": "01_bridgehead_start",
+      "raw": "art/concepts/red-horizon-premium-blender/raw/01_bridgehead_start.png",
+      "camera": {
+        "eye": [
+          -17.484525680541992,
+          1.2050000429153442,
+          6.91215705871582
+        ],
+        "target": [
+          -12.2,
+          0.338,
+          -3.8
+        ],
+        "verticalFov": 68
+      }
+    },
+    {
+      "id": "02_route_choice",
+      "raw": "art/concepts/red-horizon-premium-blender/raw/02_route_choice.png",
+      "camera": {
+        "eye": [
+          -17.0,
+          5.0,
+          2.8
+        ],
+        "target": [
+          -4.0,
+          -1.6,
+          3.0
+        ],
+        "verticalFov": 55
+      }
+    },
+    {
+      "id": "03_warden_combat",
+      "raw": "art/concepts/red-horizon-premium-blender/raw/03_warden_combat.png",
+      "camera": {
+        "eye": [
+          10.0,
+          4.3,
+          -23.0
+        ],
+        "target": [
+          18.2,
+          0.55,
+          -16.2
+        ],
+        "verticalFov": 58
+      }
+    },
+    {
+      "id": "04_extraction",
+      "raw": "art/concepts/red-horizon-premium-blender/raw/04_extraction.png",
+      "camera": {
+        "eye": [
+          23.0,
+          5.0,
+          -12.2
+        ],
+        "target": [
+          29.8,
+          -1.1,
+          -3.4
+        ],
+        "verticalFov": 54
+      }
+    }
+  ],
+  "acceptanceBoundary": [
+    "This is a Blender visual-target scene, not shipped runtime geometry.",
+    "The supplied full level, AVI jetbike and Warden assets are preserved and referenced by hash.",
+    "Route lanes, fog cards, beacons and telegraphs are added scene dressing and must be rebuilt/exported deliberately before runtime use.",
+    "Collision remains governed by the Twin Bridge layout and must be separately implemented and tested."
+  ]
+}
