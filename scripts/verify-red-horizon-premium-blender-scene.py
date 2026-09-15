@@ -32,6 +32,7 @@ EXPECTED_SHOTS = [
 REQUIRED_BOUNDARY_PHRASES = [
     "not shipped runtime geometry",
     "assets are preserved",
+    "material slots and image textures are preserved",
     "must be rebuilt/exported deliberately",
     "Collision remains governed",
 ]
@@ -87,7 +88,7 @@ def main() -> int:
     shots = manifest.get("shots") or []
     render_receipts = manifest.get("renderReceipts") or []
     grounding = manifest.get("groundingReceipts") or {}
-    material_receipts = manifest.get("materialReceipts") or {}
+    level_material_receipts = manifest.get("levelMaterialReceipts") or {}
 
     require(manifest.get("name") == "Red Horizon premium Blender visual target", "unexpected manifest name", errors)
     require(manifest.get("engine") == "BLENDER_EEVEE", "unexpected render engine receipt", errors)
@@ -126,8 +127,18 @@ def main() -> int:
             attached = [item for item in receipts if item.get("mode") == "surface-attached"]
             require(len(attached) == len(receipts), f"{route_key} includes ungrounded receipt", errors)
 
-    for key in ["warmIndustrialMetal", "darkMetal", "dustyStructure", "marsGround", "redRock", "glass", "accentRed"]:
-        require(isinstance(material_receipts.get(key), list) and material_receipts.get(key), f"material receipt missing or empty: {key}", errors)
+    require(
+        level_material_receipts.get("policy") == "preserve-source-level-material-slots-and-image-textures",
+        "level material preservation policy missing",
+        errors,
+    )
+    require(level_material_receipts.get("chunkMeshCount") == 4, "expected four full-level chunk mesh material receipts", errors)
+    require(level_material_receipts.get("uniqueMaterialCount", 0) >= 13, "expected source level material receipts", errors)
+    require(level_material_receipts.get("uniqueImageTextureCount", 0) >= 10, "expected preserved source level image texture receipts", errors)
+
+    material_names = set((level_material_receipts.get("materials") or {}).keys())
+    for key in ["Ground_material", "Glass_01", "PolygonScifiWorlds_Mat_03_A", "PolygonSciFiWorlds_Env_Triplanar_Corp"]:
+        require(key in material_names, f"source material missing from preservation receipt: {key}", errors)
 
     boundaries = "\n".join(manifest.get("acceptanceBoundary") or [])
     for phrase in REQUIRED_BOUNDARY_PHRASES:

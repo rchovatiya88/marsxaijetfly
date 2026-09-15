@@ -1,9 +1,10 @@
 """Build a premium Blender visual-target scene for Red Horizon Twin Bridge Run.
 
 This creates a non-runtime art-direction scene from the supplied full-level,
-AVI jetbike, and Warden assets. It adds lighting, fog cards, route dressing,
-combat/extraction VFX, and camera plates that translate the premium concept
-images back into real model space.
+AVI jetbike, and Warden assets. It preserves the source level materials and
+textures, then adds lighting, fog cards, route dressing, combat/extraction VFX,
+and camera plates that translate the premium concept images back into real
+model space.
 
 It does not modify or export the supplied runtime GLBs.
 """
@@ -163,56 +164,55 @@ def add_noise_to_material(
         tree.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
 
 
-def set_existing_material(name_part: str, color: tuple[float, float, float], metallic: float, roughness: float) -> list[str]:
-    changed: list[str] = []
-    for mat in bpy.data.materials:
-        if name_part.lower() not in mat.name.lower():
+def material_image_names(mat: bpy.types.Material | None) -> list[str]:
+    if not mat or not mat.use_nodes or not mat.node_tree:
+        return []
+    names: list[str] = []
+    for node in mat.node_tree.nodes:
+        if node.bl_idname != "ShaderNodeTexImage":
             continue
-        make_mat(mat.name, color, metallic=metallic, roughness=roughness)
-        changed.append(mat.name)
-    return changed
+        image = getattr(node, "image", None)
+        if image:
+            names.append(image.name)
+    return sorted(set(names))
 
 
-def apply_premium_palette() -> dict[str, list[str]]:
-    # Scene-copy material replacement only. Source GLBs remain unchanged.
-    palette = {
-        "warmIndustrialMetal": make_mat("RH Scene Warm Industrial Metal", (0.34, 0.29, 0.23), metallic=0.28, roughness=0.56),
-        "darkMetal": make_mat("RH Scene Dark Gunmetal", (0.15, 0.14, 0.13), metallic=0.38, roughness=0.60),
-        "dustyStructure": make_mat("RH Scene Dusty Structure", (0.44, 0.32, 0.22), metallic=0.12, roughness=0.74),
-        "marsGround": make_mat("RH Scene Mars Ground", (0.50, 0.17, 0.06), metallic=0.0, roughness=0.88),
-        "redRock": make_mat("RH Scene Red Basalt Rock", (0.38, 0.12, 0.045), metallic=0.0, roughness=0.92),
-        "glass": make_mat("RH Scene Cyan Glass", (0.12, 0.58, 0.70), alpha=0.82, emission=0.35, roughness=0.18),
-        "accentRed": make_mat("RH Scene Red Accent", (0.62, 0.08, 0.03), emission=0.18, metallic=0.15, roughness=0.5),
-    }
-    add_noise_to_material(palette["marsGround"], (0.32, 0.09, 0.025), (0.82, 0.34, 0.12), scale=22, detail=9, bump_strength=0.055)
-    add_noise_to_material(palette["redRock"], (0.24, 0.07, 0.025), (0.58, 0.22, 0.08), scale=13, detail=8, bump_strength=0.075)
-    add_noise_to_material(palette["warmIndustrialMetal"], (0.22, 0.19, 0.16), (0.52, 0.44, 0.34), scale=38, detail=10, bump_strength=0.025)
-    add_noise_to_material(palette["dustyStructure"], (0.29, 0.22, 0.16), (0.66, 0.47, 0.30), scale=30, detail=9, bump_strength=0.025)
-    add_noise_to_material(palette["darkMetal"], (0.08, 0.08, 0.075), (0.28, 0.25, 0.20), scale=42, detail=8, bump_strength=0.018)
-    receipts: dict[str, list[str]] = {key: [] for key in palette}
-    for obj in bpy.data.objects:
+def record_source_level_materials() -> dict[str, object]:
+    """Record source level material slots without replacing their textures."""
+
+    objects: list[dict[str, object]] = []
+    unique_materials: dict[str, dict[str, object]] = {}
+    for obj in sorted(bpy.data.objects, key=lambda item: item.name):
         if obj.type != "MESH" or not obj.name.startswith("chunk_q"):
             continue
+        slots: list[dict[str, object]] = []
         for index, slot in enumerate(obj.material_slots):
-            source_name = slot.material.name if slot.material else ""
-            lower = source_name.lower()
-            if "glass" in lower:
-                replacement_key = "glass"
-            elif "ground" in lower:
-                replacement_key = "marsGround"
-            elif "triplanar" in lower:
-                replacement_key = "redRock"
-            elif "mat_02" in lower:
-                replacement_key = "darkMetal"
-            elif "mat_03" in lower:
-                replacement_key = "dustyStructure"
-            elif "mat_04" in lower:
-                replacement_key = "accentRed"
-            else:
-                replacement_key = "warmIndustrialMetal"
-            obj.data.materials[index] = palette[replacement_key]
-            receipts[replacement_key].append(f"{obj.name}:{index}:{source_name}")
-    return receipts
+            mat = slot.material
+            mat_name = mat.name if mat else None
+            image_names = material_image_names(mat)
+            slots.append(
+                {
+                    "index": index,
+                    "material": mat_name,
+                    "imageTextures": image_names,
+                }
+            )
+            if mat_name:
+                unique_materials[mat_name] = {
+                    "usesNodes": bool(mat and mat.use_nodes),
+                    "imageTextures": image_names,
+                    "diffuseColor": [round(float(value), 4) for value in (mat.diffuse_color if mat else [])],
+                }
+        objects.append({"object": obj.name, "slotCount": len(slots), "slots": slots})
+
+    return {
+        "policy": "preserve-source-level-material-slots-and-image-textures",
+        "chunkMeshCount": len(objects),
+        "uniqueMaterialCount": len(unique_materials),
+        "uniqueImageTextureCount": len({name for item in unique_materials.values() for name in item["imageTextures"]}),
+        "materials": unique_materials,
+        "objects": objects,
+    }
 
 
 def ray_ground(scene: bpy.types.Scene, deps: bpy.types.Depsgraph, g: dict[str, float]) -> dict[str, object] | None:
@@ -563,7 +563,7 @@ if Path(bpy.data.filepath).resolve() != FULL_BLEND.resolve():
     bpy.ops.wm.open_mainfile(filepath=str(FULL_BLEND))
 
 scene = bpy.context.scene
-mat_receipts = apply_premium_palette()
+level_material_receipts = record_source_level_materials()
 scene.render.engine = scene.render.engine
 visual = collection("RED_HORIZON_PREMIUM_BLENDER_TARGET", clean=True)
 actors = collection("RED_HORIZON_PREMIUM_ACTORS", clean=True)
@@ -771,7 +771,7 @@ bpy.ops.wm.save_as_mainfile(filepath=str(copy))
 manifest = {
     "name": "Red Horizon premium Blender visual target",
     "created": "2026-09-15",
-    "purpose": "Rebuild the premium concept image direction in the real supplied level model space using non-destructive Blender scene dressing.",
+    "purpose": "Rebuild the premium concept image direction in the real supplied level model space using non-destructive Blender scene dressing while preserving source level materials and textures.",
     "engine": engine,
     "source": {
         "fullLevelBlend": rel(FULL_BLEND),
@@ -789,7 +789,7 @@ manifest = {
         "blend": rel(copy),
         "rawDirectory": rel(RAW),
     },
-    "materialReceipts": mat_receipts,
+    "levelMaterialReceipts": level_material_receipts,
     "groundingReceipts": {
         "highRoute": high_receipts,
         "lowRoute": low_receipts,
@@ -811,6 +811,7 @@ manifest = {
     "acceptanceBoundary": [
         "This is a Blender visual-target scene, not shipped runtime geometry.",
         "The supplied full level, AVI jetbike and Warden assets are preserved and referenced by hash.",
+        "The supplied level material slots and image textures are preserved; only added VFX/dressing materials are new.",
         "Route lanes, fog cards, beacons and telegraphs are added scene dressing and must be rebuilt/exported deliberately before runtime use.",
         "Collision remains governed by the Twin Bridge layout and must be separately implemented and tested.",
     ],

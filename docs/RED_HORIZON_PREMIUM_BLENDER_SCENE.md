@@ -2,7 +2,7 @@
 
 Created: September 15, 2026
 
-This pass answers the visual-design question: yes, the premium concept images can be recreated inside Blender using the actual supplied Red Horizon level, AVI jetbike and Warden assets. The current build is a truthful visual-target scene in real model space. It is not final shipped runtime art yet.
+This pass answers the visual-design question: yes, the premium concept images can be recreated inside Blender using the actual supplied Red Horizon level, AVI jetbike and Warden assets. The current build is a truthful visual-target scene in real model space. It preserves the supplied level materials/textures and adds lighting, fog, route language and staged gameplay beats around them. It is not final shipped runtime art yet.
 
 The rebuilt scene is saved locally at `art/concepts/red-horizon-premium-blender/red-horizon-premium-blender-target.blend`. The `.blend` and raw PNG renders are intentionally ignored by Git because they are heavy local art sources. The tracked evidence is the build script, manifest, verification script and web-viewable JPG review images.
 
@@ -22,8 +22,8 @@ The build script opens `art/full-level/full-level.blend`, reads the measured Twi
 The scene adds:
 
 - A Mars dusk lighting setup with a low sun, warm world color, mist and layered fog cards.
-- A scene-copy material pass for Mars ground, red basalt, dusty industrial metal, gunmetal, cyan glass and red accents.
-- Procedural material noise and bump for the visible Mars ground, rock and metal surfaces.
+- Preservation receipts for the supplied level material slots and embedded image textures.
+- New materials only for added route lanes, rings, fog cards, beacon beams and other visual-target dressing.
 - Surface-projected route dressing for the high charge bridge, low shield bridge and extraction path.
 - AVI jetbike placements at the start, route choice, combat and extraction beats.
 - The supplied Warden model staged at the combat court with red telegraph rings and a projectile lane.
@@ -40,11 +40,11 @@ The manifest records source hashes for:
 
 ## Critical read
 
-This version fixes the earlier core problem: it is no longer inventing a replacement scene. The bridgehead, route split, Warden court and extraction pad are all staged on the supplied level in the measured coordinate space. The player and Warden are imported from the real project models, so scale and silhouette are at least grounded in the actual assets.
+This version fixes the earlier core problem: it is no longer inventing a replacement scene, and it no longer replaces the supplied level texture identity. The bridgehead, route split, Warden court and extraction pad are all staged on the supplied level in the measured coordinate space. The player and Warden are imported from the real project models, so scale and silhouette are at least grounded in the actual assets.
 
-It still does not fully match the premium concept images. The concept art has denser skyline silhouettes, better atmospheric layering, stronger localized practical lights, richer ground texture, dust trails, exhaust energy, bridge-detail dressing and more cinematic shadows. The current Blender rebuild establishes where those things belong; it does not yet model all of them as final assets.
+It still does not fully match the premium concept images. The concept art has denser skyline silhouettes, better atmospheric layering, stronger localized practical lights, dust trails, exhaust energy, bridge-detail dressing and more cinematic shadows. The current Blender rebuild establishes where those things belong; it does not yet model all of them as final assets.
 
-My current studio score for this pass is 72/100 as a concept-to-Blender rebuild. It passes the truth requirement because it uses the real scene and real characters. It misses premium finish because too much of the beauty is still lighting/material/VFX dressing rather than authored production geometry.
+My current studio score for this corrected pass is 76/100 as a concept-to-Blender rebuild. It passes the truth requirement because it uses the real scene, real source level textures and real characters. It misses premium finish because too much of the beauty is still lighting/VFX dressing rather than authored production geometry.
 
 ## What it would take to fully match the concept
 
@@ -60,10 +60,10 @@ The next pass should be treated as production art, not another camera-only rende
    - Place those objects on the actual supplied surfaces, with receipts, rather than replacing the level.
    - Keep collision separate from visual dressing until gameplay testing proves what should block the player.
 
-3. Replace placeholder material treatment with production textures.
-   - Create or admit commercial-safe PBR textures for red basalt, Martian sand, worn industrial metal, glass, scorch decals and route paint.
-   - Add decals and trim sheets for path readability instead of relying only on glowing guide strips.
-   - Bake or pack texture outputs with clear license/provenance receipts.
+3. Add production texture layers without removing the supplied texture identity.
+   - Keep the existing source materials as the base look unless a stronger licensed texture set is admitted.
+   - Add decals, trim sheets, scorch marks and route paint for path readability instead of relying only on glowing guide strips.
+   - Bake or pack any new texture outputs with clear license/provenance receipts.
 
 4. Upgrade lighting and atmosphere.
    - Add volumetric dust/haze layers, canyon-backdrop silhouettes, practical lights along the bridge, beacon shafts, Warden arena warning lights and vehicle exhaust illumination.

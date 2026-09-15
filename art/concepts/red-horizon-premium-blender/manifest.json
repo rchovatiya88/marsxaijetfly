@@ -1,7 +1,7 @@
 {
   "name": "Red Horizon premium Blender visual target",
   "created": "2026-09-15",
-  "purpose": "Rebuild the premium concept image direction in the real supplied level model space using non-destructive Blender scene dressing.",
+  "purpose": "Rebuild the premium concept image direction in the real supplied level model space using non-destructive Blender scene dressing while preserving source level materials and textures.",
   "engine": "BLENDER_EEVEE",
   "source": {
     "fullLevelBlend": "art/full-level/full-level.blend",
@@ -22,73 +22,477 @@
       {
         "id": "01_bridgehead_start",
         "web": "docs/images/red-horizon-premium-blender-01-bridgehead-start.jpg",
-        "webSha256": "a583ec0306d7f880b6d2dd9162568a6d300a25cd24dfd6e85b7e5e66564a018e"
+        "webSha256": "29a105852fc38dca2f90b34c386891fcfc04af5afae1594f1b258d5ff685f896"
       },
       {
         "id": "02_route_choice",
         "web": "docs/images/red-horizon-premium-blender-02-route-choice.jpg",
-        "webSha256": "4f65d73b582053c9f2531bd75df0dba350f967c0b91a16d427f2c953229244a1"
+        "webSha256": "6d7400bcae21a2de89b9c3b6fd679ff4d2741508acfd9a34d003e18d8714d6af"
       },
       {
         "id": "03_warden_combat",
         "web": "docs/images/red-horizon-premium-blender-03-warden-combat.jpg",
-        "webSha256": "80ac0dc5fded19daee260b0622b55d28e7bf9f5e3b2f5da607998292d31e7cae"
+        "webSha256": "df951c96ef1cb469ebf4c3043d54bb36446ab9cd3252dd055f4c736a417a5ae3"
       },
       {
         "id": "04_extraction",
         "web": "docs/images/red-horizon-premium-blender-04-extraction.jpg",
-        "webSha256": "c4b4d37d1d1b7d71224e73a1a0d8d47834391aca27ae8d062865b8d6f5ecf7d1"
+        "webSha256": "927e0c2663a70621512b2787ef521114176463846ef43480250ffcf58b3668e5"
       }
     ],
     "contactSheet": "docs/images/red-horizon-premium-blender-contact.jpg",
-    "contactSheetSha256": "47c3d16dd816876252ba90c5d2921a89ca96dba7b55ded0646c8b88458828e81",
+    "contactSheetSha256": "8a4bdd18a7c6b969e6cf3fe7e20e2185581d1cb13cdb024dab195deb90f05eac",
     "conceptMatchSheet": "docs/images/red-horizon-premium-blender-concept-match.jpg",
-    "conceptMatchSheetSha256": "7d265c55eba0a01592d07a2a9144edf52d7225fb3119789c1bb00a1a61e9b636"
+    "conceptMatchSheetSha256": "14aaf8c37349d865e65afd1eecaaea1c18334118cd32c38ca2919787f6b1eb3b"
   },
-  "materialReceipts": {
-    "warmIndustrialMetal": [
-      "chunk_q00:2:PolygonScifiWorlds_Mat_01_A",
-      "chunk_q01:1:PolygonScifiWorlds_Mat_01_A",
-      "chunk_q10:1:PolygonScifiWorlds_Mat_01_A",
-      "chunk_q10:5:PolygonScifiWorlds_Mat_01_C",
-      "chunk_q10:10:PolygonScifiWorlds_Mat_01_B",
-      "chunk_q11:1:PolygonScifiWorlds_Mat_01_A",
-      "chunk_q11:3:PolygonScifiWorlds_Mat_01_B"
-    ],
-    "darkMetal": [
-      "chunk_q10:8:PolygonScifiWorlds_Mat_02_A",
-      "chunk_q11:2:PolygonScifiWorlds_Mat_02_B",
-      "chunk_q11:4:PolygonScifiWorlds_Mat_02_A"
-    ],
-    "dustyStructure": [
-      "chunk_q00:0:PolygonScifiWorlds_Mat_03_A",
-      "chunk_q01:0:PolygonScifiWorlds_Mat_03_A",
-      "chunk_q10:0:PolygonScifiWorlds_Mat_03_A",
-      "chunk_q10:6:PolygonScifiWorlds_Mat_03_B",
-      "chunk_q10:7:PolygonScifiWorlds_Mat_03_C",
-      "chunk_q11:0:PolygonScifiWorlds_Mat_03_A",
-      "chunk_q11:6:PolygonScifiWorlds_Mat_03_C"
-    ],
-    "marsGround": [
-      "chunk_q00:3:Ground_material",
-      "chunk_q01:3:Ground_material",
-      "chunk_q10:9:Ground_material",
-      "chunk_q11:8:Ground_material"
-    ],
-    "redRock": [
-      "chunk_q00:1:PolygonSciFiWorlds_Env_Triplanar_Corp",
-      "chunk_q01:2:PolygonSciFiWorlds_Env_Triplanar_Corp",
-      "chunk_q10:3:PolygonSciFiWorlds_Env_Triplanar_Corp",
-      "chunk_q10:11:PolygonScifiWorlds_Mat_01_A_Triplanar",
-      "chunk_q11:7:PolygonSciFiWorlds_Env_Triplanar_Corp",
-      "chunk_q11:9:PolygonScifiWorlds_Mat_01_A_Triplanar"
-    ],
-    "glass": [
-      "chunk_q10:2:Glass_01",
-      "chunk_q11:5:Glass_01"
-    ],
-    "accentRed": [
-      "chunk_q10:4:PolygonScifiWorlds_Mat_04_B"
+  "levelMaterialReceipts": {
+    "policy": "preserve-source-level-material-slots-and-image-textures",
+    "chunkMeshCount": 4,
+    "uniqueMaterialCount": 13,
+    "uniqueImageTextureCount": 15,
+    "materials": {
+      "PolygonScifiWorlds_Mat_03_A": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_01",
+          "PolygonScifiWorlds_Texture_03_A",
+          "PolygonScifiWorlds_Texture_A_01_Normal"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonSciFiWorlds_Env_Triplanar_Corp": {
+        "usesNodes": true,
+        "imageTextures": [
+          "PolygonScifiWorlds_Texture_03_A.001"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonScifiWorlds_Mat_01_A": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_01",
+          "PolygonScifiWorlds_Texture_03_A.001",
+          "PolygonScifiWorlds_Texture_A_01_Normal_8k"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "Ground_material": {
+        "usesNodes": true,
+        "imageTextures": [],
+        "diffuseColor": [
+          0.0204,
+          0.0144,
+          0.0107,
+          1.0
+        ]
+      },
+      "Glass_01": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_Mask",
+          "PolygonScifiWorlds_Texture_01_A",
+          "PolygonScifiWorlds_Texture_A_01_Normal"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonScifiWorlds_Mat_04_B": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_04",
+          "PolygonScifiWorlds_Texture_04_B",
+          "PolygonScifiWorlds_Texture_A_01_Normal"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonScifiWorlds_Mat_01_C": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_01",
+          "PolygonScifiWorlds_Texture_03_A.001",
+          "PolygonScifiWorlds_Texture_A_01_Normal"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonScifiWorlds_Mat_03_B": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_03",
+          "PolygonScifiWorlds_Texture_03_A.001",
+          "PolygonScifiWorlds_Texture_A_01_Normal"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonScifiWorlds_Mat_03_C": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_03",
+          "PolygonScifiWorlds_Texture_03_C",
+          "PolygonScifiWorlds_Texture_A_01_Normal"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonScifiWorlds_Mat_02_A": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_02",
+          "PolygonScifiWorlds_Texture_02_A",
+          "PolygonScifiWorlds_Texture_A_01_Normal"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonScifiWorlds_Mat_01_B": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_01",
+          "PolygonScifiWorlds_Texture_01_B",
+          "PolygonScifiWorlds_Texture_A_01_Normal"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonScifiWorlds_Mat_01_A_Triplanar": {
+        "usesNodes": true,
+        "imageTextures": [
+          "PolygonScifiWorlds_Texture_03_C"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      },
+      "PolygonScifiWorlds_Mat_02_B": {
+        "usesNodes": true,
+        "imageTextures": [
+          "Emissive_02",
+          "PolygonScifiWorlds_Texture_02_B",
+          "PolygonScifiWorlds_Texture_A_01_Normal"
+        ],
+        "diffuseColor": [
+          0.8,
+          0.8,
+          0.8,
+          1.0
+        ]
+      }
+    },
+    "objects": [
+      {
+        "object": "chunk_q00",
+        "slotCount": 4,
+        "slots": [
+          {
+            "index": 0,
+            "material": "PolygonScifiWorlds_Mat_03_A",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_03_A",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 1,
+            "material": "PolygonSciFiWorlds_Env_Triplanar_Corp",
+            "imageTextures": [
+              "PolygonScifiWorlds_Texture_03_A.001"
+            ]
+          },
+          {
+            "index": 2,
+            "material": "PolygonScifiWorlds_Mat_01_A",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_03_A.001",
+              "PolygonScifiWorlds_Texture_A_01_Normal_8k"
+            ]
+          },
+          {
+            "index": 3,
+            "material": "Ground_material",
+            "imageTextures": []
+          }
+        ]
+      },
+      {
+        "object": "chunk_q01",
+        "slotCount": 4,
+        "slots": [
+          {
+            "index": 0,
+            "material": "PolygonScifiWorlds_Mat_03_A",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_03_A",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 1,
+            "material": "PolygonScifiWorlds_Mat_01_A",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_03_A.001",
+              "PolygonScifiWorlds_Texture_A_01_Normal_8k"
+            ]
+          },
+          {
+            "index": 2,
+            "material": "PolygonSciFiWorlds_Env_Triplanar_Corp",
+            "imageTextures": [
+              "PolygonScifiWorlds_Texture_03_A.001"
+            ]
+          },
+          {
+            "index": 3,
+            "material": "Ground_material",
+            "imageTextures": []
+          }
+        ]
+      },
+      {
+        "object": "chunk_q10",
+        "slotCount": 12,
+        "slots": [
+          {
+            "index": 0,
+            "material": "PolygonScifiWorlds_Mat_03_A",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_03_A",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 1,
+            "material": "PolygonScifiWorlds_Mat_01_A",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_03_A.001",
+              "PolygonScifiWorlds_Texture_A_01_Normal_8k"
+            ]
+          },
+          {
+            "index": 2,
+            "material": "Glass_01",
+            "imageTextures": [
+              "Emissive_Mask",
+              "PolygonScifiWorlds_Texture_01_A",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 3,
+            "material": "PolygonSciFiWorlds_Env_Triplanar_Corp",
+            "imageTextures": [
+              "PolygonScifiWorlds_Texture_03_A.001"
+            ]
+          },
+          {
+            "index": 4,
+            "material": "PolygonScifiWorlds_Mat_04_B",
+            "imageTextures": [
+              "Emissive_04",
+              "PolygonScifiWorlds_Texture_04_B",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 5,
+            "material": "PolygonScifiWorlds_Mat_01_C",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_03_A.001",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 6,
+            "material": "PolygonScifiWorlds_Mat_03_B",
+            "imageTextures": [
+              "Emissive_03",
+              "PolygonScifiWorlds_Texture_03_A.001",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 7,
+            "material": "PolygonScifiWorlds_Mat_03_C",
+            "imageTextures": [
+              "Emissive_03",
+              "PolygonScifiWorlds_Texture_03_C",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 8,
+            "material": "PolygonScifiWorlds_Mat_02_A",
+            "imageTextures": [
+              "Emissive_02",
+              "PolygonScifiWorlds_Texture_02_A",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 9,
+            "material": "Ground_material",
+            "imageTextures": []
+          },
+          {
+            "index": 10,
+            "material": "PolygonScifiWorlds_Mat_01_B",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_01_B",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 11,
+            "material": "PolygonScifiWorlds_Mat_01_A_Triplanar",
+            "imageTextures": [
+              "PolygonScifiWorlds_Texture_03_C"
+            ]
+          }
+        ]
+      },
+      {
+        "object": "chunk_q11",
+        "slotCount": 10,
+        "slots": [
+          {
+            "index": 0,
+            "material": "PolygonScifiWorlds_Mat_03_A",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_03_A",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 1,
+            "material": "PolygonScifiWorlds_Mat_01_A",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_03_A.001",
+              "PolygonScifiWorlds_Texture_A_01_Normal_8k"
+            ]
+          },
+          {
+            "index": 2,
+            "material": "PolygonScifiWorlds_Mat_02_B",
+            "imageTextures": [
+              "Emissive_02",
+              "PolygonScifiWorlds_Texture_02_B",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 3,
+            "material": "PolygonScifiWorlds_Mat_01_B",
+            "imageTextures": [
+              "Emissive_01",
+              "PolygonScifiWorlds_Texture_01_B",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 4,
+            "material": "PolygonScifiWorlds_Mat_02_A",
+            "imageTextures": [
+              "Emissive_02",
+              "PolygonScifiWorlds_Texture_02_A",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 5,
+            "material": "Glass_01",
+            "imageTextures": [
+              "Emissive_Mask",
+              "PolygonScifiWorlds_Texture_01_A",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 6,
+            "material": "PolygonScifiWorlds_Mat_03_C",
+            "imageTextures": [
+              "Emissive_03",
+              "PolygonScifiWorlds_Texture_03_C",
+              "PolygonScifiWorlds_Texture_A_01_Normal"
+            ]
+          },
+          {
+            "index": 7,
+            "material": "PolygonSciFiWorlds_Env_Triplanar_Corp",
+            "imageTextures": [
+              "PolygonScifiWorlds_Texture_03_A.001"
+            ]
+          },
+          {
+            "index": 8,
+            "material": "Ground_material",
+            "imageTextures": []
+          },
+          {
+            "index": 9,
+            "material": "PolygonScifiWorlds_Mat_01_A_Triplanar",
+            "imageTextures": [
+              "PolygonScifiWorlds_Texture_03_C"
+            ]
+          }
+        ]
+      }
     ]
   },
   "groundingReceipts": {
@@ -311,7 +715,7 @@
       "buildIntent": "First playable camera with real bridgehead surface, cannon landmark, route visible ahead.",
       "raw": "art/concepts/red-horizon-premium-blender/raw/01_bridgehead_start.png",
       "web": "docs/images/red-horizon-premium-blender-01-bridgehead-start.jpg",
-      "webSha256": "a583ec0306d7f880b6d2dd9162568a6d300a25cd24dfd6e85b7e5e66564a018e"
+      "webSha256": "29a105852fc38dca2f90b34c386891fcfc04af5afae1594f1b258d5ff685f896"
     },
     {
       "id": "02_route_choice",
@@ -321,7 +725,7 @@
       "buildIntent": "Show high cyan charge and low amber shield language attached to measured route surfaces.",
       "raw": "art/concepts/red-horizon-premium-blender/raw/02_route_choice.png",
       "web": "docs/images/red-horizon-premium-blender-02-route-choice.jpg",
-      "webSha256": "4f65d73b582053c9f2531bd75df0dba350f967c0b91a16d427f2c953229244a1"
+      "webSha256": "6d7400bcae21a2de89b9c3b6fd679ff4d2741508acfd9a34d003e18d8714d6af"
     },
     {
       "id": "03_warden_combat",
@@ -331,7 +735,7 @@
       "buildIntent": "Stage supplied Warden as elite rival with red telegraph and projectile lane in real court.",
       "raw": "art/concepts/red-horizon-premium-blender/raw/03_warden_combat.png",
       "web": "docs/images/red-horizon-premium-blender-03-warden-combat.jpg",
-      "webSha256": "80ac0dc5fded19daee260b0622b55d28e7bf9f5e3b2f5da607998292d31e7cae"
+      "webSha256": "df951c96ef1cb469ebf4c3043d54bb36446ab9cd3252dd055f4c736a417a5ae3"
     },
     {
       "id": "04_extraction",
@@ -341,7 +745,7 @@
       "buildIntent": "Keep extraction beacon and hold ring on the measured outpost pad.",
       "raw": "art/concepts/red-horizon-premium-blender/raw/04_extraction.png",
       "web": "docs/images/red-horizon-premium-blender-04-extraction.jpg",
-      "webSha256": "c4b4d37d1d1b7d71224e73a1a0d8d47834391aca27ae8d062865b8d6f5ecf7d1"
+      "webSha256": "927e0c2663a70621512b2787ef521114176463846ef43480250ffcf58b3668e5"
     }
   ],
   "renderReceipts": [
@@ -417,6 +821,7 @@
   "acceptanceBoundary": [
     "This is a Blender visual-target scene, not shipped runtime geometry.",
     "The supplied full level, AVI jetbike and Warden assets are preserved and referenced by hash.",
+    "The supplied level material slots and image textures are preserved; only added VFX/dressing materials are new.",
     "Route lanes, fog cards, beacons and telegraphs are added scene dressing and must be rebuilt/exported deliberately before runtime use.",
     "Collision remains governed by the Twin Bridge layout and must be separately implemented and tested."
   ]

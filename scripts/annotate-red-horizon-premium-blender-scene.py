@@ -71,7 +71,7 @@ def main() -> int:
     sheet = Image.new("RGB", (1920, sheet_h), (11, 10, 10))
     draw = ImageDraw.Draw(sheet)
     draw.text((margin, 28), "Red Horizon — Premium Blender Scene", font=TITLE, fill=(255, 238, 206))
-    draw.text((margin, 86), "Concept art rebuilt into the real supplied level scene: lighting, fog, route dressing, Warden telegraph, extraction beacon.", font=SUB, fill=(222, 197, 163))
+    draw.text((margin, 86), "Concept art rebuilt into the real supplied level scene: source textures preserved, lighting/fog/route dressing added.", font=SUB, fill=(222, 197, 163))
     for i, shot in enumerate(manifest["shots"]):
         x = margin + (i % 2) * (thumb_w + gap_x)
         y = header + margin + (i // 2) * (thumb_h + caption_h + gap_y)
@@ -92,7 +92,7 @@ def main() -> int:
     guide = Image.new("RGB", (1920, guide_h), (11, 10, 10))
     draw = ImageDraw.Draw(guide)
     draw.text((margin, 28), "Red Horizon — Concept Recreated in Blender", font=TITLE, fill=(255, 238, 206))
-    draw.text((margin, 86), "Left: premium concept. Center: actual Blender rebuild in supplied model space. Right: implementation read.", font=SUB, fill=(222, 197, 163))
+    draw.text((margin, 86), "Left: premium concept. Center: Blender rebuild in supplied model space with source textures preserved. Right: implementation read.", font=SUB, fill=(222, 197, 163))
     for i, shot in enumerate(manifest["shots"]):
         y = 140 + i * (row_h + 54)
         x_concept = margin
@@ -110,7 +110,7 @@ def main() -> int:
         text_y = y + 34
         for label, content, color in [
             ("Built", shot["buildIntent"], (244, 238, 221)),
-            ("Boundary", "Real source model space with added visual dressing; collision and runtime export remain separate.", (208, 185, 151)),
+            ("Boundary", "Real source model space with preserved level textures; added dressing, collision and runtime export remain separate.", (208, 185, 151)),
         ]:
             draw.text((x_text, text_y), label.upper(), font=BOLD, fill=color)
             text_y += 26
