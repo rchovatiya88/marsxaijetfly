@@ -48,20 +48,23 @@ For Red Horizon, that means the full level supplies the spectacle, while the mis
 
 ## Revised art direction
 
-The new target is:
+The corrected target is:
 
-**Cannon launch → chasm air gate → high deck charge or low pipe shield → Warden court → outpost extraction.**
+**Left bridgehead start -> upper bridge charge route or lower bridge shield route -> Warden court -> outpost extraction.**
+
+The cannon is now a landmark, not the route foundation. The supplied level already contains actual upper and lower bridge runs, and the playable path should honor those pieces instead of inventing a new corridor.
 
 The images should make these rules obvious:
 
-- High route is a fast, exposed surface lane after a deliberate chasm air gate.
-- Low route is a lower, narrower pipe/utility lane with shield and side entry.
+- High route rides the real upper bridge modules and nearby industrial decks.
+- Low route rides the real lower bridge modules; pipe assets support the industrial read but are not the whole driving surface.
+- Route art uses surface decals and small decision/reward rings attached to measured surfaces.
 - The Warden is an elite rival inside the industrial court, with state visuals and line-of-sight cover.
 - Extraction is a separate outpost target that gives the route a clean finish.
 
 ## Development implication
 
-Do not build gameplay from the first image pass as-is. Build from the revised layout and visuals:
+Do not build gameplay from the first image pass as-is. Build from the Twin Bridge layout and visuals:
 
 - `art/real-path/red-horizon-real-path-layout.json`
 - `scripts/build-red-horizon-real-model-path.py`
@@ -70,7 +73,6 @@ Do not build gameplay from the first image pass as-is. Build from the revised la
 Runtime should turn the design into:
 
 - deck/pipe/court decals,
-- 3D air gates,
 - simplified collision matching the hover lane,
 - Warden state art,
 - first-player route comprehension tests.

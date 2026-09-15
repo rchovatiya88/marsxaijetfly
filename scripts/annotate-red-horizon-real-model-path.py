@@ -12,7 +12,25 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / "art" / "real-path"
+DOC_IMAGES = ROOT / "docs" / "images"
 MANIFEST = ART / "manifest.json"
+
+WEB_IMAGE_NAMES = {
+    "00_real_model_overview": "red-horizon-real-model-overview.jpg",
+    "01_left_bridgehead_start": "red-horizon-left-bridgehead-start.jpg",
+    "02_bridge_route_split": "red-horizon-bridge-route-split.jpg",
+    "03_high_upper_bridge": "red-horizon-high-upper-bridge.jpg",
+    "04_low_lower_bridge": "red-horizon-low-lower-bridge.jpg",
+    "05_warden_industrial_court": "red-horizon-warden-court.jpg",
+    "06_extraction_outpost": "red-horizon-extraction-outpost.jpg",
+    "07_dev_route_contract": "red-horizon-dev-route-contract.jpg",
+}
+
+OBSOLETE_WEB_IMAGES = [
+    "red-horizon-cannon-launch.jpg",
+    "red-horizon-chasm-fork.jpg",
+    "red-horizon-low-pipe-crossing.jpg",
+]
 
 
 def rel(path: Path) -> str:
@@ -84,7 +102,7 @@ def contact_sheet(shots: list[dict[str, str]], images: list[Path]) -> Path:
     sheet = Image.new("RGB", (W, H), (11, 11, 13))
     draw = ImageDraw.Draw(sheet)
     draw.text((margin, 24), "Red Horizon — Real Model Path", font=TITLE, fill=(255, 242, 214))
-    subtitle = "New route from supplied level geometry: cannon launch, chasm fork, high bridge, low pipe, Warden court, extraction."
+    subtitle = "Corrected route from supplied level geometry: left bridgehead start, upper bridge charge route, lower bridge shield route, Warden court, extraction."
     for i, line in enumerate(wrap(draw, subtitle, SMALL, W - margin * 2)):
         draw.text((margin, 70 + i * 21), line, font=SMALL, fill=(219, 204, 175))
     for i, (shot, path) in enumerate(zip(shots, images)):
@@ -102,17 +120,38 @@ def contact_sheet(shots: list[dict[str, str]], images: list[Path]) -> Path:
 
 
 def main() -> None:
+    DOC_IMAGES.mkdir(parents=True, exist_ok=True)
+    for old_name in OBSOLETE_WEB_IMAGES:
+        old_path = DOC_IMAGES / old_name
+        if old_path.exists():
+            old_path.unlink()
+
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     images = [annotate(shot) for shot in manifest["shots"]]
     contact = contact_sheet(manifest["shots"], images)
+
+    web_contact = DOC_IMAGES / "red-horizon-real-model-path-contact.jpg"
+    Image.open(contact).convert("RGB").save(web_contact, quality=88, optimize=True)
+
     manifest["output"]["annotatedDirectory"] = rel(ART)
     manifest["output"]["contactSheet"] = rel(contact)
     manifest["output"]["contactSheetSha256"] = sha256(contact)
-    for shot, path in zip(manifest["shots"], images):
-        shot["annotated"] = rel(path)
-        shot["annotatedSha256"] = sha256(path)
+    manifest["output"]["webContactSheet"] = rel(web_contact)
+    manifest["output"]["webContactSheetSha256"] = sha256(web_contact)
+
+    web_images: list[dict[str, str]] = []
+    for shot, image_path in zip(manifest["shots"], images):
+        shot["annotated"] = rel(image_path)
+        shot["annotatedSha256"] = sha256(image_path)
+        web_name = WEB_IMAGE_NAMES.get(shot["id"], f"red-horizon-{shot['id'].replace('_', '-')}.jpg")
+        web_path = DOC_IMAGES / web_name
+        Image.open(image_path).convert("RGB").save(web_path, quality=90, optimize=True)
+        shot["web"] = rel(web_path)
+        shot["webSha256"] = sha256(web_path)
+        web_images.append({"id": shot["id"], "web": rel(web_path), "webSha256": shot["webSha256"]})
+    manifest["output"]["webImages"] = web_images
     MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print("RED_HORIZON_REAL_MODEL_PATH_ANNOTATED " + rel(contact))
+    print("RED_HORIZON_REAL_MODEL_PATH_ANNOTATED " + rel(web_contact))
 
 
 if __name__ == "__main__":

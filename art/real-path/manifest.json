@@ -1,11 +1,11 @@
 {
   "name": "Red Horizon real-model path image set",
-  "purpose": "Use supplied level/character/enemy models to define the next playable route.",
+  "purpose": "Use the supplied level, AVI jetbike, and Warden models to define a playable twin-bridge route.",
   "source": {
     "levelBlend": "art/full-level/full-level.blend",
     "levelBlendSha256": "0d1eb630800765fba4fe157805f10eded7ba3f7e462f5e9b4f290bb15a07047c",
     "layout": "art/real-path/red-horizon-real-path-layout.json",
-    "layoutSha256": "1306baa58c76b0120b73be7d805498e890638a2f80234ce508c1c989c9e5f146",
+    "layoutSha256": "8add53d948d04aca790ff5ebb706e3ce06dd0ca847e3c80e39b849c3ccd2761b",
     "levelModel": "public/models/level1.glb",
     "levelModelSha256": "44de04d5ad33ccfd7f3e7ccab24040c6901a543306f1d2bdfa7c2330347455db",
     "navmesh": "public/models/level1_navmesh.glb",
@@ -17,88 +17,148 @@
     "rawDirectory": "art/real-path/raw",
     "annotatedDirectory": "art/real-path",
     "contactSheet": "art/real-path/red-horizon-real-model-path-contact.png",
-    "contactSheetSha256": "5eebbbcae9e0a326af099152c08247ae2086f735ed2afafbbd0f62ec75818b80"
+    "contactSheetSha256": "eb88e41b96dfa44cb33dc7997d23ccb4e2e8434f1ecb69c709e542a4d3375408",
+    "webContactSheet": "docs/images/red-horizon-real-model-path-contact.jpg",
+    "webContactSheetSha256": "c8e0220cf6388e49122face0ef8057512c37e3c71ba14985b3b0e0dd17e92efc",
+    "webImages": [
+      {
+        "id": "00_real_model_overview",
+        "web": "docs/images/red-horizon-real-model-overview.jpg",
+        "webSha256": "fe25ee752504dee5b96000884a8bf191db03e212c437b69c1d150120e3c68d1b"
+      },
+      {
+        "id": "01_left_bridgehead_start",
+        "web": "docs/images/red-horizon-left-bridgehead-start.jpg",
+        "webSha256": "8e25996245d1d5e6a8a85d17af101f2c1d107fff9302c618162b05e9b49c4794"
+      },
+      {
+        "id": "02_bridge_route_split",
+        "web": "docs/images/red-horizon-bridge-route-split.jpg",
+        "webSha256": "5423f6649830aae0ddcb4aa44e17de9acabe42cf821e604b5647d8d0a724c592"
+      },
+      {
+        "id": "03_high_upper_bridge",
+        "web": "docs/images/red-horizon-high-upper-bridge.jpg",
+        "webSha256": "3c191875ad16e87319a1777c637da07d0c651bf68453e394ac64000bba8bffa1"
+      },
+      {
+        "id": "04_low_lower_bridge",
+        "web": "docs/images/red-horizon-low-lower-bridge.jpg",
+        "webSha256": "b12b58df289c7ba3fde15f34c6ff374c2328d01b0aa83c4f29b626d6f8ada798"
+      },
+      {
+        "id": "05_warden_industrial_court",
+        "web": "docs/images/red-horizon-warden-court.jpg",
+        "webSha256": "215250449f70a6b1beac05cef771711b439271876ce266b081aa0eb0c50bbff6"
+      },
+      {
+        "id": "06_extraction_outpost",
+        "web": "docs/images/red-horizon-extraction-outpost.jpg",
+        "webSha256": "c0455263ca9c117b9404beefda80c08117e951035e269b54315c129326d0bb10"
+      },
+      {
+        "id": "07_dev_route_contract",
+        "web": "docs/images/red-horizon-dev-route-contract.jpg",
+        "webSha256": "274668a59e57c925436710d3b29b77b76df62a8ded5c022496c532488b407df7"
+      }
+    ]
   },
   "shots": [
     {
       "id": "00_real_model_overview",
-      "title": "Real model route: tower to chasm to industrial court",
-      "beat": "The supplied level\u2019s strongest path starts at the left cannon, crosses the chasm, fights in the right court, and extracts at the right outpost.",
-      "playerAction": "Understand the full route before flying.",
-      "developerTarget": "Replace the old Bridgehead target with this real-model route contract.",
+      "title": "Real model route: twin bridges into Warden court",
+      "beat": "The supplied level already contains the playable structure: a left bridgehead, upper bridge, lower bridge, right industrial court, and outpost extraction.",
+      "playerAction": "Read the complete route before flying: split, bridge choice, Warden fight, extraction.",
+      "developerTarget": "Build gameplay from the real bridge surfaces in the supplied model, not from an invented replacement scene.",
       "raw": "art/real-path/raw/00_real_model_overview.png",
       "annotated": "art/real-path/00_real_model_overview.png",
-      "annotatedSha256": "02173cdb0f2982d30f0f70ca3abd38b3a970a9cbef13b3928893bc0ded985764"
+      "annotatedSha256": "1991d10d6edfa753788c032a51a268c1d8ece382aec24d2bdbae1bae4c863c75",
+      "web": "docs/images/red-horizon-real-model-overview.jpg",
+      "webSha256": "fe25ee752504dee5b96000884a8bf191db03e212c437b69c1d150120e3c68d1b"
     },
     {
-      "id": "01_cannon_launch",
-      "title": "Launch from the real planetary cannon platform",
-      "beat": "Start on the left tower silhouette so the first second already feels like Red Horizon.",
-      "playerAction": "Hold forward and fly off the cannon platform toward the fork.",
-      "developerTarget": "Set spawn, objective, and camera around the real cannon platform anchor.",
-      "raw": "art/real-path/raw/01_cannon_launch.png",
-      "annotated": "art/real-path/01_cannon_launch.png",
-      "annotatedSha256": "29e10b1355d29ff83adf3ebdefba4c81d0127fb1dbf08fe1f995668ae9478ded"
+      "id": "01_left_bridgehead_start",
+      "title": "Start on the real left bridgehead surface",
+      "beat": "The playable start now sits on a measured model surface near the bridge split. The cannon remains a landmark in the world, not the route foundation.",
+      "playerAction": "Accelerate forward, read the split, and choose upper bridge speed or lower bridge safety.",
+      "developerTarget": "Set spawn, first camera frame, and mission copy around this actual surface height.",
+      "raw": "art/real-path/raw/01_left_bridgehead_start.png",
+      "annotated": "art/real-path/01_left_bridgehead_start.png",
+      "annotatedSha256": "6eb0a8e684819c55084f3748438c69e2acc677f9b00ee38f59987beccdf50286",
+      "web": "docs/images/red-horizon-left-bridgehead-start.jpg",
+      "webSha256": "8e25996245d1d5e6a8a85d17af101f2c1d107fff9302c618162b05e9b49c4794"
     },
     {
-      "id": "02_chasm_fork",
-      "title": "Fork over the chasm",
-      "beat": "The route decision should happen while the player sees the abyss and both lines.",
-      "playerAction": "Choose high charge across the upper bridge or low shield down to the pipe run.",
-      "developerTarget": "Make reward locking and fork UI happen here, before the player commits.",
-      "raw": "art/real-path/raw/02_chasm_fork.png",
-      "annotated": "art/real-path/02_chasm_fork.png",
-      "annotatedSha256": "ad7aae14625fb457ac9a69696bb0e02b1fa5188c797b5305fc6843112b622983"
+      "id": "02_bridge_route_split",
+      "title": "Choose upper bridge or lower bridge",
+      "beat": "Both routes come from real level modules. The upper bridge is the fast charge route; the lower bridge is the shield route with a tighter steering test.",
+      "playerAction": "Commit to the upper bridge for charged shots, or drop to the lower bridge for shield and side entry.",
+      "developerTarget": "Use this split for route reward locking, UI prompt timing, and first-player comprehension tests.",
+      "raw": "art/real-path/raw/02_bridge_route_split.png",
+      "annotated": "art/real-path/02_bridge_route_split.png",
+      "annotatedSha256": "01e17270500cd119f09501088a1f36b8dba08ca41c6e4dc68f1e747d012cb671",
+      "web": "docs/images/red-horizon-bridge-route-split.jpg",
+      "webSha256": "5423f6649830aae0ddcb4aa44e17de9acabe42cf821e604b5647d8d0a724c592"
     },
     {
       "id": "03_high_upper_bridge",
-      "title": "High route uses the real upper bridge/deck line",
-      "beat": "The high line stays readable because it rides the upper crossing and city-edge surfaces already in the level.",
-      "playerAction": "Descend onto the upper bridge/deck, boost through the high gate, then dodge in open space.",
-      "developerTarget": "Use these anchors for high-route markers, charge reward, camera capture, and collision proxy.",
+      "title": "High route follows the real upper bridge",
+      "beat": "The high line is no longer a floating ribbon. It rides the named upper bridge pieces and the nearby industrial deck surfaces.",
+      "playerAction": "Boost across the upper bridge, collect charged shots, then enter the court exposed.",
+      "developerTarget": "Fit the hover lane, decals, charge pickup, and collision proxy to the upper bridge deck width.",
       "raw": "art/real-path/raw/03_high_upper_bridge.png",
       "annotated": "art/real-path/03_high_upper_bridge.png",
-      "annotatedSha256": "fc6880107cceb7087b8149212cbdd226fe8c06b4a44ea269d9bf5aa562e89b51"
+      "annotatedSha256": "1dbe19d1df79af22b5bbb026a61f392f84bfa7bb78c04bf50802442749bdf5cc",
+      "web": "docs/images/red-horizon-high-upper-bridge.jpg",
+      "webSha256": "3c191875ad16e87319a1777c637da07d0c651bf68453e394ac64000bba8bffa1"
     },
     {
-      "id": "04_low_pipe_crossing",
-      "title": "Low route follows the real pipe / utility crossing",
-      "beat": "The low path is not another flat bridge; it is a lower utility lane that sells risk and protection.",
-      "playerAction": "Drop, center over the pipe run, earn shield, then climb to side cover.",
-      "developerTarget": "Build a visible hover lane and matching simplified collision because the raw pipe is narrow.",
-      "raw": "art/real-path/raw/04_low_pipe_crossing.png",
-      "annotated": "art/real-path/04_low_pipe_crossing.png",
-      "annotatedSha256": "f926b8f66c2a0b2abea8911523a8660b1ede9b1699c1dd4c83ff289c4499d758"
+      "id": "04_low_lower_bridge",
+      "title": "Low route follows the real lower bridge",
+      "beat": "The shield route now uses the lower bridge span. The pipe assets are supporting industrial dressing, not the whole driving surface.",
+      "playerAction": "Drop to the lower bridge, hold center through the narrow lane, then climb into side cover.",
+      "developerTarget": "Create a readable low hover lane with forgiving collision margins over the real lower bridge modules.",
+      "raw": "art/real-path/raw/04_low_lower_bridge.png",
+      "annotated": "art/real-path/04_low_lower_bridge.png",
+      "annotatedSha256": "86e47a08773aee4204979e1fe1ba178bb89c8fb2a2a49f77ca72fce7c0df572b",
+      "web": "docs/images/red-horizon-low-lower-bridge.jpg",
+      "webSha256": "b12b58df289c7ba3fde15f34c6ff374c2328d01b0aa83c4f29b626d6f8ada798"
     },
     {
       "id": "05_warden_industrial_court",
-      "title": "Warden staged in the real industrial court",
-      "beat": "Both routes end in the right industrial cluster, which should become the main combat arena.",
-      "playerAction": "High dodges in the open; low peeks from the side-cover approach.",
-      "developerTarget": "Line up Warden phase visuals, projectile occlusion, cover, and reward damage here.",
+      "title": "Warden staged as an elite rival in the real court",
+      "beat": "Both bridge choices converge in the right industrial court. The Warden stays at supplied-character scale and needs combat state art around it.",
+      "playerAction": "Use the route reward: high spends charge windows; low uses shield and cover timing.",
+      "developerTarget": "Tune Warden scale, red state effects, cover reads, projectile lanes, and camera framing in this court.",
       "raw": "art/real-path/raw/05_warden_industrial_court.png",
       "annotated": "art/real-path/05_warden_industrial_court.png",
-      "annotatedSha256": "5b4836383ef4232f23a48d9279349553857956c96558fc422ad624fd9ad78dec"
+      "annotatedSha256": "c0c8945194fb00df52d9cadcc80a598b1150f51760368e160ad53b0864e37532",
+      "web": "docs/images/red-horizon-warden-court.jpg",
+      "webSha256": "215250449f70a6b1beac05cef771711b439271876ce266b081aa0eb0c50bbff6"
     },
     {
       "id": "06_extraction_outpost",
       "title": "Extraction at the far-right outpost pad",
-      "beat": "The finish is a separate right-side target instead of another marker floating in the court.",
-      "playerAction": "Leave the court, clear the buildings, and hold the extraction pad.",
-      "developerTarget": "Implement exit activation, hold timer, result stats, and replay copy around this outpost.",
+      "beat": "The finish pulls the player out of the arena toward a separate pad, giving the vertical slice a clean final objective.",
+      "playerAction": "After defeating the Warden, clear the buildings and hold the extraction pad.",
+      "developerTarget": "Implement exit activation, hold timer, result stats, and replay copy around this measured outpost point.",
       "raw": "art/real-path/raw/06_extraction_outpost.png",
       "annotated": "art/real-path/06_extraction_outpost.png",
-      "annotatedSha256": "1b7450bb67af42f78c65472a7ec6b4024d1abb3d19685b60b776bf1ddbfd9d25"
+      "annotatedSha256": "6824f91b14b666ed5895dfb7a6c89ee4904aba43904f45296e0c035105998c23",
+      "web": "docs/images/red-horizon-extraction-outpost.jpg",
+      "webSha256": "c0455263ca9c117b9404beefda80c08117e951035e269b54315c129326d0bb10"
     },
     {
       "id": "07_dev_route_contract",
-      "title": "Development contract from the real model",
-      "beat": "Every runtime task should use the same coordinates and mesh anchors as the images.",
-      "playerAction": "Use the overview to check whether gameplay still matches the real level.",
-      "developerTarget": "Gameplay, camera, collision, UI, Blender, and QA should all reference this path file.",
+      "title": "Development contract from the supplied model",
+      "beat": "The route coordinates, model anchors, actors, cameras, collision proxies, UI prompts, and playtest captures should all reference this same file.",
+      "playerAction": "Use this view to check whether the browser build still matches the real model route.",
+      "developerTarget": "Ship no runtime route that disagrees with the supplied level\u2019s measured bridge surfaces.",
       "raw": "art/real-path/raw/07_dev_route_contract.png",
       "annotated": "art/real-path/07_dev_route_contract.png",
-      "annotatedSha256": "895de7d6d8072ce19055969bd5e33c664d46a1e3463b3229ec7043806aa5c8b7"
+      "annotatedSha256": "0d704863ed63c4422344db89300742320fac3ff35f2fe06740815b05e289c1b2",
+      "web": "docs/images/red-horizon-dev-route-contract.jpg",
+      "webSha256": "274668a59e57c925436710d3b29b77b76df62a8ded5c022496c532488b407df7"
     }
   ],
   "renderReceipts": [
@@ -107,58 +167,61 @@
       "raw": "art/real-path/raw/00_real_model_overview.png",
       "camera": {
         "eye": [
-          68,
-          86,
-          58
+          58,
+          82,
+          46
         ],
         "target": [
-          5,
-          -0.5,
-          -8
+          6,
+          -1.0,
+          -4
         ],
-        "orthoScale": 74
+        "orthoScale": 64
       }
     },
     {
-      "id": "01_cannon_launch",
-      "raw": "art/real-path/raw/01_cannon_launch.png",
+      "id": "01_left_bridgehead_start",
+      "raw": "art/real-path/raw/01_left_bridgehead_start.png",
       "camera": {
         "player": {
-          "x": -24.5,
-          "y": 4.2,
-          "z": -10.7
+          "x": -14.8,
+          "y": -1.195,
+          "z": 0.6,
+          "beat": "spawn on the real left bridgehead surface"
         },
         "target": {
-          "x": -17.6,
-          "y": 2.8,
-          "z": -10.9
+          "x": -12.2,
+          "y": -0.312,
+          "z": -3.8,
+          "beat": "choose the upper or lower bridge route"
         },
         "camera": [
-          -31.467,
-          6.4,
-          -9.448
+          -17.355,
+          1.005,
+          6.988
         ]
       }
     },
     {
-      "id": "02_chasm_fork",
-      "raw": "art/real-path/raw/02_chasm_fork.png",
+      "id": "02_bridge_route_split",
+      "raw": "art/real-path/raw/02_bridge_route_split.png",
       "camera": {
         "player": {
-          "x": -17.6,
-          "y": 2.8,
-          "z": -10.9
+          "x": -12.2,
+          "y": -0.312,
+          "z": -3.8,
+          "beat": "choose the upper or lower bridge route"
         },
         "target": {
-          "x": -1.8,
-          "y": 1.8,
-          "z": -15.4,
-          "beat": "air gate before upper crossing"
+          "x": -7.4,
+          "y": -0.509,
+          "z": -11.8,
+          "beat": "enter the real upper bridge west end"
         },
         "camera": [
-          -25.583,
-          5.0,
-          -7.534
+          -15.313,
+          1.888,
+          3.429
         ]
       }
     },
@@ -166,44 +229,39 @@
       "id": "03_high_upper_bridge",
       "raw": "art/real-path/raw/03_high_upper_bridge.png",
       "camera": {
-        "player": {
-          "x": 10.9,
-          "y": 0.05,
-          "z": -17.8,
-          "beat": "surface boost along the industrial deck edge"
-        },
-        "target": {
-          "x": 18.4,
-          "y": 0.22,
-          "z": -16.2
-        },
-        "camera": [
-          1.683,
-          2.25,
-          -18.693
-        ]
+        "eye": [
+          -9.0,
+          6.0,
+          -18.2
+        ],
+        "target": [
+          -2.4,
+          -0.35,
+          -11.8
+        ],
+        "verticalFov": 52
       }
     },
     {
-      "id": "04_low_pipe_crossing",
-      "raw": "art/real-path/raw/04_low_pipe_crossing.png",
+      "id": "04_low_lower_bridge",
+      "raw": "art/real-path/raw/04_low_lower_bridge.png",
       "camera": {
         "player": {
-          "x": -8.8,
-          "y": -3.1,
-          "z": 10.2,
-          "beat": "cross first pipe segment"
+          "x": -11.4,
+          "y": -2.933,
+          "z": 10.7,
+          "beat": "enter the real lower bridge west end"
         },
         "target": {
-          "x": 5.2,
-          "y": -3.1,
-          "z": 10.2,
-          "beat": "exit pipe run"
+          "x": 7.8,
+          "y": -2.962,
+          "z": 10.7,
+          "beat": "exit the real lower bridge east end"
         },
         "camera": [
-          -16.4,
-          -0.9,
-          11.25
+          -19.4,
+          -0.733,
+          11.75
         ]
       }
     },
@@ -212,9 +270,9 @@
       "raw": "art/real-path/raw/05_warden_industrial_court.png",
       "camera": {
         "eye": [
-          11.2,
-          4.6,
-          -22.8
+          10.4,
+          4.2,
+          -22.0
         ],
         "target": [
           18.4,
@@ -228,24 +286,17 @@
       "id": "06_extraction_outpost",
       "raw": "art/real-path/raw/06_extraction_outpost.png",
       "camera": {
-        "player": {
-          "x": 22.3,
-          "y": -0.2,
-          "z": -9.2,
-          "beat": "clear industrial buildings"
-        },
-        "target": {
-          "x": 29.8,
-          "y": -1.2,
-          "z": -3.4,
-          "radius": 2.8,
-          "holdSeconds": 1.5
-        },
-        "camera": [
-          16.12,
-          2.0,
-          -12.652
-        ]
+        "eye": [
+          22.8,
+          4.6,
+          -11.2
+        ],
+        "target": [
+          29.8,
+          -1.1,
+          -3.4
+        ],
+        "verticalFov": 54
       }
     },
     {
@@ -253,16 +304,16 @@
       "raw": "art/real-path/raw/07_dev_route_contract.png",
       "camera": {
         "eye": [
-          18,
-          105,
+          16,
+          100,
           8
         ],
         "target": [
           7,
           -1,
-          -7
+          -5
         ],
-        "orthoScale": 62
+        "orthoScale": 54
       }
     }
   ],
@@ -270,193 +321,166 @@
     "highRoute": [
       {
         "index": 0,
-        "beat": "surface launch from cannon platform",
-        "surfaceObject": "chunk_q00",
-        "groundY": 3.885,
-        "routeY": 4.2,
-        "deltaY": 0.315,
+        "beat": "spawn on the real left bridgehead surface",
+        "surfaceObject": "chunk_q01",
+        "groundY": -1.645,
+        "routeY": -1.195,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 1,
-        "beat": "surface fork at chasm lip",
+        "beat": "read both bridge routes from the split",
         "surfaceObject": "chunk_q00",
-        "groundY": 2.117,
-        "routeY": 2.8,
-        "deltaY": 0.683,
+        "groundY": -0.762,
+        "routeY": -0.312,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 2,
-        "beat": "air gate after leaving the tower",
+        "beat": "line up to the upper bridge approach",
         "surfaceObject": "chunk_q00",
-        "groundY": 0.596,
-        "routeY": 1.35,
-        "deltaY": 0.754,
+        "groundY": -0.869,
+        "routeY": -0.419,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 3,
-        "beat": "air gate before upper crossing",
+        "beat": "enter the real upper bridge west end",
         "surfaceObject": "chunk_q00",
-        "groundY": -14.005,
-        "routeY": 1.8,
-        "deltaY": 15.805,
-        "mode": "air-gate-needed"
+        "groundY": -0.959,
+        "routeY": -0.509,
+        "deltaY": 0.45,
+        "mode": "surface-decal"
       },
       {
         "index": 4,
-        "beat": "settle onto the real upper bridge/slope",
-        "surfaceObject": "chunk_q10",
-        "groundY": 0.774,
-        "routeY": 1.25,
-        "deltaY": 0.476,
+        "beat": "hold center across the upper bridge modules",
+        "surfaceObject": "chunk_q00",
+        "groundY": -0.966,
+        "routeY": -0.516,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 5,
-        "beat": "surface boost along the industrial deck edge",
+        "beat": "exit the real upper bridge east end",
         "surfaceObject": "chunk_q10",
-        "groundY": -0.66,
-        "routeY": 0.05,
-        "deltaY": 0.71,
+        "groundY": -0.967,
+        "routeY": -0.517,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 6,
-        "beat": "surface arrival with charged shots",
+        "beat": "boost across the upper industrial deck",
         "surfaceObject": "chunk_q10",
-        "groundY": -0.125,
-        "routeY": 0.55,
-        "deltaY": 0.675,
+        "groundY": -0.613,
+        "routeY": -0.163,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 7,
-        "beat": "enter Warden court",
+        "beat": "take the exposed charge lane into the court",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.589,
+        "routeY": -0.139,
+        "deltaY": 0.45,
+        "mode": "surface-decal"
+      },
+      {
+        "index": 8,
+        "beat": "enter Warden court with charged shots",
         "surfaceObject": "chunk_q10",
         "groundY": 0.16,
-        "routeY": 0.62,
-        "deltaY": 0.46,
+        "routeY": 0.61,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       }
     ],
     "lowRoute": [
       {
         "index": 0,
-        "beat": "surface launch from cannon platform",
-        "surfaceObject": "chunk_q00",
-        "groundY": 3.885,
-        "routeY": 4.2,
-        "deltaY": 0.315,
+        "beat": "spawn on the real left bridgehead surface",
+        "surfaceObject": "chunk_q01",
+        "groundY": -1.645,
+        "routeY": -1.195,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 1,
-        "beat": "drop toward lower rock path",
-        "surfaceObject": "chunk_q00",
-        "groundY": 14.946,
-        "routeY": 2.4,
-        "deltaY": -12.546,
-        "mode": "air-gate-needed"
+        "beat": "drop onto the lower bridge approach",
+        "surfaceObject": "chunk_q01",
+        "groundY": -3.134,
+        "routeY": -2.684,
+        "deltaY": 0.45,
+        "mode": "surface-decal"
       },
       {
         "index": 2,
-        "beat": "enter lower utility approach",
+        "beat": "enter the real lower bridge west end",
         "surfaceObject": "chunk_q01",
-        "groundY": -1.823,
-        "routeY": -0.7,
-        "deltaY": 1.123,
+        "groundY": -3.383,
+        "routeY": -2.933,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 3,
-        "beat": "line up with visible pipe crossing",
+        "beat": "hold center across the lower bridge span",
         "surfaceObject": "chunk_q01",
-        "groundY": -3.134,
-        "routeY": -2.2,
-        "deltaY": 0.934,
+        "groundY": -3.388,
+        "routeY": -2.938,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 4,
-        "beat": "cross first pipe segment",
-        "surfaceObject": "chunk_q01",
-        "groundY": -3.378,
-        "routeY": -3.1,
-        "deltaY": 0.278,
+        "beat": "exit the real lower bridge east end",
+        "surfaceObject": "chunk_q11",
+        "groundY": -3.412,
+        "routeY": -2.962,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 5,
-        "beat": "hold low shield route",
-        "surfaceObject": "chunk_q01",
-        "groundY": -3.378,
-        "routeY": -3.1,
-        "deltaY": 0.278,
+        "beat": "climb from the lower bridge toward side cover",
+        "surfaceObject": "chunk_q11",
+        "groundY": -2.578,
+        "routeY": -2.128,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 6,
-        "beat": "stay centered over the real pipe run",
-        "surfaceObject": "chunk_q11",
-        "groundY": -3.377,
-        "routeY": -3.1,
-        "deltaY": 0.277,
+        "beat": "follow the side route through industrial cover",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.726,
+        "routeY": -0.276,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 7,
-        "beat": "exit pipe run",
-        "surfaceObject": "chunk_q11",
-        "groundY": -3.378,
-        "routeY": -3.1,
-        "deltaY": 0.278,
+        "beat": "gain shield at the cover edge",
+        "surfaceObject": "chunk_q10",
+        "groundY": -0.613,
+        "routeY": -0.163,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 8,
-        "beat": "start climb to the industrial side",
-        "surfaceObject": "chunk_q11",
-        "groundY": -2.816,
-        "routeY": -2.2,
-        "deltaY": 0.616,
-        "mode": "surface-decal"
-      },
-      {
-        "index": 9,
-        "beat": "arrive at side cover approach",
-        "surfaceObject": "chunk_q10",
-        "groundY": -0.726,
-        "routeY": -0.2,
-        "deltaY": 0.526,
-        "mode": "surface-decal"
-      },
-      {
-        "index": 10,
-        "beat": "take cover before Warden line",
-        "surfaceObject": "chunk_q10",
-        "groundY": -0.613,
-        "routeY": 0.4,
-        "deltaY": 1.013,
-        "mode": "surface-decal"
-      },
-      {
-        "index": 11,
-        "beat": "peek into Warden court",
-        "surfaceObject": "chunk_q10",
-        "groundY": -0.282,
-        "routeY": 0.6,
-        "deltaY": 0.882,
-        "mode": "surface-decal"
-      },
-      {
-        "index": 12,
         "beat": "enter Warden court protected",
         "surfaceObject": "chunk_q10",
         "groundY": 0.16,
-        "routeY": 0.62,
-        "deltaY": 0.46,
+        "routeY": 0.61,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       }
     ],
@@ -466,45 +490,46 @@
         "beat": "leave Warden court after defeat",
         "surfaceObject": "chunk_q10",
         "groundY": 0.16,
-        "routeY": 0.62,
-        "deltaY": 0.46,
+        "routeY": 0.61,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 1,
-        "beat": "clear industrial buildings",
+        "beat": "clear the industrial buildings",
         "surfaceObject": "chunk_q10",
         "groundY": -1.812,
-        "routeY": -0.2,
-        "deltaY": 1.612,
+        "routeY": -1.362,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 2,
-        "beat": "aim at right outpost",
+        "beat": "aim at the right outpost",
         "surfaceObject": "chunk_q10",
         "groundY": -0.253,
-        "routeY": 0.35,
-        "deltaY": 0.603,
+        "routeY": 0.197,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       },
       {
         "index": 3,
-        "beat": "hold extraction pad",
+        "beat": "hold the extraction pad",
         "surfaceObject": "chunk_q10",
         "groundY": -1.924,
-        "routeY": -1.2,
-        "deltaY": 0.724,
+        "routeY": -1.474,
+        "deltaY": 0.45,
         "mode": "surface-decal"
       }
     ]
   },
   "limitations": [
     "This is a design path from real model anchors, not yet a runtime collision or acceptance pass.",
-    "The lower pipe route is visually real but narrow; gameplay should use surface decals, hover gates and matching simplified collision proxy rather than raw mesh collision.",
-    "Route overlays should be ground-projected decals on traversable surfaces and vertical gates during deliberate air gaps; avoid continuous floating debug splines in close-up gameplay views.",
-    "The full level remains visual context; the first playable route still needs simplified resident collision and authored mission markers.",
+    "The cannon is now a background landmark, because raycasts place its playable top far above the bridge route and it forced the old path to float.",
+    "The high route uses the real upper bridge modules and nearby decks; the low route uses the real lower bridge modules with pipe assets as visual dressing beside the lane.",
+    "Route overlays should be ground-projected decals on traversable surfaces with small rings at choices and rewards; avoid continuous floating debug splines in close-up gameplay views.",
+    "The full level remains visual context; runtime still needs simplified resident collision proxies, hover-lane width, and mission markers that match these coordinates.",
     "Offline Blender images are design evidence; browser playtest evidence is still required.",
-    "The old Bridgehead v2 path was not used as the design target for this pass."
+    "The cannon-platform path was rejected; this pass uses the real upper and lower bridge modules as the playable route."
   ]
 }

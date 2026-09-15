@@ -1,6 +1,6 @@
 # Red Horizon Real-Model Path Plan
 
-Created September 15, 2026 after rejecting the old Bridgehead composition as the visual target.
+Updated September 15, 2026 after rejecting the cannon-launch composition and returning to the supplied level geometry.
 
 This pass uses the supplied models as the source of truth:
 
@@ -9,20 +9,20 @@ This pass uses the supplied models as the source of truth:
 - `public/models/avi-jetbike.glb`
 - `public/models/enemy.glb`
 
-The goal is to make a playable Red Horizon path that follows the real level’s best landmarks instead of forcing an invented Bridgehead corridor over the scene.
+The goal is to make a playable Red Horizon path from the existing level model. Do not create a replacement scene to solve composition. Add route, mission, collision and combat dressing that attaches to the supplied model.
 
-## What the real model gives us
+## Current mission target
 
-The supplied level is strongest when read as a dramatic chasm route:
+The mission is now **Twin Bridge Run**.
 
-1. **Left tower / planetary cannon platform**: a memorable launch landmark.
-2. **Central chasm**: the main spectacle and danger.
-3. **Upper bridge and industrial decks**: the readable high route.
-4. **Lower pipes / utility crossing**: the risky low route that can become the protected path.
-5. **Right industrial court**: the natural Warden arena.
-6. **Right outpost pad**: the natural extraction target.
+1. Spawn on a real left bridgehead surface near the route split.
+2. Choose one of two real model routes:
+   - **High route**: upper bridge modules into the industrial deck, reward = charged shots, tradeoff = exposed court entry.
+   - **Low route**: lower bridge modules with pipe assets as industrial dressing, reward = shield and side entry, tradeoff = tighter steering and longer path.
+3. Fight the supplied Warden model as an elite rival in the right industrial court.
+4. Extract at the far-right outpost pad.
 
-The new path uses the same normalized full-level coordinate frame as `?full-level`, where `public/models/level1.glb` is centered horizontally and uniformly scaled by `0.1`. The path no longer depends on the enlarged old Bridgehead coordinate pass.
+The planetary cannon remains a strong background landmark, but it is no longer the playable start. Blender raycasts placed the cannon-top route far above the bridge path, which made the old composition feel like a floating debug line instead of a game route.
 
 ## Real-model anchors
 
@@ -30,59 +30,55 @@ These anchors were selected from `art/real-path/real-level-feature-report.json`,
 
 | Role | Real mesh anchor | Runtime center | Why it is used |
 | --- | --- | --- | --- |
-| Launch landmark | `SM_Bld_Planetary_Cannon_01` | `(-22.07, 2.44, -11.81)` | Strong silhouette, high ground, clear start identity. |
-| High route start | `SM_Env_Ground_Slope_01__4_` | `(3.04, -0.68, -16.96)` | Real upper crossing surface near the chasm/city edge. |
-| High route city deck | `SM_Env_Ground_02__29_` / `SM_Env_Ground_02__25_` | `(13.64, -0.79, -17.04)` / `(19.20, -0.54, -18.13)` | Connects into the right industrial area without inventing a separate bridgehead. |
-| Low utility crossing | `SM_Bld_Scav_Refinery_Pipe_02` variants | `x -8.79..5.21, y -3.77, z 10.19..11.19` | A visible lower pipe run that can become a shield/cover route. |
-| Warden arena | right industrial ground cluster | `x 14..20, y around -0.6, z -19..-11` | Dense, readable combat court in the real model. |
-| Extraction | `SM_Env_Ground_04` | `(29.79, -2.04, -3.43)` | Separate right-side pad that reads like a finish target. |
+| Playable start | `chunk_q01` / left bridgehead surface | `(-14.8, -1.65, 0.6)` | A measured surface near the real route split. |
+| Landmark | `SM_Bld_Planetary_Cannon_01` | `(-22.07, 2.44, -11.81)` | Strong world silhouette; no longer used as the launch foundation. |
+| Upper bridge west | `SM_Bld_Bridge_End_01_3` | `(-7.57, -1.00, -11.99)` | Entry into the high charge route. |
+| Upper bridge east | `SM_Bld_Bridge_End_01_2` | `(1.70, -1.00, -11.62)` | Exit from the upper bridge into industrial decks. |
+| Lower bridge west | `SM_Bld_Bridge_End_01_1` | `(-11.43, -3.42, 10.70)` | Entry into the low shield route. |
+| Lower bridge east | `SM_Bld_Bridge_End_01` | `(7.85, -3.42, 10.70)` | Exit from the lower bridge before the climb. |
+| Warden arena | right industrial ground cluster | `(18.2, 0.16, -16.2)` | Natural combat court where both routes converge. |
+| Extraction | `SM_Env_Ground_04` | `(29.79, -2.04, -3.43)` | Separate right-side pad that reads as a finish target. |
 
-## Player route
+## Grounding evidence
 
-The mission becomes **Cannon Gate Run**:
+`art/real-path/manifest.json` records the Blender grounding receipts from the latest render pass. Every route point in the high route, low route and extraction path rendered as a surface decal. No point is marked `air-gate-needed`. The authored hover lane sits 0.45 m above the raycast hit surface for each point.
 
-1. Launch from the left planetary cannon platform.
-2. Fly toward the chasm fork.
-3. Choose:
-   - **High route**: stay high, cross the upper bridge/deck line, earn charged shots, enter the Warden court exposed.
-   - **Low route**: drop to the pipe/utility crossing, earn shield/cover, climb into the court from the side.
-4. Defeat the Warden in the industrial court.
-5. Extract at the far-right outpost pad.
+This means the design route now sticks to the supplied level in the sense needed for game production: decals, rings and later collision proxies can be built around measured model surfaces instead of arbitrary air splines.
 
-The path still supports the premium Red Horizon loop: route choice changes combat outcome. The difference is that the route now comes from the real level’s architecture.
+## Image set
 
-## Image set to make
+The latest annotated JPGs are tracked in `docs/images/` for remote review:
 
 | Image | Purpose |
 | --- | --- |
-| `00_real_model_overview.png` | Show the whole supplied level with the new high, low, Warden, and extraction path. |
-| `01_cannon_launch.png` | Show the AVI jetbike launching from the real planetary cannon platform. |
-| `02_chasm_fork.png` | Show the route decision over the central chasm. |
-| `03_high_upper_bridge.png` | Show the high charge route using the real upper bridge/deck surfaces. |
-| `04_low_pipe_crossing.png` | Show the low shield route using the real lower pipe/utility crossing. |
-| `05_warden_industrial_court.png` | Show the Warden staged in the right industrial court with high and low arrivals. |
-| `06_extraction_outpost.png` | Show the exit path from court to the far-right outpost pad. |
-| `07_dev_route_contract.png` | Show the coordinate contract that gameplay, collision, camera, UI, and QA should build from. |
+| `red-horizon-real-model-path-contact.jpg` | Contact sheet for the complete Twin Bridge visual contract. |
+| `red-horizon-real-model-overview.jpg` | Whole supplied level with high, low, Warden and extraction path. |
+| `red-horizon-left-bridgehead-start.jpg` | Spawn and first camera frame on the measured bridgehead surface. |
+| `red-horizon-bridge-route-split.jpg` | Player decision point between upper and lower bridge routes. |
+| `red-horizon-high-upper-bridge.jpg` | High route riding the real upper bridge modules. |
+| `red-horizon-low-lower-bridge.jpg` | Low route riding the real lower bridge modules. |
+| `red-horizon-warden-court.jpg` | Supplied Warden staged as an elite rival in the real industrial court. |
+| `red-horizon-extraction-outpost.jpg` | Exit path toward the far-right outpost pad. |
+| `red-horizon-dev-route-contract.jpg` | Top-down route contract for gameplay/collision/UI/QA alignment. |
+
+Local ignored PNGs and the editable design `.blend` remain under `art/real-path/`.
 
 ## Build plan after these images
 
-1. Replace the old Bridgehead runtime mission contract with `art/real-path/red-horizon-real-path-layout.json`.
-2. Export only the path overlay and mission markers needed by the game; keep the full level as visual context.
-3. Build simplified collision proxies around real surfaces:
-   - cannon launch platform,
-   - upper crossing,
-   - lower pipe lane,
+1. Replace the old Bridgehead runtime mission contract with `art/real-path/red-horizon-real-path-layout.json` only after runtime work begins.
+2. Export mission markers and simple route art from the real-model path; keep the supplied full level as visual context.
+3. Build simplified collision proxies around the measured hover lane:
+   - left bridgehead start,
+   - upper bridge lane,
+   - lower bridge lane,
+   - side-cover climb,
    - Warden court,
    - extraction pad.
-4. Update route rewards:
-   - high route grants charged shots and asks for open-air dodging,
-   - low route grants shield and cover entry.
-5. Re-tune camera and mouse from the new start, fork, and Warden court.
-6. Capture a browser evidence set from the exact same eight beats as the image set.
-7. Run first-player tests against this route. The images are the design target; player comprehension is the acceptance evidence.
+4. Implement route rewards from the layout: high = charged shots, low = shield/side entry.
+5. Retune camera and mouse from the new start, route split and Warden court.
+6. Capture a browser evidence set from the same eight beats as the Blender image set.
+7. Run first-player tests against this route. The images are the design target; player comprehension and natural control feel are acceptance evidence.
 
 ## Current limit
 
-This plan is local design and asset-direction work. The follow-up visual-director critique is [RED_HORIZON_VISUAL_DIRECTOR_REVIEW.md](RED_HORIZON_VISUAL_DIRECTOR_REVIEW.md). Treat that critique as the current art bar: route art must be surface decals and vertical air gates grounded in the real level, and the Warden should read as a court-staged elite rival rather than a giant loose creature.
-
-The user has said model license and ownership records exist, but those records are not saved in this repository, so publication rights remain user-held evidence rather than independently inspected repo evidence.
+This is a corrected design and asset-direction pass. It is not a runtime acceptance pass. The user has said model license and ownership records exist, but those records are not saved in this repository, so publication rights remain user-held evidence rather than independently inspected repo evidence.

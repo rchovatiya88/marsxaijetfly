@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "missionName": "Cannon Gate Run",
+  "version": 2,
+  "missionName": "Twin Bridge Run",
   "units": "metres",
   "axes": "Y-up runtime coordinates",
   "source": {
@@ -24,7 +24,7 @@
   "wardenActor": {
     "targetHeight": 2.05,
     "role": "elite rival scale, slightly taller than the rider but not building-sized",
-    "note": "If the Warden becomes a true boss later, give it a vehicle/turret silhouette instead of only scaling this humanoid up."
+    "note": "The supplied Warden model stays at elite-rival scale; do not make a new boss model for this slice."
   },
   "movement": {
     "speed": 8,
@@ -33,96 +33,264 @@
   },
   "anchors": [
     {
-      "id": "launch-cannon-platform",
+      "id": "left-bridgehead-start",
+      "mesh": "chunk_q01 / left ground bridgehead",
+      "runtimeCenter": [
+        -14.8,
+        -1.645,
+        0.6
+      ],
+      "runtimeDims": [
+        4.0,
+        1.0,
+        4.0
+      ],
+      "role": "real surface spawn beside the bridge split"
+    },
+    {
+      "id": "planetary-cannon-silhouette",
       "mesh": "SM_Bld_Planetary_Cannon_01",
-      "runtimeCenter": [-22.07, 2.435, -11.81],
-      "runtimeDims": [8.774, 1.192, 10.771],
-      "role": "left tower launch landmark"
+      "runtimeCenter": [
+        -22.07,
+        2.435,
+        -11.81
+      ],
+      "runtimeDims": [
+        8.774,
+        1.192,
+        10.771
+      ],
+      "role": "background landmark only; not the playable start"
     },
     {
-      "id": "high-upper-slope",
-      "mesh": "SM_Env_Ground_Slope_01__4_",
-      "runtimeCenter": [3.043, -0.679, -16.963],
-      "runtimeDims": [2.923, 0.87, 7.802],
-      "role": "real high route crossing"
+      "id": "upper-bridge-west-end",
+      "mesh": "SM_Bld_Bridge_End_01_3",
+      "runtimeCenter": [
+        -7.57,
+        -1.0,
+        -11.99
+      ],
+      "runtimeDims": [
+        1.269,
+        1.322,
+        1.607
+      ],
+      "role": "real upper bridge entry for the high charge route"
     },
     {
-      "id": "high-city-deck-a",
-      "mesh": "SM_Env_Ground_02__29_",
-      "runtimeCenter": [13.64, -0.792, -17.043],
-      "runtimeDims": [2.45, 0.31, 6.549],
-      "role": "right industrial high route arrival"
+      "id": "upper-bridge-east-end",
+      "mesh": "SM_Bld_Bridge_End_01_2",
+      "runtimeCenter": [
+        1.7,
+        -1.0,
+        -11.62
+      ],
+      "runtimeDims": [
+        1.269,
+        1.322,
+        1.607
+      ],
+      "role": "real upper bridge exit into industrial decks"
     },
     {
-      "id": "high-city-deck-b",
-      "mesh": "SM_Env_Ground_02__25_",
-      "runtimeCenter": [19.204, -0.538, -18.134],
-      "runtimeDims": [2.084, 0.726, 6.991],
-      "role": "right industrial high route arrival"
+      "id": "lower-bridge-west-end",
+      "mesh": "SM_Bld_Bridge_End_01_1",
+      "runtimeCenter": [
+        -11.43,
+        -3.42,
+        10.7
+      ],
+      "runtimeDims": [
+        1.269,
+        1.322,
+        1.607
+      ],
+      "role": "real lower bridge entry for the shield route"
+    },
+    {
+      "id": "lower-bridge-east-end",
+      "mesh": "SM_Bld_Bridge_End_01",
+      "runtimeCenter": [
+        7.85,
+        -3.42,
+        10.7
+      ],
+      "runtimeDims": [
+        1.269,
+        1.322,
+        1.607
+      ],
+      "role": "real lower bridge exit before the climb"
     },
     {
       "id": "low-utility-pipe-west",
       "mesh": "SM_Bld_Scav_Refinery_Pipe_02__3_",
-      "runtimeCenter": [-8.79, -3.765, 10.194],
-      "runtimeDims": [4.0, 0.495, 1.16],
-      "role": "real lower pipe crossing"
-    },
-    {
-      "id": "low-utility-pipe-east",
-      "mesh": "SM_Bld_Scav_Refinery_Pipe_02",
-      "runtimeCenter": [5.21, -3.765, 10.194],
-      "runtimeDims": [4.0, 0.495, 1.16],
-      "role": "real lower pipe crossing"
+      "runtimeCenter": [
+        -8.79,
+        -3.765,
+        10.194
+      ],
+      "runtimeDims": [
+        4.0,
+        0.495,
+        1.16
+      ],
+      "role": "visual pipe detail beside the lower bridge route"
     },
     {
       "id": "warden-industrial-court",
-      "mesh": "right industrial ground cluster",
-      "runtimeCenter": [18.2, 0.0, -16.2],
-      "runtimeDims": [11.0, 2.2, 13.0],
+      "mesh": "SM_Env_Ground_01__13_ / SM_Env_Ground_01__14_ / right industrial cluster",
+      "runtimeCenter": [
+        18.2,
+        0.16,
+        -16.2
+      ],
+      "runtimeDims": [
+        11.0,
+        2.2,
+        13.0
+      ],
       "role": "Warden arena from real level surfaces"
     },
     {
       "id": "extraction-outpost",
       "mesh": "SM_Env_Ground_04",
-      "runtimeCenter": [29.792, -2.041, -3.428],
-      "runtimeDims": [8.477, 0.235, 7.638],
+      "runtimeCenter": [
+        29.792,
+        -2.041,
+        -3.428
+      ],
+      "runtimeDims": [
+        8.477,
+        0.235,
+        7.638
+      ],
       "role": "far-right extraction pad"
     }
   ],
   "start": {
-    "x": -24.5,
-    "y": 4.2,
-    "z": -10.7
+    "x": -14.8,
+    "y": -1.195,
+    "z": 0.6,
+    "beat": "spawn on the real left bridgehead surface"
   },
   "fork": {
-    "x": -17.6,
-    "y": 2.8,
-    "z": -10.9
+    "x": -12.2,
+    "y": -0.312,
+    "z": -3.8,
+    "beat": "choose the upper or lower bridge route"
   },
   "highRoute": [
-    { "x": -24.5, "y": 4.2, "z": -10.7, "beat": "surface launch from cannon platform" },
-    { "x": -17.6, "y": 2.8, "z": -10.9, "beat": "surface fork at chasm lip" },
-    { "x": -9.5, "y": 1.35, "z": -13.0, "beat": "air gate after leaving the tower" },
-    { "x": -1.8, "y": 1.8, "z": -15.4, "beat": "air gate before upper crossing" },
-    { "x": 3.0, "y": 1.25, "z": -16.9, "beat": "settle onto the real upper bridge/slope" },
-    { "x": 10.9, "y": 0.05, "z": -17.8, "beat": "surface boost along the industrial deck edge" },
-    { "x": 16.2, "y": 0.55, "z": -18.0, "beat": "surface arrival with charged shots" },
-    { "x": 18.2, "y": 0.62, "z": -16.2, "beat": "enter Warden court" }
+    {
+      "x": -14.8,
+      "y": -1.195,
+      "z": 0.6,
+      "beat": "spawn on the real left bridgehead surface"
+    },
+    {
+      "x": -12.2,
+      "y": -0.312,
+      "z": -3.8,
+      "beat": "read both bridge routes from the split"
+    },
+    {
+      "x": -10.0,
+      "y": -0.419,
+      "z": -8.8,
+      "beat": "line up to the upper bridge approach"
+    },
+    {
+      "x": -7.4,
+      "y": -0.509,
+      "z": -11.8,
+      "beat": "enter the real upper bridge west end"
+    },
+    {
+      "x": -3.4,
+      "y": -0.516,
+      "z": -11.8,
+      "beat": "hold center across the upper bridge modules"
+    },
+    {
+      "x": 1.6,
+      "y": -0.517,
+      "z": -11.7,
+      "beat": "exit the real upper bridge east end"
+    },
+    {
+      "x": 6.6,
+      "y": -0.163,
+      "z": -14.1,
+      "beat": "boost across the upper industrial deck"
+    },
+    {
+      "x": 11.0,
+      "y": -0.139,
+      "z": -17.0,
+      "beat": "take the exposed charge lane into the court"
+    },
+    {
+      "x": 18.2,
+      "y": 0.61,
+      "z": -16.2,
+      "beat": "enter Warden court with charged shots"
+    }
   ],
   "lowRoute": [
-    { "x": -24.5, "y": 4.2, "z": -10.7, "beat": "surface launch from cannon platform" },
-    { "x": -20.4, "y": 2.4, "z": -5.0, "beat": "drop toward lower rock path" },
-    { "x": -16.8, "y": -0.7, "z": 1.2, "beat": "enter lower utility approach" },
-    { "x": -13.6, "y": -2.2, "z": 9.3, "beat": "line up with visible pipe crossing" },
-    { "x": -8.8, "y": -3.1, "z": 10.2, "beat": "cross first pipe segment" },
-    { "x": -4.8, "y": -3.1, "z": 10.2, "beat": "hold low shield route" },
-    { "x": 1.2, "y": -3.1, "z": 10.2, "beat": "stay centered over the real pipe run" },
-    { "x": 5.2, "y": -3.1, "z": 10.2, "beat": "exit pipe run" },
-    { "x": 8.9, "y": -2.2, "z": 7.5, "beat": "start climb to the industrial side" },
-    { "x": 12.7, "y": -0.2, "z": -6.1, "beat": "arrive at side cover approach" },
-    { "x": 15.7, "y": 0.4, "z": -11.6, "beat": "take cover before Warden line" },
-    { "x": 17.2, "y": 0.6, "z": -13.9, "beat": "peek into Warden court" },
-    { "x": 18.2, "y": 0.62, "z": -16.2, "beat": "enter Warden court protected" }
+    {
+      "x": -14.8,
+      "y": -1.195,
+      "z": 0.6,
+      "beat": "spawn on the real left bridgehead surface"
+    },
+    {
+      "x": -13.6,
+      "y": -2.684,
+      "z": 9.3,
+      "beat": "drop onto the lower bridge approach"
+    },
+    {
+      "x": -11.4,
+      "y": -2.933,
+      "z": 10.7,
+      "beat": "enter the real lower bridge west end"
+    },
+    {
+      "x": -4.8,
+      "y": -2.938,
+      "z": 10.7,
+      "beat": "hold center across the lower bridge span"
+    },
+    {
+      "x": 7.8,
+      "y": -2.962,
+      "z": 10.7,
+      "beat": "exit the real lower bridge east end"
+    },
+    {
+      "x": 10.9,
+      "y": -2.128,
+      "z": 7.5,
+      "beat": "climb from the lower bridge toward side cover"
+    },
+    {
+      "x": 12.7,
+      "y": -0.276,
+      "z": -6.1,
+      "beat": "follow the side route through industrial cover"
+    },
+    {
+      "x": 15.7,
+      "y": -0.163,
+      "z": -11.6,
+      "beat": "gain shield at the cover edge"
+    },
+    {
+      "x": 18.2,
+      "y": 0.61,
+      "z": -16.2,
+      "beat": "enter Warden court protected"
+    }
   ],
   "warden": {
     "x": 18.4,
@@ -131,28 +299,48 @@
   },
   "lowCover": {
     "x": 15.7,
-    "y": 0.4,
+    "y": -0.163,
     "z": -11.6
   },
   "lowPeek": {
-    "x": 17.2,
-    "y": 0.6,
-    "z": -13.9
+    "x": 18.2,
+    "y": 0.61,
+    "z": -16.2
   },
   "highDodge": {
-    "x": 16.1,
-    "y": 0.8,
-    "z": -20.0
+    "x": 11.0,
+    "y": -0.139,
+    "z": -17.0
   },
   "extractionPath": [
-    { "x": 18.2, "y": 0.62, "z": -16.2, "beat": "leave Warden court after defeat" },
-    { "x": 22.3, "y": -0.2, "z": -9.2, "beat": "clear industrial buildings" },
-    { "x": 26.8, "y": 0.35, "z": -5.8, "beat": "aim at right outpost" },
-    { "x": 29.8, "y": -1.2, "z": -3.4, "beat": "hold extraction pad" }
+    {
+      "x": 18.2,
+      "y": 0.61,
+      "z": -16.2,
+      "beat": "leave Warden court after defeat"
+    },
+    {
+      "x": 22.3,
+      "y": -1.362,
+      "z": -9.2,
+      "beat": "clear the industrial buildings"
+    },
+    {
+      "x": 26.8,
+      "y": 0.197,
+      "z": -5.8,
+      "beat": "aim at the right outpost"
+    },
+    {
+      "x": 29.8,
+      "y": -1.474,
+      "z": -3.4,
+      "beat": "hold the extraction pad"
+    }
   ],
   "extraction": {
     "x": 29.8,
-    "y": -1.2,
+    "y": -1.474,
     "z": -3.4,
     "radius": 2.8,
     "holdSeconds": 1.5
@@ -160,22 +348,28 @@
   "routeRewards": {
     "high": {
       "reward": "three charged shots",
-      "tradeoff": "arrives exposed in the Warden court"
+      "tradeoff": "fastest route; exposed court entry"
     },
     "low": {
       "reward": "shield and protected side entry",
-      "tradeoff": "longer path and narrow pipe-line steering"
+      "tradeoff": "longer route with tighter bridge steering"
     }
   },
   "combat": {
     "wardenHealth": 425,
-    "cycle": ["guarded", "tracking", "locked shot", "exposed"],
+    "cycle": [
+      "guarded",
+      "tracking",
+      "locked shot",
+      "exposed"
+    ],
     "rule": "Only exposed phase takes normal damage; route reward changes the first punish window."
   },
   "limitations": [
     "This is a design path from real model anchors, not yet a runtime collision or acceptance pass.",
-    "The lower pipe route is visually real but narrow; gameplay should use surface decals, hover gates and matching simplified collision proxy rather than raw mesh collision.",
-    "Route overlays should be ground-projected decals on traversable surfaces and vertical gates during deliberate air gaps; avoid continuous floating debug splines in close-up gameplay views.",
-    "The full level remains visual context; the first playable route still needs simplified resident collision and authored mission markers."
+    "The cannon is now a background landmark, because raycasts place its playable top far above the bridge route and it forced the old path to float.",
+    "The high route uses the real upper bridge modules and nearby decks; the low route uses the real lower bridge modules with pipe assets as visual dressing beside the lane.",
+    "Route overlays should be ground-projected decals on traversable surfaces with small rings at choices and rewards; avoid continuous floating debug splines in close-up gameplay views.",
+    "The full level remains visual context; runtime still needs simplified resident collision proxies, hover-lane width, and mission markers that match these coordinates."
   ]
 }
