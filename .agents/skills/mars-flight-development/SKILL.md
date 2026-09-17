@@ -9,6 +9,8 @@ Use `fly-controls` as the single movement/look owner. Keep the child camera rig 
 
 For Blender/model work, prefer direct Blender MCP inspection when Blender is connected. Use installed helper skills only when they match the work: `game-art-reference-packs` for reference sheets/source lineage, `game-model-cleanup` for GLB repair and budgets, `creature-animation`/`humanoid-animation`/`rig-it` for Warden, AVI or rider animation. The Game Development Studio skill can route asset, visual-debug or performance work, but the local `game-dev` CLI was not on PATH as of 2026-09-17; do not claim game-dev receipts unless the CLI actually runs.
 
+For iPad/mobile control work, read `docs/IPAD_CONTROL_RETHINK.md` first. The September 17 physical iPad Safari test rejected the current dual-stick touch mapping through desktop `fly-controls`; do not continue with sensitivity-only tweaks as the main solution. Preserve desktop `fly-controls` and prototype mobile control as a separate assisted steering/camera model unless the user explicitly asks for a quick diagnostic patch.
+
 For lifecycle changes, verify pause during initial delay, enemy spawning, reload, held boost/fire, and the interval between waves. Scene pause does not cancel setInterval/setTimeout. Keep gameplay deadlines on ticks, and release owned resources/listeners on removal. The manager owns results and emits events to React.
 
 For combat changes, test near/far targets, rotated player aim, cover, duplicate death and target removal. The original jetbike model has an invalid embedded PNG; retain it as source evidence and use the procedural bike until an asset repair is explicitly implemented.

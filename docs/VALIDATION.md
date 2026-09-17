@@ -4,6 +4,8 @@
 
 A new lightweight iPad testing scene is available at `?ipad-stage`. It deliberately avoids the full city stream and uses the existing procedural arena, A-Frame scene owner, shared Three runtime, `fly-controls` controller, weapon component, enemy component and result lifecycle. The goal is a fast mobile/touch playability surface, not a premium-content replacement.
 
+**September 17 physical iPad Safari update:** real-device play feedback failed the current control-feel gate. The user reported that camera movement and gameplay were really bad, barely worked, and did not move properly. This supersedes the earlier in-app browser completion as a usability signal. The in-app browser still proves route lifecycle and rendering, but physical iPad Safari rejects the current touch-control model. The next pass should follow `docs/IPAD_CONTROL_RETHINK.md` and build a separate mobile-first assisted route/camera experiment instead of continuing to tune the existing dual-stick `fly-controls` mapping.
+
 - `src/mission/ipad-stage.ts` defines the stage speed, chase camera, cyan charge gate, amber shield gate, Warden point and extraction point.
 - `src/components/ipad-stage-run.ts` implements a short loop: launch, fly through one gate, receive either four charged shots or 45 shield, defeat one Warden, then hold in the extraction ring.
 - `src/flight-input.ts` now samples a browser touch-flight state through the same adapter path used by gamepad input. `fly-controls` remains the only movement/look owner.
