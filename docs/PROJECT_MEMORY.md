@@ -1,5 +1,15 @@
 # Project memory
 
+## TypeSafe AI (Jev System One) Phase A Tooling Suite — September 17, 2026
+
+Implemented and verified the Phase A Development & Production Tooling Suite powered by TypeSafe AI (Jev System One, `jev-1.13.0`) and the Consistency Noul Tri-Band Uncertainty Pattern (`0.30 - 0.70` review band):
+- **Sortie Telemetry Recorder (`src/telemetry/sortie-recorder.ts`)**: Integrated into `game-manager.ts` to log 500ms kinematic trajectory points, discrete tactical events (`BOOST_EXHAUSTED`, `TELEGRAPH_TRIGGERED`, `DAMAGE_SUSTAINED`, `GATE_BREACHED`), and fatal incident post-mortems packaged in `mission-ended` event detail without breaking existing properties.
+- **Automated QA & Multi-Run Balance Matrix (`scripts/run-balance-matrix.cjs` / `npm run ai:matrix`)**: 50-sortie Monte Carlo balance matrix parameterized with authentic Bridgehead combat parameters, evaluating win rate, duration, and telegraph sensitivity via Jev System One with Tri-Band Noul classification (`APPROVED` >0.70, `BORDERLINE` 0.30–0.70, `BLOCKED` <0.30). Outputs to `evidence/balance-matrix-report.json`.
+- **Playtest Telemetry Diagnostics & Post-Mortems (`scripts/diagnose-telemetry.cjs` / `npm run ai:diagnose`)**: Ingests single/batch sortie telemetry, computes reaction delay margins, and diagnoses root causes with Jev System One with Tri-Band Noul classification on `preventable_loss` (`PREVENTABLE BY SKILL` >0.70, `CONTESTED LOSS` 0.30–0.70, `UNFAIR DESIGN TRAP` <0.30). Outputs to `evidence/telemetry-diagnostic-report.json`.
+- **Flight Corridor & Gate Readability Validator (`scripts/validate-corridor-readability.cjs` / `npm run ai:corridor`)**: Ingests layout geometry, computes 3D Euclidean distances, turn angles, climb pitch, reaction time at 8–38 m/s, and 80° camera FOV visibility. Evaluates readability with Jev System One and Tri-Band Noul classification on `blind_corner_hazard` (`CRITICAL BLIND CORNER` >0.70, `MARGINAL SIGHTLINE` 0.30–0.70, `CLEAR SIGHTLINE` <0.30). Outputs to `evidence/corridor-readability-report.json`.
+- **Tri-Band Copilot In-Flight Guidance (`src/ai/jetbike-copilot.ts`)**: Evaluates `counterAttackStatus` as `'safe' | 'contested' | 'lethal'` using the Consistency Noul 0.30–0.70 review band.
+- **Test & Build Verification**: All 122/122 unit tests passing (`npm test`), 0 TypeScript errors (`npm run typecheck`), and production build passing (`npm run build`).
+
 ## Capability routing update -- September 17, 2026
 
 Codex has direct Blender MCP tools available when Blender is running with the MCP add-on enabled. Use them for scene inspection, screenshots, path/scale checks and cautious non-destructive Blender edits; inspect the scene before changing it and do not overwrite supplied GLBs.

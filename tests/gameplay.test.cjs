@@ -28,8 +28,13 @@ function component(file, name) {
       if (id === '../mission/bridgehead-run') return loadModule('src/mission/bridgehead-run.ts');
       if (id === '../mission/player-rig') return loadModule('src/mission/player-rig.ts');
       if (id === '../flight-input') return loadModule('src/flight-input.ts');
+      if (id === '../telemetry/sortie-recorder') return loadModule('src/telemetry/sortie-recorder.ts');
       if (id === './aframe-export') return { default: aframe };
       if (id === '../game-audio') return { gameAudio: { resume() {}, startAmbient() {}, stopAmbient() {}, pulse() {} } };
+      if (id === '../ai/jetbike-copilot') {
+        const client = loadModule('src/ai/typesafe-client.ts');
+        return loadModule('src/ai/jetbike-copilot.ts', { require: (name) => name === './typesafe-client' ? client : require(name) });
+      }
       return require(id);
     },
     console, document, window: {}, localStorage: { getItem: () => null, setItem() {} },
@@ -413,6 +418,88 @@ test('Ridge route reward is exclusive and extraction needs Warden defeat plus a 
     assert.equal(ridge.stage,'complete');assert.ok(game.score>=1000);
     ridge.resetMission();assert.equal(ridge.route,'');assert.equal(ridge.stage,'choice');
   }
+});
+
+test('Ridge run spawns Phase 2 pursuit skirmishers and applies Consistency Noul pacing', () => {
+  const {instance:ridge,document} = component('src/components/ridge-run.ts','ridge-run');
+  const flight={speedMultiplier:1.5,velocity:{length:()=>20},boost:75};
+  const health={health:85,shield:20},weapon={},position={x:6,y:3.5,z:0};
+  const player={object3D:{position},components:{'fly-controls':flight,'player-component':health}};
+  const events=[];
+  let appended=0;
+  const game={gameStarted:true,gameOver:false,elapsed:10000,score:0,showMessage(){},finishMission(){}};
+  ridge.el={
+    isPlaying:true,
+    emit(type,detail){events.push({type,detail});},
+    components:{'game-manager':game},
+    querySelectorAll:()=>[],
+    querySelector:id=>id==='#player'?player:id==='#jetbike'?{components:{'weapon-component':weapon}}:{setAttribute(){}},
+    appendChild(el){el.parentNode=this;appended++;}
+  };
+  document.createElement=()=>({setAttribute(){},components:{'enemy-component':{isDead:false,data:{speed:2,weaponCooldown:2}}}});
+  ridge.init();ridge.start();position.z=-12;ridge.tick(0,100);
+  assert.equal(ridge.stage,'warden');
+  // Neutralize Warden
+  ridge.warden.components['enemy-component'].isDead=true;ridge.tick(0,100);
+  assert.equal(ridge.stage,'extraction');
+  assert.equal(ridge.pursuitSpawned,true);
+  assert.equal(ridge.pursuitDrones.length,2);
+  assert.ok(events.some(e=>e.type==='copilot-message'));
+  // Reset clean up
+  ridge.resetMission();
+  assert.equal(ridge.pursuitSpawned,false);
+  assert.equal(ridge.pursuitDrones.length,0);
+});
+
+test('Ridge run emits 3D HUD targets, extraction beacon pulses, and triggers triumphant airspace secured event', () => {
+  const {instance:ridge,document} = component('src/components/ridge-run.ts','ridge-run');
+  const flight={speedMultiplier:1.5,velocity:{length:()=>20},boost:75};
+  const health={health:85,shield:20},weapon={},position={x:6,y:3.5,z:0};
+  const player={object3D:{position},components:{'fly-controls':flight,'player-component':health}};
+  const events=[];
+  let appended=0;
+  const game={gameStarted:true,gameOver:false,elapsed:10000,score:0,showMessage(){},finishMission(){}};
+  ridge.el={
+    isPlaying:true,
+    emit(type,detail){events.push({type,detail});},
+    components:{'game-manager':game},
+    querySelectorAll:()=>[],
+    querySelector:id=>id==='#player'?player:id==='#jetbike'?{components:{'weapon-component':weapon}}:{setAttribute(){}},
+    appendChild(el){el.parentNode=this;appended++;}
+  };
+  document.createElement=()=>({setAttribute(){},components:{'enemy-component':{isDead:false,data:{speed:2,weaponCooldown:2}}}});
+  ridge.init();
+  const initObjective = events.find(e => e.type === 'mission-objective');
+  assert.ok(initObjective && initObjective.detail.targets.length === 2);
+  assert.equal(initObjective.detail.targets[0].label, 'HIGH GATE');
+
+  ridge.start();
+  position.z = -12;
+  ridge.tick(0, 100);
+  assert.equal(ridge.stage, 'warden');
+  const wardenObjective = events.filter(e => e.type === 'mission-objective').pop();
+  assert.ok(wardenObjective && wardenObjective.detail.targets.some(t => t.label === 'WARDEN'));
+
+  // Defeat Warden -> Phase 2 Pursuit + Extraction
+  ridge.warden.components['enemy-component'].isDead = true;
+  ridge.tick(0, 100);
+  assert.equal(ridge.stage, 'extraction');
+  assert.equal(ridge.airspaceSecured, false);
+
+  // Eliminate pursuit drones -> Airspace Secured
+  for (const drone of ridge.pursuitDrones) {
+    drone.components['enemy-component'].isDead = true;
+  }
+  ridge.tick(0, 100);
+  assert.equal(ridge.airspaceSecured, true);
+  const securedCopilot = events.filter(e => e.type === 'copilot-message').pop();
+  assert.ok(securedCopilot.detail.text.includes('Airspace secured'));
+
+  // Extraction hold progress
+  position.x = 0; position.y = 3.5; position.z = -41;
+  for (let i = 0; i < 5; i++) ridge.tick(0, 100);
+  const progressEvent = events.filter(e => e.type === 'mission-progress').pop();
+  assert.ok(progressEvent && progressEvent.detail.value >= 0.5);
 });
 
 test('iPad stage uses a forgiving swept gate, touch-stage reward and paused-safe extraction', () => {

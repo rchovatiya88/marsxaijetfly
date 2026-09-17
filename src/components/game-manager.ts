@@ -9,6 +9,7 @@ import { clearSpawn } from '../arena-world';
 import * as THREE from 'three';
 import * as YUKA from 'yuka';
 import AFRAME_EXPORT from './aframe-export';
+import { activeSortieRecorder } from '../telemetry/sortie-recorder';
 
 const AFRAME = AFRAME_EXPORT;
 
@@ -111,6 +112,8 @@ export default function initializeGameManager(): void {
             try {
                 if (this.gameStarted) return;
                 this.gameStarted = true;
+                const modeName = this.el.components?.['bridgehead-run'] ? 'bridgehead-run' : this.el.components?.['ipad-stage-run'] ? 'ipad-stage' : this.el.components?.['ridge-run'] ? 'ridge-run' : 'waves';
+                activeSortieRecorder.startSortie(modeName);
                 if (this.el.components?.['world-stream']) {
                     this.enemiesRemaining = 0;
                     this.el.components['world-stream'].start();
@@ -419,18 +422,31 @@ export default function initializeGameManager(): void {
             const bridgehead = this.el.components?.['bridgehead-run'];
             const player = this.el.querySelector?.('#player')?.components?.['player-component'];
             const weapon = this.el.querySelector?.('#jetbike')?.components?.['weapon-component'];
+            const activeMode = bridgehead ? 'bridgehead-run' : ipad ? 'ipad-stage' : ridge ? 'ridge-run' : 'waves';
+            const telemetryLog = activeSortieRecorder.finishSortie({
+                mode: activeMode,
+                route: bridgehead?.route || ipad?.route || ridge?.route || 'none',
+                won,
+                durationSeconds: Math.round(this.elapsed / 1000),
+                score: this.score,
+                shotsFired: weapon?.shotsFired || 0,
+                chargesSpent: weapon?.chargesSpent || 0,
+                hullLost: Math.max(0, (player?.maxHealth || 0) - (player?.health || 0)),
+                shieldRemaining: player?.shield || 0
+            });
             this.el.emit('mission-ended', {
                 score: this.score,
                 level: this.level,
                 won,
                 best,
-                mode: bridgehead ? 'bridgehead-run' : ipad ? 'ipad-stage' : ridge ? 'ridge-run' : 'waves',
+                mode: activeMode,
                 route: bridgehead?.route || ipad?.route || ridge?.route,
                 seconds: Math.round(this.elapsed / 1000),
                 shots: weapon?.shotsFired || 0,
                 chargesSpent: weapon?.chargesSpent || 0,
                 hullLost: Math.max(0, (player?.maxHealth || 0) - (player?.health || 0)),
-                shieldLeft: player?.shield || 0
+                shieldLeft: player?.shield || 0,
+                telemetry: telemetryLog
             });
         },
         onPlayerDied: function(this: any): void {
@@ -443,6 +459,19 @@ export default function initializeGameManager(): void {
             if (!this.gameStarted || this.gameOver || !this.el.isPlaying) return;
             const elapsed = Math.min(delta, 100);
             this.elapsed += elapsed;
+            const playerEl = this.el.querySelector?.('#player');
+            if (playerEl?.object3D) {
+                const flight = playerEl.components?.['fly-controls'];
+                const playerComp = playerEl.components?.['player-component'];
+                activeSortieRecorder.recordFlightFrame(
+                    this.elapsed,
+                    playerEl.object3D.position,
+                    flight?.velocity?.length() || 0,
+                    flight?.boostAmount || 0,
+                    playerComp?.health || 100,
+                    playerComp?.shield || 0
+                );
+            }
             this.entityManager.update(elapsed / 1000);
             if (this.el.components?.['ipad-stage-run'] || this.el.components?.['ridge-run'] || this.el.components?.['bridgehead-run']) {
                 const count = document.getElementById('enemies-value');

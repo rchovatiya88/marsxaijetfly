@@ -267,6 +267,11 @@ export default function initializeFlyControls(): void {
       },
 
       applyLookRotation: function() {
+        // Track yaw delta for smooth banking kinematics
+        const prevYaw = this.lastYawRotation ?? this.rotation.y;
+        this.lastYawDelta = this.rotation.y - prevYaw;
+        this.lastYawRotation = this.rotation.y;
+
         // The bike/boom own yaw only. Pitch belongs to the camera at the end of
         // the boom: aiming must not orbit the camera through terrain or roll the horizon.
         this.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, this.rotation.x));
@@ -394,17 +399,31 @@ export default function initializeFlyControls(): void {
         
         const player = this.el.components['player-component'];
         if (player) { player.velocity.copy(this.velocity); player.isSprinting = activeSpeedMultiplier > 1 && this.velocity.lengthSq() > 0; }
+        
+        // Dynamic vehicle roll/banking into turns and strafes (authentic arcade flight kinematics)
+        this.jetbikeEl ||= (typeof document !== 'undefined' ? document.querySelector?.('#jetbike') : null);
+        if (this.jetbikeEl?.object3D) {
+          const strafeRoll = -this.moveVector.x * 0.30;
+          const yawRoll = THREE.MathUtils.clamp((this.lastYawDelta || 0) * 7.5, -0.35, 0.35);
+          const targetRoll = THREE.MathUtils.clamp(strafeRoll + yawRoll, -0.42, 0.42);
+          this.currentJetbikeRoll = THREE.MathUtils.lerp(this.currentJetbikeRoll || 0, targetRoll, Math.min(1, dt * 8));
+          this.jetbikeEl.object3D.rotation.z = this.currentJetbikeRoll;
+          this.lastYawDelta = (this.lastYawDelta || 0) * 0.4;
+        }
+
         // Update camera to follow player
-        this.updateCamera(dt);
+        this.updateCamera(dt, activeSpeedMultiplier);
       },
       
-      updateCamera: function(dt) {
+      updateCamera: function(dt, activeSpeedMultiplier = 1) {
         if (!this.cameraRigEl) return;
         
         // The camera rig is a child of the player: its position is local.
         this.playerObj.updateMatrixWorld(true);
         const anchor = this.playerObj.localToWorld(new THREE.Vector3(0, 0.5, 0));
-        const desired = this.playerObj.localToWorld(new THREE.Vector3(this.data.cameraShoulder || 0, this.data.cameraHeight, this.data.cameraDistance));
+        // Dynamic lateral banking swing: camera gently sways during turns for clear dogfighting sightlines
+        const bankSwing = (this.currentJetbikeRoll || 0) * 0.35;
+        const desired = this.playerObj.localToWorld(new THREE.Vector3((this.data.cameraShoulder || 0) + bankSwing, this.data.cameraHeight, this.data.cameraDistance));
         const sceneComponents = this.el?.sceneEl?.components;
         if (!sceneComponents?.['world-stream']?.ownsWorld && !sceneComponents?.['bridgehead-run']) desired.y = Math.max(0.6, desired.y);
         const delta = desired.clone().sub(anchor);
@@ -415,7 +434,17 @@ export default function initializeFlyControls(): void {
         const radius = cameraNearPlaneRadius(camera, this.cameraSweepCenter, this.cameraSweepCorner);
         const hit = traceWorld(anchor, delta, radius);
         const safe = anchor.addScaledVector(delta, hit ? Math.max(0, hit.t - 0.04) : 1);
-        this.cameraRigEl.object3D.position.copy(this.playerObj.worldToLocal(safe));
+        const targetLocal = this.playerObj.worldToLocal(safe);
+        this.cameraRigEl.object3D.position.copy(targetLocal);
+
+        // Speed-tunnel FOV expansion during boost (research-backed Wipeout/Chorus feel)
+        if (camera && 'fov' in camera && typeof camera.fov === 'number' && dt > 0 && this.boostKeys?.size) {
+          const targetFov = activeSpeedMultiplier > 1 ? 90 : 80;
+          if (Math.abs(camera.fov - targetFov) > 0.1) {
+            camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, Math.min(1, dt * 5));
+            camera.updateProjectionMatrix();
+          }
+        }
       },
 
       clearInput: function() {
@@ -427,6 +456,11 @@ export default function initializeFlyControls(): void {
         this.moveVector.set(0, 0, 0);
         this.rotationVector.set(0, 0, 0);
         this.velocity.set(0, 0, 0);
+        if (this.jetbikeEl?.object3D) {
+          this.jetbikeEl.object3D.rotation.z = 0;
+          this.currentJetbikeRoll = 0;
+        }
+        this.lastYawDelta = 0;
         const player = this.el?.components?.['player-component'];
         if (player) { player.velocity?.set(0, 0, 0); player.isSprinting = false; }
       },
@@ -438,6 +472,12 @@ export default function initializeFlyControls(): void {
         this.playerObj.position.set(0, 3, 12);
         this.playerObj.quaternion.identity();
         this.cameraRigEl.object3D.position.set(this.data.cameraShoulder || 0, this.data.cameraHeight, this.data.cameraDistance);
+        if (this.jetbikeEl?.object3D) {
+          this.jetbikeEl.object3D.rotation.z = 0;
+          this.currentJetbikeRoll = 0;
+        }
+        this.lastYawDelta = 0;
+        this.lastYawRotation = 0;
         this.cameraRigEl.object3D.quaternion.identity();
         this.cameraObj.quaternion.identity();
         this.applyLookRotation();

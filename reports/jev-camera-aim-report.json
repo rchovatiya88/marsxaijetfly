@@ -1,0 +1,54 @@
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "camera_framing_solution": {
+      "type": "choice",
+      "choice": "elevated_lower_third_pitch_down",
+      "confidence": 1,
+      "probabilities": {
+        "elevated_lower_third_pitch_down": 1,
+        "over_the_shoulder_offset": 0,
+        "rigid_center_frame": 0
+      }
+    },
+    "aim_convergence_strategy": {
+      "type": "choice",
+      "choice": "projected_focal_convergence",
+      "confidence": 1,
+      "probabilities": {
+        "parallel_forward_boresight": 0,
+        "projected_focal_convergence": 1,
+        "camera_center_spawn": 0
+      }
+    },
+    "audio_acoustic_redesign": {
+      "type": "score",
+      "score": 2,
+      "confidence": 1,
+      "legend": {
+        "0": "Low necessity; low volume is fine",
+        "1": "Moderate necessity; only boost sound effects",
+        "2": "Essential necessity; audio feedback (engine whine, laser crack, impact crunch) provides >50% of arcade game immersion and must be punchy and distinct on standard hardware"
+      },
+      "probabilities": {
+        "0": 0,
+        "1": 0,
+        "2": 1
+      }
+    },
+    "spring_arm_smoothness_ratio": {
+      "type": "choice",
+      "choice": "tight_damped_spring",
+      "confidence": 1,
+      "probabilities": {
+        "rigid_zero_lag": 0,
+        "loose_cinematic_lag": 0,
+        "tight_damped_spring": 1
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 1314,
+    "output_tokens": 203
+  }
+}

@@ -83,7 +83,7 @@ export default function initializeEnemyComponent(): void {
                     this.attackOrigin = new THREE.Vector3();
                     this.attackTarget = new THREE.Vector3();
                     this.attackDirection = new THREE.Vector3();
-                    this.enemyBolt = new THREE.Mesh(new THREE.SphereGeometry(0.24,8,6),new THREE.MeshBasicMaterial({color:'#ff684c'}));
+                    this.enemyBolt = new THREE.Mesh(new THREE.SphereGeometry(0.32, 10, 8), new THREE.MeshBasicMaterial({ color: '#ff007f' }));
                     this.enemyBolt.visible = false;
                     this.el.sceneEl.object3D.add(this.enemyBolt);
                     if (this.data.guardDamageMultiplier < 1) {
@@ -617,18 +617,38 @@ export default function initializeEnemyComponent(): void {
                     console.error('Error creating hit effect:', error);
                 }
             },
-            flashColor: function(this: any, flashColor: string, returnColor: string, duration: number): void {
+            flashColor: function(this: any, _flashColor: string, _returnColor: string, _duration: number): void {
                 try {
                     const enemyModel = this.el.querySelector('.enemy-body');
-                    if (!enemyModel) return;
+                    if (enemyModel) {
+                        enemyModel.setAttribute('visible', false);
+                        setTimeout(() => {
+                            if (!this.isDead && enemyModel.parentNode) enemyModel.setAttribute('visible', true);
+                        }, 50);
+                    }
 
-                    // Quick visibility toggle for visual feedback
-                    enemyModel.setAttribute('visible', false);
-                    setTimeout(() => {
-                        if (!this.isDead && enemyModel.parentNode) {
-                            enemyModel.setAttribute('visible', true);
-                        }
-                    }, 50); // Very quick flash
+                    // Direct 3D mesh emissive white hit-flash
+                    if (this.el.object3D) {
+                        this.el.object3D.traverse((node: any) => {
+                            if (node.isMesh && node.material) {
+                                const mats = Array.isArray(node.material) ? node.material : [node.material];
+                                for (const mat of mats) {
+                                    if (mat.emissive) {
+                                        const origColor = mat.emissive.getHex();
+                                        const origIntensity = mat.emissiveIntensity ?? 0;
+                                        mat.emissive.setHex(0xffffff);
+                                        mat.emissiveIntensity = 2.0;
+                                        setTimeout(() => {
+                                            if (mat && mat.emissive) {
+                                                mat.emissive.setHex(origColor);
+                                                mat.emissiveIntensity = origIntensity;
+                                            }
+                                        }, 60);
+                                    }
+                                }
+                            }
+                        });
+                    }
                 } catch (error) {
                     console.error('Error flashing color:', error);
                 }
@@ -681,7 +701,7 @@ export default function initializeEnemyComponent(): void {
                     });
                     deathEffect.appendChild(core);
                     
-                    // Add expanding ring
+                    // Add expanding fire ring
                     const ring = document.createElement('a-ring');
                     ring.setAttribute('radius-inner', 0.3);
                     ring.setAttribute('radius-outer', 0.35);
@@ -703,6 +723,27 @@ export default function initializeEnemyComponent(): void {
                         easing: 'easeOutQuad'
                     });
                     deathEffect.appendChild(ring);
+
+                    // Add high-speed electric shockwave ring (A-Frame registry explosive pattern)
+                    const shockwave = document.createElement('a-ring');
+                    shockwave.setAttribute('radius-inner', 0.2);
+                    shockwave.setAttribute('radius-outer', 0.38);
+                    shockwave.setAttribute('material', 'shader: flat; color: #78ffe1; opacity: 0.95; transparent: true; side: double');
+                    shockwave.setAttribute('animation__scale', {
+                        property: 'scale',
+                        from: '0.5 0.5 0.5',
+                        to: '8.5 8.5 8.5',
+                        dur: 480,
+                        easing: 'easeOutQuad'
+                    });
+                    shockwave.setAttribute('animation__fade', {
+                        property: 'opacity',
+                        from: 0.95,
+                        to: 0,
+                        dur: 480,
+                        easing: 'easeOutQuad'
+                    });
+                    deathEffect.appendChild(shockwave);
                     
                     document.querySelector('a-scene')!.appendChild(deathEffect);
                     

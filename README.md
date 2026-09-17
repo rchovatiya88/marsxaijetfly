@@ -34,6 +34,7 @@ npm test
 npm run typecheck
 npm run build
 npm run preview
+npm run ai:audit
 ```
 
 Production files are in `dist/`. Start/build copies pinned local A-Frame and Draco dependencies into `public/vendor`. Vite's root `index.html` is the active HTML entry. Old CRA/Webpack files and `public/index.html` are historical and are not used by the current build. Typecheck covers the active entry and imports; unused legacy demos are not certified.

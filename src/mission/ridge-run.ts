@@ -2,7 +2,7 @@ import type { Vec } from '../arena-world';
 
 export const RIDGE_GATES = [
   { id: 'high', position: { x: -6, y: 10, z: -8 }, radius: 2.8, color: '#78ffe1' },
-  { id: 'low', position: { x: 6, y: 3.5, z: -8 }, radius: 2.8, color: '#ffb174' }
+  { id: 'low', position: { x: 6, y: 3.5, z: -8 }, radius: 2.8, color: '#00ff9d' }
 ] as const;
 export const EXTRACTION = { x: 0, y: 3.5, z: -41 };
 

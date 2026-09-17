@@ -13,6 +13,8 @@
 #crosshair span { font: 26px monospace; transform: translateY(-1px); }
 #crosshair.hit { text-shadow: 0 0 8px #fff2a8, 0 0 24px #ff9b4f; color: #fff3b0; }
 #crosshair.hit::before { border-color: #fff0a0; box-shadow: 0 0 22px #ff9b4faa, inset 0 0 16px #ff9b4f55; }
+#crosshair.firing { animation: crosshair-kick 80ms ease-out; }
+@keyframes crosshair-kick { 0% { transform: translate(-50%,-50%) scale(1.22); filter: drop-shadow(0 0 8px #78ffe1); } 100% { transform: translate(-50%,-50%) scale(1); } }
 .shot-streak { position: fixed; left: 50%; top: 50%; width: 38vw; max-width: 560px; height: 8px; z-index: 11; pointer-events: none; background: linear-gradient(90deg, transparent 0%, #78ffe1 54%, #fff 78%, transparent 100%); border-radius: 999px; filter: drop-shadow(0 0 8px #78ffe1) drop-shadow(0 0 18px #78ffe180); opacity: 0; animation: shot-streak 150ms ease-out forwards; transform-origin: 100% 50%; }
 .shot-streak-left { transform: translate(-91%, 25vh) rotate(-23deg); }
 .shot-streak-right { transform: translate(-9%, 25vh) rotate(-157deg); }
@@ -135,3 +137,85 @@ button:disabled { opacity: .45; cursor: wait; }
 .reduced-motion #threat-warning.active { animation:none; opacity:1; }
 @media(max-width:700px) { .route-map { width:142px; right:14px; bottom:104px; }.route-map svg { height:102px; }.route-map>span { font-size:7px; } }
 @media (max-width: 1000px) { .ridge-objective { top:190px; left:24px; right:24px; } }
+
+.copilot-hud {
+  position: absolute;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: rgba(8, 22, 28, 0.88);
+  border: 1px solid #00ff9d;
+  box-shadow: 0 0 16px rgba(0, 255, 157, 0.28), inset 0 0 10px rgba(0, 255, 157, 0.12);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  color: #d6fff0;
+  pointer-events: none;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.copilot-badge {
+  background: #00ff9d;
+  color: #05140d;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.copilot-text {
+  color: #cffff0;
+  text-shadow: 0 0 8px rgba(0, 255, 157, 0.6);
+  font-weight: 600;
+}
+
+.arcade-rank-badge {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(10, 16, 22, 0.94);
+  border: 2px solid #ffe29a;
+  box-shadow: 0 0 24px rgba(255, 226, 154, 0.25);
+  border-radius: 6px;
+  padding: 10px 18px;
+  margin: 12px auto 16px auto;
+  max-width: 360px;
+  text-align: left;
+}
+
+.rank-letter {
+  font-family: monospace;
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 0 16px currentColor;
+}
+
+.rank-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rank-title {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.rank-stats {
+  display: flex;
+  gap: 12px;
+  font-family: monospace;
+  font-size: 10px;
+  color: #bceae2;
+  letter-spacing: 0.5px;
+}

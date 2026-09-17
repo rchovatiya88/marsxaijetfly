@@ -279,7 +279,12 @@ export default function initializeWeaponComponent(): void {
         },
         
         applyWeaponFeedback: function(this: any): void {
-            // Pooled emissive bolts supply muzzle feedback without adding/removing lights.
+            const crosshair = (typeof document !== 'undefined' ? document.getElementById?.('crosshair') : null);
+            if (crosshair) {
+                crosshair.classList.remove('firing');
+                void crosshair.offsetWidth;
+                crosshair.classList.add('firing');
+            }
         },
         createMuzzleFlash: function(this: any): void {
             try {
@@ -356,6 +361,7 @@ export default function initializeWeaponComponent(): void {
         },
         createHitEffect: function(this: any, position: THREE.Vector3): void {
             try {
+                if (typeof document === 'undefined' || typeof document.createElement !== 'function') return;
                 const hitEffect = document.createElement('a-entity');
                 hitEffect.setAttribute('data-mission-effect', '');
                 hitEffect.setAttribute('position', position);
@@ -478,7 +484,7 @@ export default function initializeWeaponComponent(): void {
                 const environmentHit = this.findEnvironmentHit(weaponPosition, direction);
                 const touchStageAssist = isTouchStageActive();
                 const visibleHit = enemyHit && (touchStageAssist || !environmentHit || enemyHit.distance < environmentHit.distance) ? enemyHit : null;
-                const tracerEnd = visibleHit?.point || environmentHit?.point || weaponPosition.clone().addScaledVector(direction, Math.min(this.data.range, 42));
+                const tracerEnd = visibleHit?.point || environmentHit?.point || weaponPosition.clone().addScaledVector(direction, Math.min(this.data.range, 65));
                 // Each visible barrel owns its cover trace and half of the shot.
                 // A clear center ray cannot draw a side bolt through a wall.
                 const muzzlePaths = this.getMuzzlePaths(tracerEnd);
@@ -487,7 +493,11 @@ export default function initializeWeaponComponent(): void {
 
                 if (visibleHit && clearMuzzles > 0) {
                     const applied=enemyHit.enemy.takeDamage(damage * clearMuzzles / muzzlePaths.length, enemyHit.point);
-                    if (applied!==0) {gameAudio.pulse('hit');this.showHitMarker();}
+                    if (applied!==0) {
+                        gameAudio.pulse('hit');
+                        this.showHitMarker();
+                        if (enemyHit.point) this.createHitEffect(enemyHit.point);
+                    }
                 } else if (environmentHit) {
                     this.createImpactEffect(environmentHit.point, environmentHit.normal);
                 }
@@ -650,7 +660,13 @@ export default function initializeWeaponComponent(): void {
             this.hoverTime += dt;
             const flight = this.el?.parentEl?.components?.['fly-controls'];
             const thrust = Math.min(1,(flight?.velocity?.length() || 0)/50);
-            this.enginePlumes?.forEach((plume:any) => { plume.scale.y = .7+thrust*.9+Math.sin(this.hoverTime*24)*.06; });
+            const isBoost = Boolean(flight?.speedMultiplier && flight.speedMultiplier > 1);
+            this.enginePlumes?.forEach((plume:any) => {
+                plume.scale.y = Math.min(1.65, .7 + thrust * .88 + Math.sin(this.hoverTime * 24) * .05);
+                if (plume.material?.emissive) {
+                    plume.material.emissiveIntensity = isBoost ? 2.2 : (1.0 + thrust * 0.6);
+                }
+            });
             
             // Update thruster light intensity based on movement
             if (this.thrusterParticles.length > 0) {

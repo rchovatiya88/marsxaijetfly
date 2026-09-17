@@ -15,7 +15,7 @@ Build a fun premium paid single-player Mars jetbike game. The user explicitly ch
 
 ## Repository skills
 
-Use `.agents/skills/mars-flight-development/SKILL.md` for gameplay, controls, lifecycle or rendering work. Use `.agents/skills/mars-premium-playtest/SKILL.md` for playtest design, scope, pricing experiments and distribution planning. Read the relevant skill when applicable; these are project-local skills, not global installs.
+Use `.agents/skills/mars-flight-development/SKILL.md` for gameplay, controls, lifecycle or rendering work. Use `.agents/skills/mars-premium-playtest/SKILL.md` for playtest design, scope, pricing experiments and distribution planning. Use `.agents/skills/typesafe-ai/SKILL.md` for TypeSafe AI (Jev System One) integrations, including flight copilot tactical evaluations, combat telemetry auditing (`npm run ai:audit`), and generative mission/route balance. Read the relevant skill when applicable; these are project-local skills, not global installs.
 
 ## Runtime invariants
 

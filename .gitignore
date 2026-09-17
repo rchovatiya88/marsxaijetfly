@@ -16,3 +16,7 @@ art/**/*.log
 art/**/*samples*.json
 art/**/*study*.json
 evidence/
+.env
+.env.local
+.env.*.local
+

@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-09-17T03:48:05.011Z",
+  "state": {
+    "game": "Mars Red Horizon (Ridge Run 60 FPS Flight Combat)",
+    "stack": "A-Frame 1.4.0, Three.js r160, React 18, WebGL",
+    "telemetry_audit_findings": {
+      "flight_duration": "Expanded from 14.88s to 33.30s (+124%) in latest flight video",
+      "combat_record": "Player defeated Warden and shot down 2 pursuit interceptors at 25 m/s",
+      "usability_gaps": [
+        "Extraction ring is a flat ground torus at z=-41; when flying high at 10m-20m altitude, it is hidden by canyon rocks",
+        "When all pursuit interceptors are eliminated (HOSTILES 0), copilot banner remains stuck on warning instead of declaring airspace secured",
+        "Tactical off-screen chevrons exist in codebase for fullMode/ipadMode but were omitted in Ridge Run",
+        "Engine thrusters need dynamic high-speed ribbon/plume trails during boost and banking"
+      ]
+    },
+    "registry_candidates": {
+      "extraction_sky_pillar": "Vertical 40m glowing beacon column (aframe-tube / cylinder / shader) with inner pulse core visible across canyon from any altitude",
+      "hud_threat_chevrons": "3D off-screen HUD chevrons (aframe-ui-widgets pattern) projecting distance, altitude delta, and direction for hostiles and extraction",
+      "airspace_secured_event": "State-reactive triumphant copilot broadcast + audio chime when activeDrones === 0 in extraction phase",
+      "thruster_ribbon_plumes": "High-speed twin engine ribbon trails & boost plume flare (aframe-trail pattern)",
+      "explosive_death_shockwaves": "Multi-stage particle shockwave rings and spark bursts on enemy destruction (aframe-particle-system pattern)"
+    }
+  },
+  "results": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "registry_component_priority": {
+        "type": "choice",
+        "choice": "extraction_sky_pillar",
+        "confidence": 0.87,
+        "probabilities": {
+          "thruster_ribbon_plumes": 0,
+          "airspace_secured_event": 0.02,
+          "explosive_death_shockwaves": 0,
+          "hud_threat_chevrons": 0.08,
+          "extraction_sky_pillar": 0.9
+        }
+      },
+      "sky_beacon_legibility_score": {
+        "type": "score",
+        "score": 2,
+        "confidence": 1,
+        "legend": {
+          "0": "Low utility; players can locate flat ground rings using mini-map alone",
+          "1": "Moderate utility; improves visual recognition in open terrain",
+          "2": "High/Critical utility; in vertical canyon combat, flat ground rings get occluded by geometry, making a sky-reaching pillar essential for clear extraction navigation"
+        },
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 1
+        }
+      },
+      "tactical_hud_chevrons_score": {
+        "type": "score",
+        "score": 1.77,
+        "confidence": 0.65,
+        "legend": {
+          "0": "Cosmetic only; audio and radar are sufficient",
+          "1": "Helpful; reduces disorientation when enemies circle out of forward camera frustum",
+          "2": "Essential; provides instantaneous spatial awareness during high-speed turns and dogfights"
+        },
+        "probabilities": {
+          "0": 0,
+          "1": 0.23,
+          "2": 0.77
+        }
+      },
+      "performance_budget_60fps": {
+        "type": "score",
+        "score": 1.12,
+        "confidence": 0.69,
+        "legend": {
+          "0": "Risky; could introduce frame drops and GC pauses",
+          "1": "Manageable with careful pooling and draw call budgeting",
+          "2": "Highly safe and optimized; using shared geometries, additive flat shaders, and DOM HUD overlays adds near-zero GPU/CPU overhead"
+        },
+        "probabilities": {
+          "0": 0.04,
+          "1": 0.8,
+          "2": 0.16
+        }
+      },
+      "combat_loop_production_readiness": {
+        "type": "noul",
+        "noul": 0.52
+      }
+    },
+    "usage": {
+      "input_tokens": 1380,
+      "output_tokens": 171
+    }
+  }
+}

@@ -12,12 +12,12 @@ import { IPAD_STAGE_CAMERA, IPAD_STAGE_EXTRACTION, IPAD_STAGE_GATES, IPAD_STAGE_
 import { BRIDGEHEAD_APPROACHES, BRIDGEHEAD_EXITS, BRIDGEHEAD_EXTRACTION, BRIDGEHEAD_GATES, BRIDGEHEAD_SPEED, BRIDGEHEAD_CAMERA, BRIDGEHEAD_ENVIRONMENT_SCALE } from './mission/bridgehead-run';
 import './components/level-runtime';
 import './components/world-stream';
+import { computeSortieRank, type SortieResult as Result } from './sortie-rank';
 
 declare global {
   namespace JSX { interface IntrinsicElements { 'a-scene': any; 'a-entity': any; 'a-camera': any; 'a-light': any; } }
 }
 
-type Result = { score: number; level: number; won: boolean; best: number; mode?: string; route?: string; seconds?: number; shots?: number; chargesSpent?: number; hullLost?: number; shieldLeft?: number };
 type ObjectiveTarget = { label: string; position: {x:number;y:number;z:number}; approach?: string };
 type TargetReadout = ObjectiveTarget & { distance:number; altitude:number; left:number; top:number; offscreen:boolean };
 const modeParams = new URLSearchParams(window.location.search);
@@ -29,7 +29,7 @@ const streamMode = fullMode || surveyMode;
 const failedArtFixture = fullMode && modeParams.has('playtest') && modeParams.has('asset-failure');
 const ridgeMode = !streamMode && !ipadMode && modeParams.has('ridge-run');
 const missionSpeed = fullMode ? BRIDGEHEAD_SPEED : ipadMode ? IPAD_STAGE_SPEED : 25;
-const missionCamera = fullMode ? BRIDGEHEAD_CAMERA : ipadMode ? IPAD_STAGE_CAMERA : { height: 2, distance: 8, shoulder: 0 };
+const missionCamera = fullMode ? BRIDGEHEAD_CAMERA : ipadMode ? IPAD_STAGE_CAMERA : { height: 2.6, distance: 7.0, shoulder: 0 };
 
 const RUNWAY_LINES = [-6, 6];
 const BEACONS = [
@@ -185,6 +185,7 @@ export default function App(): JSX.Element {
   const [targetReadouts, setTargetReadouts] = useState<TargetReadout[]>([]);
   const [objectiveProgress, setObjectiveProgress] = useState(0);
   const [routeBonus, setRouteBonus] = useState('');
+  const [copilotAdvice, setCopilotAdvice] = useState('ALL SYSTEMS NOMINAL · AWAITING FLIGHT VECTOR');
   useEffect(() => {
     saveSettings({sensitivity,reducedMotion,invertY,volume});
     gameAudio.setVolume(volume);
@@ -236,6 +237,9 @@ export default function App(): JSX.Element {
       if (target?.classList?.contains('hero-model-asset') || target?.closest?.('.hero-model-asset')) return;
       setError('A level asset could not load. Reload to try again.');
     };
+    const copilotHandler = (event: any) => {
+      if (event?.detail?.text) setCopilotAdvice(event.detail.text);
+    };
     scene.addEventListener('loaded', loaded);
     scene.addEventListener('model-loaded', loaded);
     scene.addEventListener('mission-message', notify);
@@ -244,6 +248,7 @@ export default function App(): JSX.Element {
     scene.addEventListener('mission-objective', objectiveChanged);
     scene.addEventListener('mission-progress', progressChanged);
     scene.addEventListener('level-ready', levelReady);
+    scene.addEventListener('copilot-message', copilotHandler);
     const level = scene.components[streamMode ? 'world-stream' : 'level-runtime'];
     if (level && (level.status === 'ready' || level.status === 'fallback')) levelReady({detail:{status:level.status, authored:level.status === 'ready'}});
     scene.addEventListener('model-error', failed, true);
@@ -258,6 +263,7 @@ export default function App(): JSX.Element {
       scene.removeEventListener('mission-objective', objectiveChanged);
       scene.removeEventListener('mission-progress', progressChanged);
       scene.removeEventListener('level-ready', levelReady);
+      scene.removeEventListener('copilot-message', copilotHandler);
       scene.removeEventListener('model-error', failed, true);
     };
   }, []);
@@ -330,6 +336,8 @@ export default function App(): JSX.Element {
       const altitudeEl = document.getElementById('altitude-value');
       if (speedEl) speedEl.textContent = Math.round(speed).toString();
       if (altitudeEl) altitudeEl.textContent = Math.round(player?.object3D?.position.y || 0).toString();
+      const isBoost = Boolean(flight?.speedMultiplier && flight.speedMultiplier > 1);
+      gameAudio.setEngineThrottle(speed, isBoost);
       const manager = sceneRef.current?.components['game-manager'];
       if (ridgeMode || fullMode || ipadMode) {
         const charges = (document.getElementById('jetbike') as any)?.components?.['weapon-component']?.chargedShots || 0;
@@ -347,7 +355,7 @@ export default function App(): JSX.Element {
       }));
       const camera:any = document.getElementById('camera');
       const projectionCamera=camera?.getObject3D?.('camera') || camera?.components?.camera?.camera;
-      if ((fullMode || ipadMode) && pos && projectionCamera && objectiveTargets.current.length) {
+      if ((ridgeMode || fullMode || ipadMode) && pos && projectionCamera && objectiveTargets.current.length) {
         sceneRef.current?.object3D?.updateMatrixWorld(true);
         const cameraPosition=projectionCamera.getWorldPosition(new THREE.Vector3());
         const forward=projectionCamera.getWorldDirection(new THREE.Vector3());
@@ -368,6 +376,18 @@ export default function App(): JSX.Element {
       if (info) setTelemetry(`${info.render.calls} draws · ${info.render.triangles} triangles · ${info.memory.geometries} geometries`);
       if (streamMode) setStreamInfo(sceneRef.current?.components?.['world-stream']?.telemetry || 'Loading whole-level overview…');
       document.documentElement.style.setProperty('--speed-intensity', Math.min(1, speed / 18).toFixed(2));
+      const groundWash: any = document.getElementById('ground-dust-wash');
+      if (groundWash && pos) {
+        if (pos.y < 5.2 && speed > 3) {
+          const intensity = Math.min(1, Math.max(0, (5.2 - pos.y) / 4.2)) * Math.min(1, speed / 16);
+          groundWash.setAttribute('visible', true);
+          groundWash.object3D.position.set(pos.x, 0.05, pos.z + 0.6);
+          const s = 0.8 + intensity * 0.9;
+          groundWash.object3D.scale.set(s, 1, s * 1.3);
+        } else {
+          groundWash.setAttribute('visible', false);
+        }
+      }
       frame = requestAnimationFrame(update);
     };
     frame = requestAnimationFrame(update);
@@ -433,7 +453,18 @@ export default function App(): JSX.Element {
         <a-entity id="ipad-stage-extraction" visible="false" position={`${IPAD_STAGE_EXTRACTION.x} ${IPAD_STAGE_EXTRACTION.y} ${IPAD_STAGE_EXTRACTION.z}`} geometry="primitive: torus; radius: 5.5; radiusTubular: 0.28; segmentsRadial: 8; segmentsTubular: 40" material="shader: flat; color: #ffe29a" />
       </> : ridgeMode ? <>
         {RIDGE_GATES.map(gate => <a-entity key={gate.id} data-ridge-gate={gate.id} position={`${gate.position.x} ${gate.position.y} ${gate.position.z}`} geometry={`primitive: torus; radius: ${gate.radius}; radiusTubular: 0.16; segmentsRadial: 8; segmentsTubular: 40`} material={`shader: flat; color: ${gate.color}`} />)}
-        <a-entity id="ridge-extraction" visible="false" position={`${EXTRACTION.x} ${EXTRACTION.y} ${EXTRACTION.z}`} geometry="primitive: torus; radius: 3; radiusTubular: 0.2; segmentsRadial: 8; segmentsTubular: 40" material="shader: flat; color: #ffe29a" />
+        <a-entity id="ridge-extraction" visible="false" position={`${EXTRACTION.x} ${EXTRACTION.y} ${EXTRACTION.z}`}>
+          {/* Ground landing ring and disc */}
+          <a-entity geometry="primitive: torus; radius: 3; radiusTubular: 0.2; segmentsRadial: 8; segmentsTubular: 40" material="shader: flat; color: #ffe29a" />
+          <a-entity geometry="primitive: circle; radius: 2.85; segments: 32" rotation="-90 0 0" material="shader: flat; color: #ffd670; opacity: 0.25; transparent: true; side: double" />
+          {/* Vertical 48m sky beacon column (A-Frame registry research - visible across entire canyon) */}
+          <a-entity geometry="primitive: cylinder; radius: 1.6; height: 48; segmentsRadial: 16; openEnded: true" position="0 24 0" material="shader: flat; color: #ffe596; opacity: 0.32; transparent: true; side: double" />
+          <a-entity geometry="primitive: cylinder; radius: 0.38; height: 50; segmentsRadial: 12" position="0 25 0" material="shader: flat; color: #ffffff; opacity: 0.82; transparent: true" />
+          {/* Ascending pulse rings */}
+          <a-entity geometry="primitive: torus; radius: 2.2; radiusTubular: 0.08; segmentsRadial: 8; segmentsTubular: 32" position="0 8 0" rotation="90 0 0" material="shader: flat; color: #fff3c4; opacity: 0.65; transparent: true" />
+          <a-entity geometry="primitive: torus; radius: 2.0; radiusTubular: 0.08; segmentsRadial: 8; segmentsTubular: 32" position="0 20 0" rotation="90 0 0" material="shader: flat; color: #fff3c4; opacity: 0.55; transparent: true" />
+          <a-entity geometry="primitive: torus; radius: 1.8; radiusTubular: 0.08; segmentsRadial: 8; segmentsTubular: 32" position="0 32 0" rotation="90 0 0" material="shader: flat; color: #fff3c4; opacity: 0.45; transparent: true" />
+        </a-entity>
       </> : fullMode ? <>
         <a-entity id="bridgehead-route-art" bridgehead-art={failedArtFixture ? 'src: models/missing-route.glb' : ''} />
         {BRIDGEHEAD_GATES.map(gate => <a-entity key={gate.id} data-bridgehead-gate={gate.id} position={`${gate.position.x} ${gate.position.y} ${gate.position.z}`} rotation="0 90 0" geometry={`primitive: torus; radius: ${gate.radius}; radiusTubular: 0.18; segmentsRadial: 8; segmentsTubular: 40`} material={`shader: flat; color: ${gate.color}`} />)}
@@ -442,8 +473,8 @@ export default function App(): JSX.Element {
         <a-entity id="bridgehead-extraction" visible="false" position={`${BRIDGEHEAD_EXTRACTION.x} ${BRIDGEHEAD_EXTRACTION.y} ${BRIDGEHEAD_EXTRACTION.z}`} rotation="90 0 0" geometry="primitive: torus; radius: 3.5; radiusTubular: 0.25; segmentsRadial: 8; segmentsTubular: 40" material="shader: flat; color: #ffe29a" />
       </> : surveyMode ? null : <>
         <a-entity geometry="primitive: torus; radius: 7.5; radiusTubular: 0.12; segmentsRadial: 8; segmentsTubular: 48" position="0 7.6 -26" material="shader: flat; color: #7dffe9" />
-        <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" position="-15 4.6 -30" material="shader: flat; color: #ffb174" />
-        <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" position="15 4.6 -30" material="shader: flat; color: #ffb174" />
+        <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" position="-15 4.6 -30" material="shader: flat; color: #00ff9d" />
+        <a-entity geometry="primitive: torus; radius: 4.5; radiusTubular: 0.1; segmentsRadial: 8; segmentsTubular: 40" position="15 4.6 -30" material="shader: flat; color: #00ff9d" />
       </>}
       <a-entity geometry="primitive: sphere; radius: 12; segmentsWidth: 16; segmentsHeight: 8" position="-95 45 -170" material="shader: flat; color: #ffcf94; fog: false" />
       <a-entity geometry="primitive: ring; radiusInner: 14; radiusOuter: 18; segmentsTheta: 48" position="-95 45 -169" material="shader: flat; color: #ffb56b; opacity: 0.16; transparent: true; side: double" />
@@ -451,6 +482,12 @@ export default function App(): JSX.Element {
         <a-entity id="camera-rig" position={`${missionCamera.shoulder} ${missionCamera.height} ${missionCamera.distance}`}><a-camera id="camera" near={fullMode ? 0.1 : 0.005} far={fullMode ? 500 : 10000} position="0 0 0" look-controls="enabled: false" wasd-controls="enabled: false" /></a-entity>
         <a-entity id="jetbike" hero-model="src: models/avi-jetbike.glb; targetHeight: 1.8; targetLength: 0; heading: 180; animation: none" weapon-component="cooldown: 0.16; accuracy: 1; thrusterParticles: false" />
         <a-entity id="player-hitbox" geometry="primitive: box; width: 1.2; height: 1.8; depth: 1.2" material="visible: false" />
+      </a-entity>
+      {/* Ground Dust Wash (A-Frame registry sand wake pattern - active when y < 5.2m) */}
+      <a-entity id="ground-dust-wash" visible="false" position="0 0.05 12">
+        <a-entity geometry="primitive: circle; radius: 1.6; segments: 24" rotation="-90 0 0" material="shader: flat; color: #db8358; opacity: 0.35; transparent: true; side: double" />
+        <a-entity geometry="primitive: ring; radiusInner: 1.7; radiusOuter: 2.5; segmentsTheta: 24" rotation="-90 0 0" material="shader: flat; color: #f4ab82; opacity: 0.25; transparent: true; side: double" />
+        <a-entity geometry="primitive: circle; radius: 2.2; segments: 20" position="0 0 1.2" rotation="-90 0 0" material="shader: flat; color: #c46d43; opacity: 0.2; transparent: true; side: double" />
       </a-entity>
       <a-light type="hemisphere" color="#bfd1f0" ground-color="#5b3030" intensity="1.3" />
       <a-light type="directional" color="#ffd6a0" intensity="1.4" position="-30 28 25" />
@@ -467,12 +504,16 @@ export default function App(): JSX.Element {
       <div id="score-ui"><small>OPERATION / RED HORIZON</small><div>{fullMode ? 'BRIDGEHEAD RUN' : ipadMode ? 'IPAD TOUCH STAGE' : surveyMode ? 'FULL LEVEL · SURVEY' : ridgeMode ? 'RIDGE RUN' : <>WAVE <span id="level-value">1</span> / 3</>}</div><div>SCORE <span id="score-value">0</span></div><div>HOSTILES <span id="enemies-value">0</span></div><div id="combo-value">CHAIN ×1</div></div>
       {surveyMode && <div className="ridge-objective"><strong>Whole-level survey · no terrain collision or combat</strong><small>{streamInfo} · {telemetry}</small></div>}
       {(ridgeMode || fullMode || ipadMode) && <div className="ridge-objective"><strong>{objective}</strong><small>{routeBonus}</small></div>}
-      {(fullMode || ipadMode) && <div className="objective-targets">{targetReadouts.map(item => <div key={item.label} className={`objective-target ${item.offscreen ? 'offscreen' : ''}`} style={{left:`${item.left}%`,top:`${item.top}%`}}><b>{item.offscreen ? '◆ ' : ''}{item.label}</b><span>{Math.round(item.distance)}m · {item.altitude>=0?'+':''}{Math.round(item.altitude)}m ALT{item.approach ? ` · ${item.approach}` : ''}</span>{item.label==='EXTRACTION' && <i><em style={{width:`${Math.round(objectiveProgress*100)}%`}} /></i>}</div>)}</div>}
+      {(ridgeMode || fullMode || ipadMode) && <div className="objective-targets">{targetReadouts.map(item => <div key={item.label} className={`objective-target ${item.offscreen ? 'offscreen' : ''}`} style={{left:`${item.left}%`,top:`${item.top}%`}}><b>{item.offscreen ? '◆ ' : ''}{item.label}</b><span>{Math.round(item.distance)}m · {item.altitude>=0?'+':''}{Math.round(item.altitude)}m ALT{item.approach ? ` · ${item.approach}` : ''}</span>{item.label==='EXTRACTION' && <i><em style={{width:`${Math.round(objectiveProgress*100)}%`}} /></i>}</div>)}</div>}
       <div className="flight-readout"><span id="speed-value">0</span> M/S <b> / </b><span id="altitude-value">0</span> M ALT</div>
       <div className="hull-label">HULL INTEGRITY</div><div id="health-display"><div id="health-bar" /></div>
       <div id="ammo-display">30 / ∞</div>
       {fullMode ? <RouteMap {...mapPilot} /> : <div className="radar" aria-label={`${radar.length} radar contacts`}><small>HOSTILES</small><i className="radar-player" />{radar.map((contact,i) => <span key={i} style={{left:`${contact.x}%`,top:`${contact.y}%`}} />)}</div>}
       <div className="boost-meter" aria-label="Speed indicator"><i /></div>
+      <div className="copilot-hud" aria-live="polite">
+        <span className="copilot-badge">JEV COPILOT</span>
+        <span className="copilot-text">{copilotAdvice}</span>
+      </div>
       <div className="controls-hint">{ipadMode ? 'Touch pads: move + aim · buttons: altitude, boost, fire, reload' : 'WASD fly · E / Q altitude · Shift boost · Captured: move mouse · Drag: right-look / left-aim+fire · Esc pause'}</div>
       {!paused && <div className="mission-toast" role="status">{message}</div>}
     </div>
@@ -482,7 +523,23 @@ export default function App(): JSX.Element {
       <div className="eyebrow">MARS / FLIGHT DIVISION <span>PLAYABLE PROTOTYPE 01</span></div>
       <p className="coordinates">25.4° N &nbsp; 137.8° E &nbsp; / &nbsp; SIGNAL ACTIVE</p>
       <h1>{result ? (result.won ? 'SECTOR\nSECURED.' : 'SIGNAL\nLOST.') : paused && started ? 'HOLD\nPOSITION.' : 'RED\nHORIZON.'}</h1>
-      <p className="menu-description">{result ? `Score ${result.score} · Best ${result.best} · ${(ridgeMode || fullMode || ipadMode) ? `${result.route || 'No'} route · ${result.seconds}s · ${result.shots || 0} shots · ${result.hullLost || 0} hull lost · ${result.chargesSpent || 0} charges spent` : `Wave ${result.level}/3`}` : fullMode ? 'Choose charged fire or a shield. Cross the chasm, bait the enemy aim lock, then strike while its armor is open. Reach the extraction platform.' : ipadMode ? 'A fast-loading touch-control proving ground for iPad. Fly through a charge or shield gate, defeat one Warden, then extract.' : surveyMode ? 'Explore the complete original level layout. Coarse terrain stays visible while nearby high-detail regions stream on demand. This editor survey has no collision or combat.' : ridgeMode ? 'A short route experiment. Boost through the high cyan gate for three double-damage shots, or take the low amber gate for 30 shield. Defeat the Warden, then hold inside the gold extraction ring.' : 'Pilot a combat jetbike over the red frontier. Clear three waves. Chain eliminations within six seconds to multiply your score.'}</p>
+      {result && (() => {
+        const rankInfo = computeSortieRank(result);
+        return (
+          <div className="arcade-rank-badge" style={{ borderColor: rankInfo.color }}>
+            <div className="rank-letter" style={{ color: rankInfo.color }}>{rankInfo.rank}</div>
+            <div className="rank-meta">
+              <div className="rank-title" style={{ color: rankInfo.color }}>{rankInfo.title}</div>
+              <div className="rank-stats">
+                <span>TIME {result.seconds}s</span>
+                <span>HULL -{result.hullLost || 0}</span>
+                <span>SHOTS {result.shots || 0}</span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+      <p className="menu-description">{result ? `Score ${result.score} · Best ${result.best} · ${(ridgeMode || fullMode || ipadMode) ? `${result.route || 'No'} route · ${result.seconds}s · ${result.shots || 0} shots · ${result.hullLost || 0} hull lost · ${result.chargesSpent || 0} charges spent` : `Wave ${result.level}/3`}` : fullMode ? 'Choose charged fire or a shield. Cross the chasm, bait the enemy aim lock, then strike while its armor is open. Reach the extraction platform.' : ipadMode ? 'A fast-loading touch-control proving ground for iPad. Fly through a charge or shield gate, defeat one Warden, then extract.' : surveyMode ? 'Explore the complete original level layout. Coarse terrain stays visible while nearby high-detail regions stream on demand. This editor survey has no collision or combat.' : ridgeMode ? 'A short route experiment. Boost through the high cyan gate for three double-damage shots, or take the low emerald gate for 30 shield. Defeat the Warden, then hold inside the gold extraction ring.' : 'Pilot a combat jetbike over the red frontier. Clear three waves. Chain eliminations within six seconds to multiply your score.'}</p>
       <div className="mission-details"><div><small>MISSION</small><strong>{fullMode ? 'Bridgehead Run' : ipadMode ? 'iPad Touch Stage' : surveyMode ? 'Full-level survey' : ridgeMode ? 'Ridge Run' : 'Three-wave sortie'}</strong></div><div><small>LOADOUT</small><strong>Twin pulse cannon</strong></div><div><small>FLIGHT</small><strong>{ipadMode ? 'Touch controls' : 'Mouse + keyboard'}</strong></div></div>
       {!started && <a className="mode-link" href={ridgeMode ? './?arena' : './?ridge-run'}>{ridgeMode ? 'Switch to three-wave combat' : 'Fly Ridge Run'}</a>}
       {!started && !ipadMode && <a className="mode-link" href="./?ipad-stage">Open iPad touch stage</a>}
