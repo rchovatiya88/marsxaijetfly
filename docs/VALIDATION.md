@@ -1,5 +1,23 @@
 # Validation record
 
+## iPad touch-stage prototype — September 15, 2026
+
+A new lightweight iPad testing scene is available at `?ipad-stage`. It deliberately avoids the full city stream and uses the existing procedural arena, A-Frame scene owner, shared Three runtime, `fly-controls` controller, weapon component, enemy component and result lifecycle. The goal is a fast mobile/touch playability surface, not a premium-content replacement.
+
+- `src/mission/ipad-stage.ts` defines the stage speed, chase camera, cyan charge gate, amber shield gate, Warden point and extraction point.
+- `src/components/ipad-stage-run.ts` implements a short loop: launch, fly through one gate, receive either four charged shots or 45 shield, defeat one Warden, then hold in the extraction ring.
+- `src/flight-input.ts` now samples a browser touch-flight state through the same adapter path used by gamepad input. `fly-controls` remains the only movement/look owner.
+- `src/App.tsx` adds the `?ipad-stage` mode, touch-only launch path, projected stage targets, and onscreen touch controls for move, aim, altitude up/down, boost, fire and reload. The controls use `touch-action: none`.
+- Touch aim was repaired after play feedback that aiming was unstable: the AIM pad now publishes drag-relative look deltas instead of a held virtual-stick offset, and `FlightInputAdapter` consumes `lookMode: delta` samples once so `fly-controls` cannot keep rotating while the thumb is held still.
+- September 15 play-first pass, after direct gameplay feedback that aim still felt unreliable: the iPad stage now clamps touch look deltas, moves HUD readouts away from the pads, moves the first gates and Warden into a cleaner lane, weakens the iPad Warden for tutorial pacing, adds iPad-only weapon lock assist for the active Warden, and spawns the extraction ring dynamically ahead of the player after the kill.
+- `src/components/game-manager.ts` now resets, starts, scores and stores best results for `ipad-stage` separately from Ridge, Bridgehead and wave mode.
+- Earlier automated coverage: `npm test` passes **101/101**, including regressions for touch sampling, one-shot touch aim deltas and the iPad stage reward/extraction lifecycle. `npm run typecheck` passes. The September 15 play-first tuning pass intentionally did not rerun `npm test` at the user's request to prioritize visible gameplay and snapshots.
+- `npm run build` passes. Latest production bundle from the completed play-first pass: `dist/assets/index-DwKbeEIz.js`.
+- Production preview smoke at `http://127.0.0.1:4178/?ipad-stage&playtest` loaded the stage menu, launched the touch stage, showed live HUD, CHARGE/SHIELD target labels, onscreen MOVE/AIM pads and UP/DOWN/BOOST/FIRE/RELOAD buttons. Browser console warnings/errors were empty. The smoke screenshot showed **44 draws / 37,326 triangles / 45 geometries** in the playtest build. The final preview also verified `http://127.0.0.1:4178/ipad-stage`, root-relative mode links from that path, and LAN access at `http://192.168.4.53:4179/ipad-stage` with A-Frame's HTTPS/device-sensor prompt disabled for flat iPad testing. A follow-up smoke on the repaired bundle used fresh preview `http://127.0.0.1:4180/ipad-stage`, launched the touch stage, showed the HUD/gates/MOVE/AIM/buttons, and captured zero browser warnings/errors.
+- Browser playthrough on the rebuilt `http://127.0.0.1:4180/ipad-stage?play-v10` used the visible touch controls only: launched from the menu, flew through the shield gate, killed the Warden from a deliberately imperfect off-left aim angle, spawned the extraction ring directly ahead, flew into it and reached the **SECTOR SECURED** result. Result snapshot: score **1603**, shield route, **20s**, **6 shots**, **0 hull lost**, **0 charges spent**. Browser console warnings/errors were empty.
+
+Remaining gaps: this is not real iPad/Safari evidence. Touch controls and full route completion were visually verified in the in-app browser, but no physical iPad, mobile Safari gesture behavior, external-device networking, audio audition or foreground mobile performance has been certified. The browser evaluate sandbox still cannot reliably read A-Frame component expandos, so live smoke relies on visible HUD/AX state, screenshots, browser logs and earlier unit tests.
+
 ## Premium concept image set — September 15, 2026
 
 A four-plate premium concept set was generated from the real Twin Bridge Blender reference images using the built-in ImageGen workflow. The images are saved as remote-viewable JPGs in `docs/images/`, with project PNG copies under ignored `art/concepts/red-horizon-premium/` and prompt/provenance metadata in `art/concepts/red-horizon-premium/manifest.json`.

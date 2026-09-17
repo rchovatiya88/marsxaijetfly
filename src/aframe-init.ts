@@ -3,6 +3,7 @@
 import './components/mars-environment';
 import './components/hero-model';
 import './components/ridge-run';
+import './components/ipad-stage-run';
 import './components/bridgehead-run';
 import './components/bridgehead-art';
 

@@ -359,6 +359,8 @@ Every agent working on this project should:
 7. Record observed facts, not assumptions, in `docs/VALIDATION.md` and the next task in `docs/PROJECT_MEMORY.md`.
 8. Leave a reproducible command, screenshot/clip description or fixture for the next agent.
 
+Current capability note: direct Blender MCP is preferred for connected Blender scene inspection and non-destructive edits. Game Development Studio remains useful for routing, but `game-dev` was not available on PATH on 2026-09-17, so sealed bundles/captures require a later CLI check. Installed Orc skills from `TheOrcDev/skills` are available for reference packs, model cleanup, creature/humanoid animation, rigging and plan slicing; use them only when that specific workflow is active.
+
 ### Agent task queue
 
 #### A. Asset pipeline agent

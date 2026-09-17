@@ -16,6 +16,11 @@ type GamepadLike = {
 type FlightInputOptions = {
   deadzone?: number;
   getGamepads?: () => ArrayLike<GamepadLike | null> | null | undefined;
+  getTouchFlight?: () => TouchFlightLike | null | undefined;
+};
+
+type TouchFlightLike = Partial<FlightInputSample> & {
+  lookMode?: 'axis' | 'delta';
 };
 
 const ZERO_SAMPLE: FlightInputSample = Object.freeze({
@@ -55,13 +60,17 @@ function normalizeMove(move: { x: number; y: number; z: number }): { x: number; 
 export class FlightInputAdapter {
   private readonly deadzone: number;
   private readonly getGamepads?: () => ArrayLike<GamepadLike | null> | null | undefined;
+  private readonly getTouchFlight?: () => TouchFlightLike | null | undefined;
 
   constructor(options: FlightInputOptions = {}) {
     this.deadzone = Math.max(0, Math.min(0.75, options.deadzone ?? 0.18));
     this.getGamepads = options.getGamepads;
+    this.getTouchFlight = options.getTouchFlight;
   }
 
   sampleGamepad(): FlightInputSample {
+    const touch = this.sampleTouch();
+    if (touch.active) return touch;
     const pads = this.getGamepads?.();
     if (!pads) return ZERO_SAMPLE;
     for (let i = 0; i < pads.length; i++) {
@@ -84,11 +93,34 @@ export class FlightInputAdapter {
     }
     return ZERO_SAMPLE;
   }
+
+  private sampleTouch(): FlightInputSample {
+    const touch = this.getTouchFlight?.();
+    if (!touch) return ZERO_SAMPLE;
+    const move = normalizeMove({
+      x: axis(touch.move?.x, 0),
+      y: axis(touch.move?.y, 0),
+      z: axis(touch.move?.z, 0),
+    });
+    const look = {
+      x: axis(touch.look?.x, 0),
+      y: axis(touch.look?.y, 0),
+    };
+    const boost = !!touch.boost;
+    const active = !!touch.active || boost || Math.hypot(move.x, move.y, move.z, look.x, look.y) > 0;
+    if (touch.lookMode === 'delta' && touch.look) {
+      touch.look.x = 0;
+      touch.look.y = 0;
+      touch.active = boost || Math.hypot(move.x, move.y, move.z) > 0;
+    }
+    return active ? { active, move, look, boost } : ZERO_SAMPLE;
+  }
 }
 
 export function createBrowserFlightInputAdapter(globalObject: any = globalThis): FlightInputAdapter {
   const navigatorObject = globalObject?.navigator;
   return new FlightInputAdapter({
     getGamepads: typeof navigatorObject?.getGamepads === 'function' ? () => navigatorObject.getGamepads() : undefined,
+    getTouchFlight: () => globalObject?.__RED_HORIZON_TOUCH_FLIGHT__,
   });
 }

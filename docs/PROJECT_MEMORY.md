@@ -1,5 +1,25 @@
 # Project memory
 
+## Capability routing update -- September 17, 2026
+
+Codex has direct Blender MCP tools available when Blender is running with the MCP add-on enabled. Use them for scene inspection, screenshots, path/scale checks and cautious non-destructive Blender edits; inspect the scene before changing it and do not overwrite supplied GLBs.
+
+The Game Development Studio skill is installed, but the local `game-dev` CLI is currently not on PATH (`game-dev --version` failed). Treat Game Development Studio as routing guidance until the CLI is installed/configured; do not claim sealed game-dev bundles, captures or performance receipts without actual `game-dev` output.
+
+Installed additional skills from `TheOrcDev/skills` for future turns: `game-art-reference-packs`, `game-model-cleanup`, `creature-animation`, `humanoid-animation`, `rig-it` and `cut-it`. Use them selectively: references for four-view/source-lineage work, cleanup for GLB repair/budgeting, animation/rig skills for Warden/AVI/bike rider motion, and `cut-it` to split the premium plan into bounded agent-sized commits. Skipped Meshy/provider and Unity-heavy workflows for now because Red Horizon's active runtime is A-Frame/Three and provider credentials/storefront actions were not requested.
+
+## Current iPad touch-stage prototype — September 15, 2026
+
+`?ipad-stage` is now a fast-loading procedural test stage for iPad/mobile control feel. It keeps A-Frame as scene owner and `fly-controls` as the only movement/look controller. The new stage does not load the full city: it shows two large arena gates, lets the player choose charge or shield, spawns one Warden, then opens a gold extraction ring. It is intentionally a mobile playability surface, not the premium Twin Bridge replacement.
+
+Implementation touchpoints: `src/mission/ipad-stage.ts`, `src/components/ipad-stage-run.ts`, `src/flight-input.ts`, `src/App.tsx`, `src/App.css`, `src/components/game-manager.ts` and `src/aframe-init.ts`. Touch controls publish to `window.__RED_HORIZON_TOUCH_FLIGHT__`, which `FlightInputAdapter` samples through the same path as gamepad input. Fire/reload buttons call the existing weapon component.
+
+Touch aim repair: after play feedback that aiming was all over the place, the AIM pad now behaves as drag-relative aim rather than a held off-center stick. It publishes `lookMode: delta`, and `FlightInputAdapter` consumes each touch look delta once so a stationary thumb cannot keep spinning the camera through `fly-controls`. A later browser play pass added iPad-only Warden lock assist, calmer clamped touch-look deltas, mobile HUD spacing, easier tutorial Warden tuning and dynamic extraction spawning ahead of the player after the kill.
+
+Verification: earlier automated coverage has `npm test` **101/101**, `npm run typecheck` pass, and `npm run build` pass with `dist/assets/index-DrSPPnO6.js` after rerunning build outside the restricted sandbox. Production preview at `http://127.0.0.1:4178/?ipad-stage&playtest` launched and showed live HUD, CHARGE/SHIELD projected targets, MOVE/AIM pads and UP/DOWN/BOOST/FIRE/RELOAD buttons with no captured console warnings/errors. The playtest screenshot showed 44 draws / 37,326 triangles / 45 geometries. The final preview also verified `http://127.0.0.1:4178/ipad-stage`, root-relative mode links from that path, and LAN access at `http://192.168.4.53:4179/ipad-stage` with A-Frame's HTTPS/device-sensor prompt disabled for flat iPad testing. The repaired aim bundle was smoke-tested at `http://127.0.0.1:4180/ipad-stage`: launch reached the HUD/gates/MOVE/AIM/buttons, and captured browser warnings/errors were empty. The September 15 play-first pass intentionally did not rerun `npm test` at the user's request; `npm run build` passed with `dist/assets/index-DwKbeEIz.js`. A fresh in-app browser run at `http://127.0.0.1:4180/ipad-stage?play-v10` completed the visible-touch route: shield gate, loose-aim Warden kill, dynamic extraction and **SECTOR SECURED** result, score 1603, shield route, 20s, 6 shots, 0 hull lost, 0 charges spent, with zero browser warnings/errors.
+
+Do not call this iPad-certified yet. It still needs real iPad Safari testing over a reachable LAN/HTTPS URL, audio audition and foreground mobile performance. The in-app browser now proves the built route, UI render and full touch-route completion, not physical-device ergonomics.
+
 ## Latest premium concept art target — September 15, 2026
 
 The latest visual target is the four-plate premium concept set in [RED_HORIZON_PREMIUM_CONCEPT_IMAGES.md](RED_HORIZON_PREMIUM_CONCEPT_IMAGES.md). Review `docs/images/red-horizon-premium-concept-contact.jpg` for the mood board, `docs/images/red-horizon-premium-concept-truth-map.jpg` for the important truth-to-concept comparison and [RED_HORIZON_PREMIUM_CONCEPT_IMAGE_REVIEW.md](RED_HORIZON_PREMIUM_CONCEPT_IMAGE_REVIEW.md) for the studio review score and implementation tasks.

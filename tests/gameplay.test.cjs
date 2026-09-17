@@ -24,6 +24,7 @@ function component(file, name) {
     exports, require: id => {
       if (id === '../arena-world') return loadModule('src/arena-world.ts');
       if (id === '../mission/ridge-run') return loadModule('src/mission/ridge-run.ts');
+      if (id === '../mission/ipad-stage') return loadModule('src/mission/ipad-stage.ts');
       if (id === '../mission/bridgehead-run') return loadModule('src/mission/bridgehead-run.ts');
       if (id === '../mission/player-rig') return loadModule('src/mission/player-rig.ts');
       if (id === '../flight-input') return loadModule('src/flight-input.ts');
@@ -414,6 +415,32 @@ test('Ridge route reward is exclusive and extraction needs Warden defeat plus a 
   }
 });
 
+test('iPad stage uses a forgiving swept gate, touch-stage reward and paused-safe extraction', () => {
+  for (const route of ['charge','shield']) {
+    const {instance:stage,document} = component('src/components/ipad-stage-run.ts','ipad-stage-run');
+    const health={},weapon={},position={x:route==='charge'?-7:7,y:route==='charge'?5.8:3.2,z:6};
+    const player={object3D:{position},components:{'player-component':health}};
+    const events=[];
+    let wins=0,appended=0;
+    const game={gameStarted:true,gameOver:false,elapsed:18000,score:0,showMessage(){},finishMission(won){assert.equal(won,true);wins++;}};
+    stage.el={isPlaying:true,emit(type,detail){events.push({type,detail});},components:{'game-manager':game},querySelectorAll:()=>[],querySelector:id=>id==='#player'?player:id==='#jetbike'?{components:{'weapon-component':weapon}}:{setAttribute(){}},appendChild(el){el.parentNode=this;appended++;}};
+    document.createElement=()=>({setAttribute(){},components:{'enemy-component':{isDead:false}}});
+    stage.init();stage.start();position.z=-12;stage.tick(0,100);
+    assert.equal(stage.stage,'warden');assert.equal(stage.route,route);assert.equal(appended,1);
+    assert.equal(route==='charge'?weapon.chargedShots:health.shield,route==='charge'?4:45);
+    stage.chooseRoute(route==='charge'?'shield':'charge');assert.equal(appended,1);assert.equal(stage.route,route);
+    Object.assign(position,{x:0,y:3.2,z:-42});stage.tick(0,100);assert.equal(wins,0);
+    stage.warden.components['enemy-component'].isDead=true;stage.tick(0,100);
+    assert.equal(stage.stage,'extraction');
+    Object.assign(position,stage.extractionPosition);
+    stage.el.isPlaying=false;for(let i=0;i<12;i++)stage.tick(0,100);assert.equal(stage.extractionTime,0);
+    stage.el.isPlaying=true;for(let i=0;i<6;i++)stage.tick(0,100);assert.equal(wins,0);
+    stage.tick(0,100);assert.equal(wins,1);
+    assert.equal(stage.stage,'complete');assert.ok(game.score>=1200);
+    assert.ok(events.some(event=>event.type==='mission-objective'));
+  }
+});
+
 test('Bridgehead gates use swept +X crossing and route rewards score transparently', () => {
   const {crossesXGate,BRIDGEHEAD_GATES,bridgeheadCompletionScore} = loadModule('src/mission/bridgehead-run.ts');
   const low = BRIDGEHEAD_GATES.find(gate => gate.id === 'low');
@@ -676,6 +703,35 @@ test('flight input adapter maps standard gamepad axes with deadzone, boost and a
   assert.ok(sample.look.y<-.44 && sample.look.y>-.45);
   assert.equal(sample.boost,true);
   pad.axes=[0.02,0.02,0.02,0.02];pad.buttons=[];
+  assert.equal(adapter.sampleGamepad().active,false);
+});
+
+test('flight input adapter accepts touch controls through the same sample path', () => {
+  const {FlightInputAdapter}=loadModule('src/flight-input.ts');
+  let touch={active:true,move:{x:2,y:.4,z:-2},look:{x:.5,y:-.25},boost:true};
+  const adapter=new FlightInputAdapter({getTouchFlight:()=>touch});
+  const sample=adapter.sampleGamepad();
+  assert.equal(sample.active,true);
+  assert.equal(sample.boost,true);
+  assert.ok(sample.move.x>0 && sample.move.x<1);
+  assert.ok(sample.move.z<0 && sample.move.z>-1);
+  assert.ok(Math.hypot(sample.move.x,sample.move.y,sample.move.z)<=1.0000001);
+  assert.equal(sample.look.x,.5);
+  assert.equal(sample.look.y,-.25);
+  touch={active:false,move:{x:0,y:0,z:0},look:{x:0,y:0},boost:false};
+  assert.equal(adapter.sampleGamepad().active,false);
+});
+
+test('touch aim deltas are consumed after one flight sample', () => {
+  const {FlightInputAdapter}=loadModule('src/flight-input.ts');
+  const touch={active:true,move:{x:0,y:0,z:0},look:{x:1,y:-.5},lookMode:'delta',boost:false};
+  const adapter=new FlightInputAdapter({getTouchFlight:()=>touch});
+  const first=adapter.sampleGamepad();
+  assert.equal(first.active,true);
+  assert.equal(first.look.x,1);
+  assert.equal(first.look.y,-.5);
+  assert.equal(touch.look.x,0);
+  assert.equal(touch.look.y,0);
   assert.equal(adapter.sampleGamepad().active,false);
 });
 

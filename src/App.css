@@ -37,6 +37,27 @@
 .boost-meter { position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); width: 220px; height: 5px; background: #1f1719; box-shadow: 0 0 18px #000a; }
 .boost-meter i { display: block; width: calc(38% + var(--speed-intensity) * 62%); height: 100%; background: linear-gradient(90deg,#78ffe1,#fff0a0,#ff8b62); box-shadow: 0 0 18px #78ffe1; transition: width .08s; }
 .controls-hint { position: absolute; bottom: 20px; width: 100%; text-align: center; color: #d4b9a8; font-size: 10px; }
+.touch-flight { position: fixed; inset: 0; z-index: 18; pointer-events: none; touch-action: none; font: 11px monospace; letter-spacing: .08em; }
+.touch-pad { pointer-events: auto; position: absolute; bottom: 24px; width: 148px; height: 148px; border-radius: 50%; border: 1px solid #78ffe188; background: radial-gradient(circle, #78ffe129 0 18%, #071319c9 19% 60%, #0d1118d9 100%); box-shadow: 0 0 22px #000c, inset 0 0 24px #78ffe11c; display: grid; place-items: center; color: #d9fff6; user-select: none; -webkit-user-select: none; touch-action: none; }
+.touch-pad::before { content: ''; width: 54px; height: 54px; border-radius: 50%; border: 1px solid #fff2a688; background: #fff2a61f; box-shadow: 0 0 14px #fff0a04d; }
+.touch-pad span { position: absolute; bottom: -20px; color: #d8c7b5; font-size: 10px; }
+.touch-pad-move { left: 24px; }
+.touch-pad-look { right: 24px; }
+.touch-buttons { position: absolute; pointer-events: none; display: grid; gap: 10px; bottom: 188px; }
+.touch-buttons-left { left: 32px; grid-template-columns: repeat(2, 72px); }
+.touch-buttons-right { right: 32px; grid-template-columns: 82px; }
+.touch-buttons button { pointer-events: auto; min-width: 72px; min-height: 44px; padding: 0 10px; border: 1px solid #fff0a066; background: #141920e6; color: #fff1bf; box-shadow: 0 0 16px #0009, inset 0 0 18px #ffb17412; touch-action: none; }
+.touch-buttons .touch-fire { min-height: 58px; background: #ff8b62; color: #1b1012; border-color: #ffd1a2; }
+.is-touch-stage .flight-readout { top: 24px; right: 24px; }
+.is-touch-stage .hull-label { top: 198px; bottom: auto; left: 32px; }
+.is-touch-stage #health-display { top: 216px; bottom: auto; left: 32px; }
+.is-touch-stage #ammo-display { top: 94px; right: 28px; bottom: auto; min-width: 72px; padding: 6px 10px; text-align: center; font-size: 18px; background: #120f15bb; border-right: 1px solid #ffb17488; }
+.is-touch-stage .radar { top: 142px; right: 30px; bottom: auto; width: 78px; height: 78px; opacity: .9; }
+.is-touch-stage .radar small { display: none; }
+.is-touch-stage .touch-buttons-right { right: 18px; bottom: 176px; }
+.is-touch-stage .touch-buttons-left { left: 18px; bottom: 176px; }
+.is-touch-stage .touch-pad { bottom: 14px; opacity: .9; }
+.is-touch-stage .objective-target { max-width: 160px; font-size: 9px; }
 .mission-toast { position: absolute; top: 25%; width: 100%; text-align: center; font-size: 20px; white-space: pre-line; text-shadow: 0 2px 8px #000; }
 #damage-overlay { position: fixed; inset: 0; z-index: 12; pointer-events: none; transition: background-color .1s; box-shadow: inset 0 0 90px transparent; }
 .menu-shade { position: fixed; inset: 0; z-index: 20; overflow: auto; background: linear-gradient(90deg,#150f19f5 0%,#1a111ade 43%,#25131950 100%); }
@@ -58,6 +79,16 @@ button:disabled { opacity: .45; cursor: wait; }
 .menu-controls { color: #9d8585; font-size: 11px; line-height: 1.8; }
 .reduced-motion .speed-lines, .reduced-motion .cockpit-glass, .reduced-motion .radar::after { animation: none; opacity: .2; }
 @media (max-width: 700px) { h1 { font-size: 56px; } #score-ui { left: 14px; top: 14px; } .flight-readout { right: 14px; top: 14px; } .radar { display: none; } }
+@media (max-width: 700px), (max-height: 720px) {
+  .touch-pad { width: 122px; height: 122px; bottom: 18px; }
+  .touch-pad-move { left: 14px; }
+  .touch-pad-look { right: 14px; }
+  .touch-buttons { bottom: 154px; }
+  .touch-buttons-left { left: 16px; grid-template-columns: repeat(2, 62px); }
+  .touch-buttons-right { right: 16px; }
+  .touch-buttons button { min-width: 62px; min-height: 40px; font-size: 10px; }
+  .touch-buttons .touch-fire { min-height: 52px; }
+}
 @media (max-height: 900px) {
   .mission-menu { padding-top: 20px; padding-bottom: 20px; }
   .coordinates { margin-top: 18px; }

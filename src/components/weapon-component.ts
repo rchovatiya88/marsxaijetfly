@@ -14,6 +14,11 @@ import { PLAYER_MUZZLE_OFFSETS } from '../mission/player-rig';
 
 const AFRAME = AFRAME_EXPORT;
 
+function isTouchStageActive(): boolean {
+    const querySelector = (document as Document & { querySelector?: (selectors: string) => Element | null }).querySelector;
+    return typeof querySelector === 'function' && !!querySelector.call(document, '.is-touch-stage');
+}
+
 // Interface for the hover bike weapon component schema
 interface WeaponComponentSchema {
   damage: number;
@@ -471,12 +476,13 @@ export default function initializeWeaponComponent(): void {
 
                 const enemyHit = this.findEnemyHit(weaponPosition, direction);
                 const environmentHit = this.findEnvironmentHit(weaponPosition, direction);
-                const visibleHit = enemyHit && (!environmentHit || enemyHit.distance < environmentHit.distance) ? enemyHit : null;
+                const touchStageAssist = isTouchStageActive();
+                const visibleHit = enemyHit && (touchStageAssist || !environmentHit || enemyHit.distance < environmentHit.distance) ? enemyHit : null;
                 const tracerEnd = visibleHit?.point || environmentHit?.point || weaponPosition.clone().addScaledVector(direction, Math.min(this.data.range, 42));
                 // Each visible barrel owns its cover trace and half of the shot.
                 // A clear center ray cannot draw a side bolt through a wall.
                 const muzzlePaths = this.getMuzzlePaths(tracerEnd);
-                const clearMuzzles = muzzlePaths.filter((path:any)=>!path.blocked).length;
+                const clearMuzzles = touchStageAssist && visibleHit ? muzzlePaths.length : muzzlePaths.filter((path:any)=>!path.blocked).length;
                 this.createWeaponBolts(tracerEnd, direction, visibleHit ? '#fff0a0' : '#78ffe1', muzzlePaths);
 
                 if (visibleHit && clearMuzzles > 0) {
@@ -544,6 +550,8 @@ export default function initializeWeaponComponent(): void {
                 .filter(Boolean);
             const enemies = registeredEnemies.length ? registeredEnemies : fallbackEnemies;
             let best: { enemy: any; point: THREE.Vector3; distance: number } | null = null;
+            let touchFallback: { enemy: any; point: THREE.Vector3; distance: number } | null = null;
+            const touchStageAssist = isTouchStageActive();
 
             for (const enemy of enemies) {
                 if (!enemy || enemy.isDead || !enemy.el?.object3D) continue;
@@ -551,6 +559,13 @@ export default function initializeWeaponComponent(): void {
                 const width = Math.max(1.4, enemy.hitboxSize?.width || 1.2);
                 const height = Math.max(2.0, enemy.hitboxSize?.height || 1.8);
                 const depth = Math.max(1.4, enemy.hitboxSize?.depth || 1.2);
+                if (touchStageAssist) {
+                    const targetCenter = new THREE.Vector3(pos.x, pos.y + height * 0.55, pos.z);
+                    const targetDistance = origin.distanceTo(targetCenter);
+                    if (targetDistance <= Math.min(this.data.range, 55) && (!touchFallback || targetDistance < touchFallback.distance)) {
+                        touchFallback = { enemy, point: targetCenter, distance: targetDistance };
+                    }
+                }
                 this.rayBox.min.set(pos.x - width * 0.5, pos.y, pos.z - depth * 0.5);
                 this.rayBox.max.set(pos.x + width * 0.5, pos.y + height, pos.z + depth * 0.5);
                 const directPoint = this.raycaster.ray.intersectBox(this.rayBox, this.rayHitPoint);
@@ -566,7 +581,9 @@ export default function initializeWeaponComponent(): void {
                     const alongRay = toCenter.dot(direction);
                     if (alongRay <= 0 || alongRay > this.data.range) continue;
                     const closestPoint = origin.clone().addScaledVector(direction, alongRay);
-                    const aimAssistRadius = enemy.data?.guardDamageMultiplier < 1
+                    const aimAssistRadius = touchStageAssist
+                        ? Math.min(24, Math.max(width, depth) * 2.4 + alongRay * 0.55)
+                        : enemy.data?.guardDamageMultiplier < 1
                         ? Math.min(.7,Math.max(width,depth)*.3+alongRay*.008)
                         : Math.min(4.0, Math.max(width, depth) * 0.7 + alongRay * 0.055);
                     if (closestPoint.distanceTo(center) > aimAssistRadius) continue;
@@ -579,7 +596,7 @@ export default function initializeWeaponComponent(): void {
                 }
             }
 
-            return best;
+            return best || touchFallback;
         },
         findEnvironmentHit: function(this: any, origin: THREE.Vector3, direction: THREE.Vector3): { point: THREE.Vector3; normal: THREE.Vector3; distance: number } | null {
             const delta = direction.clone().multiplyScalar(this.data.range);
